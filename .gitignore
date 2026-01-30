@@ -12,4 +12,15 @@
 /captures
 .externalNativeBuild
 .cxx
-local.properties
+
+# Android Studio 4.0+ specific
+.idea/
+/.idea/*
+!.idea/gradle.xml
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/vcs.xml
+!.idea/codeStyles
+!.idea/runConfigurations
+
+
