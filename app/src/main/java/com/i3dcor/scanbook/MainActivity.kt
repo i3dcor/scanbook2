@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
             ScanBookTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
-                        name = "Android",
+                        name = "Rama camara",
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
