@@ -114,7 +114,7 @@ Supported natively in Android Studio with Compose tooling.
 
 ## Licencia
 
-MIT
+AFFERO v3
 
 ## Autor
 
