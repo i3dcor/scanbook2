@@ -93,7 +93,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                     onItemClick = { /* Navegar al detalle del libro */ },
                     onMoreActionClick = { /* Mostrar menú contextual */ }
                 ) {
-                    Icon(
+                    Icon(//TODO cambiar por portada
                         imageVector = Icons.Default.Book,
                         contentDescription = "Book cover",
                         tint = Color.Gray
