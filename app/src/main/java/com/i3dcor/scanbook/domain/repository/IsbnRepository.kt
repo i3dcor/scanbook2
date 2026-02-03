@@ -9,10 +9,10 @@ import com.i3dcor.scanbook.domain.model.ScannedIsbn
 interface IsbnRepository {
     
     /**
-     * Inserta un ISBN en la base de datos.
-     * Si ya existe, no hace nada (sin duplicados).
+     * Inserta un libro escaneado en la base de datos.
+     * Si el ISBN ya existe, actualiza los datos.
      */
-    fun insert(isbn: String)
+    fun insert(scannedIsbn: ScannedIsbn)
     
     /**
      * Verifica si un ISBN ya existe en la base de datos.
@@ -28,4 +28,10 @@ interface IsbnRepository {
      * Obtiene todos los ISBNs almacenados.
      */
     fun getAll(): List<ScannedIsbn>
+    
+    /**
+     * Obtiene un libro por su ISBN.
+     * Retorna null si no existe.
+     */
+    fun getByIsbn(isbn: String): ScannedIsbn?
 }

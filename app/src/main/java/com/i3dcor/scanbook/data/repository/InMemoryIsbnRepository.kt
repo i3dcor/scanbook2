@@ -11,30 +11,36 @@ import com.i3dcor.scanbook.domain.repository.IsbnRepository
  */
 class InMemoryIsbnRepository : IsbnRepository {
     
-    private val isbnSet = mutableSetOf<String>()
+    private val booksMap = mutableMapOf<String, ScannedIsbn>()
     private val lock = Any()
     
-    override fun insert(isbn: String) {
+    override fun insert(scannedIsbn: ScannedIsbn) {
         synchronized(lock) {
-            isbnSet.add(isbn)
+            booksMap[scannedIsbn.isbn] = scannedIsbn
         }
     }
     
     override fun exists(isbn: String): Boolean {
         synchronized(lock) {
-            return isbnSet.contains(isbn)
+            return booksMap.containsKey(isbn)
         }
     }
     
     override fun delete(isbn: String) {
         synchronized(lock) {
-            isbnSet.remove(isbn)
+            booksMap.remove(isbn)
         }
     }
     
     override fun getAll(): List<ScannedIsbn> {
         synchronized(lock) {
-            return isbnSet.map { ScannedIsbn(it) }
+            return booksMap.values.toList()
+        }
+    }
+    
+    override fun getByIsbn(isbn: String): ScannedIsbn? {
+        synchronized(lock) {
+            return booksMap[isbn]
         }
     }
 }
