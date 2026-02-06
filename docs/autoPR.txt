@@ -11,3 +11,11 @@ Para hacer commit con descripciones generadas por IA con Android Studio
 5.Luego ejecuta el script autopr.sh que genera una PR, sube los cambios hace merge y borra la PR.
 
 
+Para no tener que salir del IDE:
+Abre Android Studio.
+Ve a File > Settings > Tools > External Tools.
+Haz clic en el + para crear una nueva herramienta:
+Name: Auto PR & Merge
+Program: /ruta/a/tu/script/autopr.sh (o /bin/bash y pones el script en argumentos).
+Working directory: $ProjectFileDir$
+Ahora, puedes ejecutar esto desde el menú Tools o asignarle un atajo de teclado (ej. Ctrl + Alt + Shift + P).
