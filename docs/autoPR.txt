@@ -1,0 +1,13 @@
+El script autopr.sh maneja la PR y el Merge. 
+
+Cómo manejar los Commits:
+Para hacer commit con descripciones generadas por IA con Android Studio
+(ya tiene IA integrada para esto)
+
+1.Haz tus cambios.
+2.Presiona Ctrl + K (Commit).
+3.En la ventana de Commit, busca el ícono de "Generate Commit Message with AI" (usualmente un ícono de estrellas o robot cerca del cuadro de texto).
+4.Dale a Commit.
+5.Luego ejecuta el script autopr.sh que genera una PR, sube los cambios hace merge y borra la PR.
+
+
