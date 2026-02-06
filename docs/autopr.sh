@@ -24,13 +24,14 @@ sleep 2
 gh.arch pr merge --merge --delete-branch --auto
 
 # 5. Volver a main y actualizar
-git.arch checkout main
+git.arch checkout main 2>/dev/null || true
 git.arch pull
 
 # --- NUEVO PASO ---
 # 6. Borrado LOCAL para liberar el nombre
 echo "🧹 Limpiando rama local..."
-git.arch branch -D "$CURRENT_BRANCH"
+# Intentamos borrar la rama, pero si falla (porque ya no existe), no mostramos error.
+git.arch branch -D "$CURRENT_BRANCH" 2>/dev/null || true
 
 echo "🎉 ¡Listo! Rama '$CURRENT_BRANCH' eliminada local y remotamente."
 echo "Puedes volver a crearla con 'git checkout -b $CURRENT_BRANCH' cuando quieras."
