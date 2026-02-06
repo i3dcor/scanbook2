@@ -25,12 +25,29 @@ gh.arch pr merge --merge --delete-branch --auto
 
 # 5. Volver a main y actualizar
 git.arch checkout main
+NEW_BRANCH=$(git.arch branch --show-current | tr -d '\r\n')
+if [ "$NEW_BRANCH" != "main" ]; then
+  echo "❌ No se pudo cambiar a la rama 'main'. Abortando para evitar hacer 'pull' en la rama equivocada."
+  exit 1
+fi
 git.arch pull
 
 # --- NUEVO PASO ---
 # 6. Borrado LOCAL para liberar el nombre
 echo "🧹 Limpiando rama local..."
-git.arch branch -D "$CURRENT_BRANCH"
-
-echo "🎉 ¡Listo! Rama '$CURRENT_BRANCH' eliminada local y remotamente."
+# Solo intentamos borrar si la rama existe, y verificamos no estar en ella.
+if git.arch show-ref --verify --quiet "refs/heads/$CURRENT_BRANCH"; then
+  ACTIVE_BRANCH=$(git.arch branch --show-current | tr -d '\r\n')
+  if [ "$ACTIVE_BRANCH" == "$CURRENT_BRANCH" ]; then
+    echo "❌ No se puede borrar la rama actual '$CURRENT_BRANCH'. Asegúrate de haber hecho 'git.arch checkout main'." >&2
+    exit 1
+  fi
+  git.arch branch -D "$CURRENT_BRANCH"
+  echo "🎉 ¡Listo! Rama '$CURRENT_BRANCH' eliminada local y remotamente."
+else
+  echo "ℹ️ La rama local '$CURRENT_BRANCH' ya estaba eliminada; nada que limpiar."
+fi
 echo "Puedes volver a crearla con 'git checkout -b $CURRENT_BRANCH' cuando quieras."
+
+
+
