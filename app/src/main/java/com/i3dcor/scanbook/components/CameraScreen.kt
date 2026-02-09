@@ -18,7 +18,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -43,7 +49,10 @@ import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
 
 @Composable
-fun CameraScreen() {
+fun CameraScreen(
+    onDismiss: () -> Unit,
+    onBarcodeScanned: (String) -> Unit = {}
+) {
     val context = LocalContext.current
     var hasCameraPermission by remember {
         mutableStateOf(
@@ -66,15 +75,38 @@ fun CameraScreen() {
         }
     }
 
-    if (hasCameraPermission) {
-        BarcodeScannerScreen()
-    } else {
-        PermissionDeniedMessage()
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (hasCameraPermission) {
+            BarcodeScannerScreen(onBarcodeScanned = onBarcodeScanned)
+        } else {
+            PermissionDeniedMessage()
+        }
+
+        // Botón de cerrar
+        IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+                .size(48.dp)
+                .background(
+                    color = Color.Black.copy(alpha = 0.5f),
+                    shape = CircleShape
+                )
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = "Cerrar",
+                tint = Color.White
+            )
+        }
     }
 }
 
 @Composable
-private fun BarcodeScannerScreen() {
+private fun BarcodeScannerScreen(
+    onBarcodeScanned: (String) -> Unit
+) {
     var scannedBarcode by remember { mutableStateOf<String?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -82,6 +114,7 @@ private fun BarcodeScannerScreen() {
             onBarcodeDetected = { barcode ->
                 if (scannedBarcode != barcode) {
                     scannedBarcode = barcode
+                    onBarcodeScanned(barcode)
                 }
             }
         )
