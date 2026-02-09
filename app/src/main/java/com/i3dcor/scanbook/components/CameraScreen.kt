@@ -1,4 +1,4 @@
-package com.i3dcor.scanbook.presentation.camera
+package com.i3dcor.scanbook.components
 
 import android.Manifest
 import android.content.pm.PackageManager
