@@ -29,10 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.HomeSearchBar
-import androidx.compose.foundation.layout.Box
-import com.i3dcor.scanbook.presentation.camera.CameraScreen
-import androidx.compose.foundation.layout.Box
-import com.i3dcor.scanbook.presentation.camera.CameraScreen
+
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 class MainActivity : ComponentActivity() {
