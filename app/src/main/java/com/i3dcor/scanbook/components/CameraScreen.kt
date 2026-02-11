@@ -7,6 +7,7 @@ import android.media.ToneGenerator
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -30,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.FlashOff
 import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Keyboard
 import androidx.compose.material3.Button
@@ -98,6 +100,7 @@ private fun processImageProxy(
 @androidx.annotation.OptIn(ExperimentalGetImage::class)
 @Composable
 private fun CameraPreviewView(
+    isFlashEnabled: Boolean,
     onBarcodeDetected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -106,6 +109,16 @@ private fun CameraPreviewView(
 
     // Estado para evitar múltiples detecciones del mismo código
     var lastScannedIsbn by remember { mutableStateOf<String?>(null) }
+    
+    // Referencia a la cámara para controlar el flash
+    var camera by remember { mutableStateOf<Camera?>(null) }
+    
+    // Controlar el flash cuando cambie el estado
+    LaunchedEffect(isFlashEnabled) {
+        //TODO limitar el tiempo que dura el flash encendido
+        //TODO apagar el flash al salir de la pantalla de la cámara
+        camera?.cameraControl?.enableTorch(isFlashEnabled)
+    }
 
     AndroidView(
         factory = { ctx ->
@@ -154,12 +167,14 @@ private fun CameraPreviewView(
 
                 try {
                     cameraProvider.unbindAll()
-                    cameraProvider.bindToLifecycle(
+                    camera = cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
                         preview,
                         imageAnalysis
                     )
+                    // Aplicar estado inicial del flash
+                    camera?.cameraControl?.enableTorch(isFlashEnabled)
                 } catch (e: Exception) {
                     Log.e("CameraPreview", "Camera binding failed", e)
                 }
@@ -184,6 +199,9 @@ fun CameraScreen(
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
+    
+    // Estado del flash
+    var isFlashEnabled by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -205,6 +223,7 @@ fun CameraScreen(
         // Camera Preview
         if (hasCameraPermission) {
             CameraPreviewView(
+                isFlashEnabled = isFlashEnabled,
                 onBarcodeDetected = onIsbnDetected,
                 modifier = Modifier.fillMaxSize()
             )
@@ -243,13 +262,13 @@ fun CameraScreen(
             }
 
             IconButton(
-                onClick = { /* Toggle Flash */ },
+                onClick = { isFlashEnabled = !isFlashEnabled },
                 modifier = Modifier
                     .background(Color.Black.copy(alpha = 0.5f), CircleShape)
             ) {
                 Icon(
-                    imageVector = Icons.Default.FlashOn,
-                    contentDescription = "Flash",
+                    imageVector = if (isFlashEnabled) Icons.Default.FlashOn else Icons.Default.FlashOff,
+                    contentDescription = if (isFlashEnabled) "Flash On" else "Flash Off",
                     tint = Color.White
                 )
             }
