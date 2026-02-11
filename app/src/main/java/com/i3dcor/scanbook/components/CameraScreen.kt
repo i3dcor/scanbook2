@@ -208,7 +208,7 @@ private fun ScannerOverlay(
     cornerRadius: Float,
     modifier: Modifier = Modifier
 ) {
-    val overlayColor = Color.Black.copy(alpha = 0.25f)
+    val overlayColor = Color.Black.copy(alpha = 0.5f)
     val frameColor = Color(0xFF4285F4)
     val strokeWidth = 4.dp
 
