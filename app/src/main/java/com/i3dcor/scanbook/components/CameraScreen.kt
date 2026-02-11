@@ -16,6 +16,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -49,8 +50,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 import androidx.compose.ui.unit.dp
@@ -190,6 +198,58 @@ private fun CameraPreviewView(
     )
 }
 
+/**
+ * Overlay que oscurece la pantalla excepto el área de escaneo
+ */
+@Composable
+private fun ScannerOverlay(
+    scanFrameWidth: Float,
+    scanFrameHeight: Float,
+    cornerRadius: Float,
+    modifier: Modifier = Modifier
+) {
+    val overlayColor = Color.Black.copy(alpha = 0.25f)
+    val frameColor = Color(0xFF4285F4)
+    val strokeWidth = 4.dp
+
+    Canvas(
+        modifier = modifier
+            .fillMaxSize()
+            .graphicsLayer { 
+                // Necesario para que BlendMode.Clear funcione
+                alpha = 0.99f 
+            }
+    ) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+
+        // Posición del recuadro centrado
+        val frameLeft = (canvasWidth - scanFrameWidth) / 2
+        val frameTop = (canvasHeight - scanFrameHeight) / 2
+
+        // Dibujar overlay oscuro en toda la pantalla
+        drawRect(color = overlayColor)
+
+        // Recortar el área del recuadro (hacerla transparente)
+        drawRoundRect(
+            color = Color.Transparent,
+            topLeft = Offset(frameLeft, frameTop),
+            size = Size(scanFrameWidth, scanFrameHeight),
+            cornerRadius = CornerRadius(cornerRadius, cornerRadius),
+            blendMode = BlendMode.Clear
+        )
+
+        // Dibujar el borde del recuadro
+        drawRoundRect(
+            color = frameColor,
+            topLeft = Offset(frameLeft, frameTop),
+            size = Size(scanFrameWidth, scanFrameHeight),
+            cornerRadius = CornerRadius(cornerRadius, cornerRadius),
+            style = Stroke(width = strokeWidth.toPx())
+        )
+    }
+}
+
 @Composable
 fun CameraScreen(
     onBackClick: () -> Unit,
@@ -286,12 +346,16 @@ fun CameraScreen(
             }
         }
 
-        // Center Scanning Frame
-        Box(
-            modifier = Modifier
-                .size(300.dp, 200.dp)
-                .align(Alignment.Center)
-                .border(4.dp, Color(0xFF4285F4), RoundedCornerShape(16.dp))
+        // Scanner overlay con oscurecimiento y recuadro de escaneo
+        val density = LocalDensity.current
+        val scanFrameWidthPx = with(density) { 300.dp.toPx() }
+        val scanFrameHeightPx = with(density) { 200.dp.toPx() }
+        val cornerRadiusPx = with(density) { 16.dp.toPx() }
+        
+        ScannerOverlay(
+            scanFrameWidth = scanFrameWidthPx,
+            scanFrameHeight = scanFrameHeightPx,
+            cornerRadius = cornerRadiusPx
         )
 
         // Bottom Section (Text and Button)
