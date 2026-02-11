@@ -26,6 +26,16 @@ Documento central de reglas que Claude debe consultar **siempre** antes de reali
 
 ---
 
+### 2. Navegación con botón atrás de Android
+
+**Obligación**: Al pulsar el botón atrás del sistema Android:
+- Si hay pantallas en la pila de navegación: navegar a la pantalla anterior
+- Si es la pantalla principal (Home): salir de la aplicación
+
+**Implementación**: Usar `BackHandler` de Compose o el comportamiento por defecto de la Activity según corresponda.
+
+---
+
 ## Cómo añadir nuevas reglas
 
 Añadir una nueva sección bajo "Reglas activas" con:

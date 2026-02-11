@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -40,6 +41,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -115,9 +117,14 @@ private fun CameraPreviewView(
     
     // Controlar el flash cuando cambie el estado
     LaunchedEffect(isFlashEnabled) {
-        //TODO limitar el tiempo que dura el flash encendido
-        //TODO apagar el flash al salir de la pantalla de la cámara
         camera?.cameraControl?.enableTorch(isFlashEnabled)
+    }
+    
+    // Apagar el flash al salir de la pantalla
+    DisposableEffect(Unit) {
+        onDispose {
+            camera?.cameraControl?.enableTorch(false)
+        }
     }
 
     AndroidView(
@@ -213,6 +220,11 @@ fun CameraScreen(
         if (!hasCameraPermission) {
             permissionLauncher.launch(Manifest.permission.CAMERA)
         }
+    }
+    
+    // Manejar botón atrás del sistema Android
+    BackHandler {
+        onBackClick()
     }
 
     Box(
