@@ -1,6 +1,7 @@
 package com.i3dcor.scanbook
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -58,11 +59,18 @@ data class Book(val id: String, val title: String, val author: String)
 fun ScanBookApp(modifier: Modifier = Modifier) {
     // Estado para controlar la navegación entre pantallas
     var showCameraScreen by remember { mutableStateOf(false) }
+    // Estado para almacenar el último ISBN detectado
+    var lastDetectedIsbn by remember { mutableStateOf<String?>(null) }
 
     if (showCameraScreen) {
         CameraScreen(
             onBackClick = { showCameraScreen = false },
             onManualInputClick = { /* TODO: Implement manual input */ },
+            onIsbnDetected = { isbn ->
+                Log.d("ScanBook", "ISBN detected: $isbn")
+                lastDetectedIsbn = isbn
+                showCameraScreen = false
+            },
             modifier = modifier
         )
     } else {

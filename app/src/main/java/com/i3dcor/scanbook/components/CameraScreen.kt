@@ -2,10 +2,15 @@ package com.i3dcor.scanbook.components
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.AudioManager
+import android.media.ToneGenerator
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -49,11 +54,58 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.Executors
 
+@androidx.annotation.OptIn(ExperimentalGetImage::class)
+private fun processImageProxy(
+    scanner: com.google.mlkit.vision.barcode.BarcodeScanner,
+    imageProxy: ImageProxy,
+    onIsbnFound: (String) -> Unit
+) {
+    val mediaImage = imageProxy.image
+    if (mediaImage != null) {
+        val inputImage = InputImage.fromMediaImage(
+            mediaImage,
+            imageProxy.imageInfo.rotationDegrees
+        )
+
+        scanner.process(inputImage)
+            .addOnSuccessListener { barcodes ->
+                for (barcode in barcodes) {
+                    // ISBN usa formato EAN-13
+                    if (barcode.format == Barcode.FORMAT_EAN_13) {
+                        barcode.rawValue?.let { value ->
+                            // ISBN-13 empieza con 978 o 979
+                            if (value.startsWith("978") || value.startsWith("979")) {
+                                onIsbnFound(value)
+                                return@addOnSuccessListener
+                            }
+                        }
+                    }
+                }
+            }
+            .addOnCompleteListener {
+                imageProxy.close()
+            }
+    } else {
+        imageProxy.close()
+    }
+}
+
+@androidx.annotation.OptIn(ExperimentalGetImage::class)
 @Composable
-private fun CameraPreviewView(modifier: Modifier = Modifier) {
+private fun CameraPreviewView(
+    onBarcodeDetected: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
+    // Estado para evitar múltiples detecciones del mismo código
+    var lastScannedIsbn by remember { mutableStateOf<String?>(null) }
 
     AndroidView(
         factory = { ctx ->
@@ -74,12 +126,39 @@ private fun CameraPreviewView(modifier: Modifier = Modifier) {
 
                 val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+                // ImageAnalysis para escanear códigos de barras
+                val imageAnalysis = ImageAnalysis.Builder()
+                    .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                    .build()
+
+                val scanner = BarcodeScanning.getClient()
+                val executor = Executors.newSingleThreadExecutor()
+
+                imageAnalysis.setAnalyzer(executor) { imageProxy ->
+                    processImageProxy(scanner, imageProxy) { isbn ->
+                        if (isbn != lastScannedIsbn) {
+                            lastScannedIsbn = isbn
+                            // Reproducir pitido de confirmación
+                            try {
+                                val toneGen = ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
+                                toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
+                                toneGen.release()
+                            } catch (e: Exception) {
+                                Log.e("CameraPreview", "Error playing beep", e)
+                            }
+                            // Notificar ISBN detectado
+                            onBarcodeDetected(isbn)
+                        }
+                    }
+                }
+
                 try {
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(
                         lifecycleOwner,
                         cameraSelector,
-                        preview
+                        preview,
+                        imageAnalysis
                     )
                 } catch (e: Exception) {
                     Log.e("CameraPreview", "Camera binding failed", e)
@@ -93,6 +172,7 @@ private fun CameraPreviewView(modifier: Modifier = Modifier) {
 fun CameraScreen(
     onBackClick: () -> Unit,
     onManualInputClick: () -> Unit,
+    onIsbnDetected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -124,7 +204,10 @@ fun CameraScreen(
     ) {
         // Camera Preview
         if (hasCameraPermission) {
-            CameraPreviewView(modifier = Modifier.fillMaxSize())
+            CameraPreviewView(
+                onBarcodeDetected = onIsbnDetected,
+                modifier = Modifier.fillMaxSize()
+            )
         } else {
             Box(
                 modifier = Modifier
@@ -231,6 +314,7 @@ fun CameraScreen(
 fun CameraScreenPreview() {
     CameraScreen(
         onBackClick = {},
-        onManualInputClick = {}
+        onManualInputClick = {},
+        onIsbnDetected = {}
     )
 }
