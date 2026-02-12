@@ -14,6 +14,9 @@ materialIconsExtended = "1.7.8"
 retrofit = "2.9.0"
 coil = "2.5.0"
 okhttp = "4.12.0"
+mockk = "1.13.8"
+coroutinesTest = "1.7.3"
+turbine = "1.0.0"
 
 [libraries]
 # ML Kit
@@ -49,6 +52,11 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 
 # OkHttp
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+
+# Testing
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
