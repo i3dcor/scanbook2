@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,7 @@ import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
-import com.i3dcor.scanbook.domain.model.ScannedIsbn
+import com.i3dcor.scanbook.presentation.viewmodel.ScanResultViewModel
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 class MainActivity : ComponentActivity() {
@@ -61,7 +62,7 @@ data class Book(val id: String, val title: String, val author: String)
 private sealed class AppScreen {
     data object Home : AppScreen()
     data object Camera : AppScreen()
-    data class ScanResult(val scannedIsbn: ScannedIsbn) : AppScreen()
+    data class ScanResult(val isbn: String) : AppScreen()
 }
 
 @Composable
@@ -82,16 +83,21 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 onManualInputClick = { /* TODO: Implement manual input */ },
                 onIsbnDetected = { isbn ->
                     Log.d("ScanBook", "ISBN detected: $isbn")
-                    // Crear ScannedIsbn con el ISBN detectado (título y autor vendrán de API en el futuro)
-                    val scannedIsbn = ScannedIsbn(isbn = isbn)
-                    currentScreen = AppScreen.ScanResult(scannedIsbn)
+                    currentScreen = AppScreen.ScanResult(isbn)
                 },
                 modifier = modifier
             )
         }
         is AppScreen.ScanResult -> {
+            // Crear ViewModel con el ISBN detectado
+            // remember con key = isbn para recrear el ViewModel si cambia el ISBN
+            val viewModel = remember(screen.isbn) {
+                ScanResultViewModel(isbn = screen.isbn)
+            }
+            val uiState by viewModel.uiState.collectAsState()
+            
             ScanResultScreen(
-                scannedIsbn = screen.scannedIsbn,
+                uiState = uiState,
                 onBackClick = { currentScreen = AppScreen.Camera },
                 onEditClick = { /* TODO: Implement edit */ },
                 onAddClick = { 

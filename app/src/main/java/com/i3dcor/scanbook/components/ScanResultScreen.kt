@@ -1,6 +1,9 @@
 package com.i3dcor.scanbook.components
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,13 +21,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -33,19 +36,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
+import com.i3dcor.scanbook.presentation.state.ScanResultUiState
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 @Composable
 fun ScanResultScreen(
-    scannedIsbn: ScannedIsbn,
+    uiState: ScanResultUiState,
     onBackClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onAddClick: () -> Unit = {},
@@ -88,20 +96,24 @@ fun ScanResultScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    BookCoverDisplay()
+                    BookCoverDisplay(
+                        coverUrl = uiState.scannedIsbn.coverUrl,
+                        isLoading = uiState.isLoading
+                    )
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     BookTitleAndAuthor(
-                        title = scannedIsbn.title ?: "Unknown Title",
-                        author = scannedIsbn.author ?: "Unknown Author"
+                        title = uiState.scannedIsbn.title,
+                        author = uiState.scannedIsbn.author,
+                        isLoading = uiState.isLoading
                     )
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     BookMetadataRow(
-                        isbn = scannedIsbn.isbn,
-                        genre = scannedIsbn.genre
+                        isbn = uiState.scannedIsbn.isbn,
+                        genre = uiState.scannedIsbn.genre
                     )
                 }
             }
@@ -130,54 +142,132 @@ fun ScanResultHeader() {
 }
 
 @Composable
-fun BookCoverDisplay() {
-    // Placeholder for book cover with gradient background
+fun BookCoverDisplay(
+    coverUrl: String?,
+    isLoading: Boolean
+) {
     Box(
         modifier = Modifier
             .size(width = 160.dp, height = 240.dp)
+            .clip(RoundedCornerShape(12.dp))
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color(0xFF4E4E50),
                         Color(0xFF2C2C2E)
                     )
-                ),
-                shape = RoundedCornerShape(12.dp)
+                )
             ),
         contentAlignment = Alignment.Center
     ) {
-        // Placeholder icon until we have real images
-        Icon(
-            imageVector = Icons.Default.Book,
-            contentDescription = "Book Cover",
-            modifier = Modifier.size(64.dp),
-            tint = Color.Gray
-        )
+        if (coverUrl != null) {
+            // Usar SubcomposeAsyncImage para mostrar loading/error states
+            SubcomposeAsyncImage(
+                model = coverUrl,
+                contentDescription = "Book Cover",
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            color = Color.White,
+                            strokeWidth = 2.dp
+                        )
+                    }
+                },
+                error = {
+                    // Si la imagen falla, mostrar placeholder
+                    Icon(
+                        imageVector = Icons.Default.Book,
+                        contentDescription = "Book Cover",
+                        modifier = Modifier.size(64.dp),
+                        tint = Color.Gray
+                    )
+                }
+            )
+        } else {
+            // Placeholder mientras no hay URL
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(32.dp),
+                    color = Color.White,
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Book,
+                    contentDescription = "Book Cover",
+                    modifier = Modifier.size(64.dp),
+                    tint = Color.Gray
+                )
+            }
+        }
     }
 }
 
 @Composable
 fun BookTitleAndAuthor(
-    title: String,
-    author: String
+    title: String?,
+    author: String?,
+    isLoading: Boolean
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            ),
-            textAlign = TextAlign.Center
-        )
+        AnimatedVisibility(
+            visible = !isLoading || title != null,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Text(
+                text = title ?: "Unknown Title",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                ),
+                textAlign = TextAlign.Center
+            )
+        }
+        
+        if (isLoading && title == null) {
+            // Shimmer placeholder para título
+            Box(
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(28.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFF3A3A3C))
+            )
+        }
+        
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = author,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                color = Color.Gray
-            ),
-            textAlign = TextAlign.Center
-        )
+        
+        AnimatedVisibility(
+            visible = !isLoading || author != null,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Text(
+                text = author ?: "Unknown Author",
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    color = Color.Gray
+                ),
+                textAlign = TextAlign.Center
+            )
+        }
+        
+        if (isLoading && author == null) {
+            // Shimmer placeholder para autor
+            Box(
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(20.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(Color(0xFF3A3A3C))
+            )
+        }
     }
 }
 
@@ -291,12 +381,26 @@ fun ScanResultActions(
 fun ScanResultScreenPreview() {
     ScanBookTheme {
         ScanResultScreen(
-            scannedIsbn = ScannedIsbn(
-                isbn = "9780743273565",
-                title = "The Great Gatsby",
-                author = "F. Scott Fitzgerald",
-                genre = "Fiction"
+            uiState = ScanResultUiState(
+                scannedIsbn = ScannedIsbn(
+                    isbn = "9780743273565",
+                    title = "The Great Gatsby",
+                    author = "F. Scott Fitzgerald",
+                    genre = "Fiction",
+                    coverUrl = null
+                ),
+                isLoading = false
             )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ScanResultScreenLoadingPreview() {
+    ScanBookTheme {
+        ScanResultScreen(
+            uiState = ScanResultUiState.initial("9780743273565")
         )
     }
 }
