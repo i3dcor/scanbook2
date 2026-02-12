@@ -34,6 +34,8 @@ import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
+import com.i3dcor.scanbook.components.ScanResultScreen
+import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 class MainActivity : ComponentActivity() {
@@ -55,29 +57,50 @@ class MainActivity : ComponentActivity() {
 // Para el ejemplo, usamos una data class simple. En la app real, vendría del dominio.
 data class Book(val id: String, val title: String, val author: String)
 
+// Estados de la pantalla principal
+private sealed class AppScreen {
+    data object Home : AppScreen()
+    data object Camera : AppScreen()
+    data class ScanResult(val scannedIsbn: ScannedIsbn) : AppScreen()
+}
+
 @Composable
 fun ScanBookApp(modifier: Modifier = Modifier) {
     // Estado para controlar la navegación entre pantallas
-    var showCameraScreen by remember { mutableStateOf(false) }
-    // Estado para almacenar el último ISBN detectado
-    var lastDetectedIsbn by remember { mutableStateOf<String?>(null) }
+    var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.Home) }
 
-    if (showCameraScreen) {
-        CameraScreen(
-            onBackClick = { showCameraScreen = false },
-            onManualInputClick = { /* TODO: Implement manual input */ },
-            onIsbnDetected = { isbn ->
-                Log.d("ScanBook", "ISBN detected: $isbn")
-                lastDetectedIsbn = isbn
-                showCameraScreen = false
-            },
-            modifier = modifier
-        )
-    } else {
-        HomeScreen(
-            modifier = modifier,
-            onScanClick = { showCameraScreen = true }
-        )
+    when (val screen = currentScreen) {
+        is AppScreen.Home -> {
+            HomeScreen(
+                modifier = modifier,
+                onScanClick = { currentScreen = AppScreen.Camera }
+            )
+        }
+        is AppScreen.Camera -> {
+            CameraScreen(
+                onBackClick = { currentScreen = AppScreen.Home },
+                onManualInputClick = { /* TODO: Implement manual input */ },
+                onIsbnDetected = { isbn ->
+                    Log.d("ScanBook", "ISBN detected: $isbn")
+                    // Crear ScannedIsbn con el ISBN detectado (título y autor vendrán de API en el futuro)
+                    val scannedIsbn = ScannedIsbn(isbn = isbn)
+                    currentScreen = AppScreen.ScanResult(scannedIsbn)
+                },
+                modifier = modifier
+            )
+        }
+        is AppScreen.ScanResult -> {
+            ScanResultScreen(
+                scannedIsbn = screen.scannedIsbn,
+                onBackClick = { currentScreen = AppScreen.Home },
+                onEditClick = { /* TODO: Implement edit */ },
+                onAddClick = { 
+                    /* TODO: Add to collection */
+                    currentScreen = AppScreen.Home
+                },
+                modifier = modifier
+            )
+        }
     }
 }
 

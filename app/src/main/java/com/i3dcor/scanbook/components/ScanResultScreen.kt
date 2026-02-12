@@ -1,5 +1,6 @@
 package com.i3dcor.scanbook.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -39,14 +40,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 @Composable
 fun ScanResultScreen(
-    modifier: Modifier = Modifier,
+    scannedIsbn: ScannedIsbn,
+    onBackClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
-    onAddClick: () -> Unit = {}
+    onAddClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
+    // Manejar botón atrás del sistema Android
+    BackHandler {
+        onBackClick()
+    }
+    
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -84,13 +93,16 @@ fun ScanResultScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     BookTitleAndAuthor(
-                        title = "The Great Gatsby",
-                        author = "F. Scott Fitzgerald"
+                        title = scannedIsbn.title ?: "Unknown Title",
+                        author = scannedIsbn.author ?: "Unknown Author"
                     )
                     
                     Spacer(modifier = Modifier.height(24.dp))
                     
-                    BookMetadataRow()
+                    BookMetadataRow(
+                        isbn = scannedIsbn.isbn,
+                        genre = scannedIsbn.genre
+                    )
                 }
             }
             
@@ -170,7 +182,10 @@ fun BookTitleAndAuthor(
 }
 
 @Composable
-fun BookMetadataRow() {
+fun BookMetadataRow(
+    isbn: String,
+    genre: String? = null
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -181,18 +196,15 @@ fun BookMetadataRow() {
         ) {
             MetadataBadge(
                 icon = Icons.Default.Tag,
-                text = "978-0743273565"
+                text = isbn
             )
-            MetadataBadge(
-                icon = Icons.Default.Book,
-                text = "Fiction"
-            )
+            if (genre != null) {
+                MetadataBadge(
+                    icon = Icons.Default.Book,
+                    text = genre
+                )
+            }
         }
-        
-        MetadataBadge(
-            icon = Icons.Default.CalendarToday,
-            text = "1925"
-        )
     }
 }
 
@@ -278,6 +290,13 @@ fun ScanResultActions(
 @Composable
 fun ScanResultScreenPreview() {
     ScanBookTheme {
-        ScanResultScreen()
+        ScanResultScreen(
+            scannedIsbn = ScannedIsbn(
+                isbn = "9780743273565",
+                title = "The Great Gatsby",
+                author = "F. Scott Fitzgerald",
+                genre = "Fiction"
+            )
+        )
     }
 }
