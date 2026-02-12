@@ -1,6 +1,7 @@
 package com.i3dcor.scanbook
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i3dcor.scanbook.components.BookListItem
+import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
@@ -55,6 +57,35 @@ data class Book(val id: String, val title: String, val author: String)
 
 @Composable
 fun ScanBookApp(modifier: Modifier = Modifier) {
+    // Estado para controlar la navegación entre pantallas
+    var showCameraScreen by remember { mutableStateOf(false) }
+    // Estado para almacenar el último ISBN detectado
+    var lastDetectedIsbn by remember { mutableStateOf<String?>(null) }
+
+    if (showCameraScreen) {
+        CameraScreen(
+            onBackClick = { showCameraScreen = false },
+            onManualInputClick = { /* TODO: Implement manual input */ },
+            onIsbnDetected = { isbn ->
+                Log.d("ScanBook", "ISBN detected: $isbn")
+                lastDetectedIsbn = isbn
+                showCameraScreen = false
+            },
+            modifier = modifier
+        )
+    } else {
+        HomeScreen(
+            modifier = modifier,
+            onScanClick = { showCameraScreen = true }
+        )
+    }
+}
+
+@Composable
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    onScanClick: () -> Unit
+) {
     // Lista de ejemplo. En una app real, vendría de un ViewModel.
     val sampleBooks = remember {
         listOf(
@@ -110,7 +141,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         }
 
         ScanBarcodeButton(
-            onClick = { /* TODO: Implement camera navigation */ },
+            onClick = onScanClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
@@ -123,5 +154,13 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
 fun ScanBookAppPreview() {
     ScanBookTheme {
         ScanBookApp()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreview() {
+    ScanBookTheme {
+        HomeScreen(onScanClick = {})
     }
 }
