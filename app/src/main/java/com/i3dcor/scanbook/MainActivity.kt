@@ -92,7 +92,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         is AppScreen.ScanResult -> {
             ScanResultScreen(
                 scannedIsbn = screen.scannedIsbn,
-                onBackClick = { currentScreen = AppScreen.Home },
+                onBackClick = { currentScreen = AppScreen.Camera },
                 onEditClick = { /* TODO: Implement edit */ },
                 onAddClick = { 
                     /* TODO: Add to collection */
