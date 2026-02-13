@@ -4,15 +4,19 @@ import com.i3dcor.scanbook.data.network.OpenLibraryApi
 import com.i3dcor.scanbook.data.network.dto.AuthorDto
 import com.i3dcor.scanbook.data.network.dto.AuthorRef
 import com.i3dcor.scanbook.data.network.dto.OpenLibraryBookDto
+import com.i3dcor.scanbook.domain.model.BookNotFoundException
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import retrofit2.HttpException
+import retrofit2.Response
 import java.io.IOException
 
 class OpenLibraryBookRepositoryTest {
@@ -174,6 +178,43 @@ class OpenLibraryBookRepositoryTest {
         // Then
         assertTrue(result.isFailure)
         assertTrue(result.exceptionOrNull() is IOException)
+    }
+
+    @Test
+    fun `lookupByIsbn when api returns 404 returns BookNotFoundException`() = runTest {
+        // Given
+        val isbn = "0000000000000"
+        val response = Response.error<OpenLibraryBookDto>(
+            404,
+            "Not found".toResponseBody(null)
+        )
+        coEvery { api.getBookByIsbn(isbn) } throws HttpException(response)
+
+        // When
+        val result = repository.lookupByIsbn(isbn)
+
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is BookNotFoundException)
+        assertEquals(isbn, (result.exceptionOrNull() as BookNotFoundException).isbn)
+    }
+
+    @Test
+    fun `lookupByIsbn when api returns 500 returns HttpException`() = runTest {
+        // Given
+        val isbn = "9780140328721"
+        val response = Response.error<OpenLibraryBookDto>(
+            500,
+            "Server error".toResponseBody(null)
+        )
+        coEvery { api.getBookByIsbn(isbn) } throws HttpException(response)
+
+        // When
+        val result = repository.lookupByIsbn(isbn)
+
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is HttpException)
     }
 
     // ============ COVER URL ============

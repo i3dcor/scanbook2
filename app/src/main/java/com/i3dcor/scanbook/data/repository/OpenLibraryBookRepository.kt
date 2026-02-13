@@ -2,10 +2,12 @@ package com.i3dcor.scanbook.data.repository
 
 import com.i3dcor.scanbook.data.network.OpenLibraryApi
 import com.i3dcor.scanbook.data.network.RetrofitClient
+import com.i3dcor.scanbook.domain.model.BookNotFoundException
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.domain.repository.BookLookupRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 
 /**
  * Implementación de BookLookupRepository usando Open Library API.
@@ -46,6 +48,13 @@ class OpenLibraryBookRepository(
                 )
                 
                 Result.success(scannedIsbn)
+            } catch (e: HttpException) {
+                // Si es 404, el libro no existe en Open Library
+                if (e.code() == 404) {
+                    Result.failure(BookNotFoundException(isbn))
+                } else {
+                    Result.failure(e)
+                }
             } catch (e: Exception) {
                 Result.failure(e)
             }
