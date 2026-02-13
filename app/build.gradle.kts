@@ -67,7 +67,19 @@ dependencies {
     implementation(libs.mlkit.barcode.scanning)
 
     implementation(libs.androidx.compose.material.icons.extended)
+
+    // Retrofit
+    implementation(libs.retrofit.core)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+
+    // Coil
+    implementation(libs.coil.compose)
+
     testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

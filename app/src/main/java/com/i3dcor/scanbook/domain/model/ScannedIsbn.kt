@@ -10,5 +10,6 @@ data class ScannedIsbn(
     val author: String? = null,
     val genre: String? = null,
     val price: Double? = null,
-    val condition: String? = null
+    val condition: String? = null,
+    val coverUrl: String? = null
 )

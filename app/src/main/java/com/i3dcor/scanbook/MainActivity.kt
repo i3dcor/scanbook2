@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,8 @@ import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
+import com.i3dcor.scanbook.components.ScanResultScreen
+import com.i3dcor.scanbook.presentation.viewmodel.ScanResultViewModel
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 class MainActivity : ComponentActivity() {
@@ -55,29 +58,55 @@ class MainActivity : ComponentActivity() {
 // Para el ejemplo, usamos una data class simple. En la app real, vendría del dominio.
 data class Book(val id: String, val title: String, val author: String)
 
+// Estados de la pantalla principal
+private sealed class AppScreen {
+    data object Home : AppScreen()
+    data object Camera : AppScreen()
+    data class ScanResult(val isbn: String) : AppScreen()
+}
+
 @Composable
 fun ScanBookApp(modifier: Modifier = Modifier) {
     // Estado para controlar la navegación entre pantallas
-    var showCameraScreen by remember { mutableStateOf(false) }
-    // Estado para almacenar el último ISBN detectado
-    var lastDetectedIsbn by remember { mutableStateOf<String?>(null) }
+    var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.Home) }
 
-    if (showCameraScreen) {
-        CameraScreen(
-            onBackClick = { showCameraScreen = false },
-            onManualInputClick = { /* TODO: Implement manual input */ },
-            onIsbnDetected = { isbn ->
-                Log.d("ScanBook", "ISBN detected: $isbn")
-                lastDetectedIsbn = isbn
-                showCameraScreen = false
-            },
-            modifier = modifier
-        )
-    } else {
-        HomeScreen(
-            modifier = modifier,
-            onScanClick = { showCameraScreen = true }
-        )
+    when (val screen = currentScreen) {
+        is AppScreen.Home -> {
+            HomeScreen(
+                modifier = modifier,
+                onScanClick = { currentScreen = AppScreen.Camera }
+            )
+        }
+        is AppScreen.Camera -> {
+            CameraScreen(
+                onBackClick = { currentScreen = AppScreen.Home },
+                onManualInputClick = { /* TODO: Implement manual input */ },
+                onIsbnDetected = { isbn ->
+                    Log.d("ScanBook", "ISBN detected: $isbn")
+                    currentScreen = AppScreen.ScanResult(isbn)
+                },
+                modifier = modifier
+            )
+        }
+        is AppScreen.ScanResult -> {
+            // Crear ViewModel con el ISBN detectado
+            // remember con key = isbn para recrear el ViewModel si cambia el ISBN
+            val viewModel = remember(screen.isbn) {
+                ScanResultViewModel(isbn = screen.isbn)
+            }
+            val uiState by viewModel.uiState.collectAsState()
+            
+            ScanResultScreen(
+                uiState = uiState,
+                onBackClick = { currentScreen = AppScreen.Camera },
+                onEditClick = { /* TODO: Implement edit */ },
+                onAddClick = { 
+                    /* TODO: Add to collection */
+                    currentScreen = AppScreen.Home
+                },
+                modifier = modifier
+            )
+        }
     }
 }
 
