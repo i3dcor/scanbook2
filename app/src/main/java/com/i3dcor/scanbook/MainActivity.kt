@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
+import com.i3dcor.scanbook.components.EditBookScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
@@ -63,6 +64,7 @@ private sealed class AppScreen {
     data object Home : AppScreen()
     data object Camera : AppScreen()
     data class ScanResult(val isbn: String) : AppScreen()
+    data class EditBook(val isbn: String?, val from: AppScreen) : AppScreen()
 }
 
 @Composable
@@ -80,7 +82,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         is AppScreen.Camera -> {
             CameraScreen(
                 onBackClick = { currentScreen = AppScreen.Home },
-                onManualInputClick = { /* TODO: Implement manual input */ },
+                onManualInputClick = { currentScreen = AppScreen.EditBook(isbn = null, from = AppScreen.Camera) },
                 onIsbnDetected = { isbn ->
                     Log.d("ScanBook", "ISBN detected: $isbn")
                     currentScreen = AppScreen.ScanResult(isbn)
@@ -99,11 +101,18 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
             ScanResultScreen(
                 uiState = uiState,
                 onBackClick = { currentScreen = AppScreen.Camera },
-                onEditClick = { /* TODO: Implement edit */ },
+                onEditClick = { currentScreen = AppScreen.EditBook(isbn = screen.isbn, from = AppScreen.ScanResult(screen.isbn)) },
                 onAddClick = { 
                     /* TODO: Add to collection */
                     currentScreen = AppScreen.Home
                 },
+                modifier = modifier
+            )
+        }
+        is AppScreen.EditBook -> {
+            EditBookScreen(
+                onSaveClick = { currentScreen = AppScreen.Home },
+                onBackClick = { currentScreen = screen.from },
                 modifier = modifier
             )
         }

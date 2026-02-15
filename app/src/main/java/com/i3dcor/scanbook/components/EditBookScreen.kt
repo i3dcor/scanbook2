@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.BackHandler
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 @Composable
@@ -53,6 +54,11 @@ fun EditBookScreen(
     onSaveClick: () -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    // Manejar botón atrás del sistema Android
+    BackHandler {
+        onBackClick()
+    }
+
     // State holders for preview purposes
     var title by remember { mutableStateOf("Domain-Driven Design") }
     var author by remember { mutableStateOf("Eric Evans") }
