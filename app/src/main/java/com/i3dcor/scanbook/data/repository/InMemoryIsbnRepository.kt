@@ -7,9 +7,14 @@ import com.i3dcor.scanbook.domain.repository.IsbnRepository
  * Implementación en memoria del repositorio de ISBNs.
  * Los datos se pierden al cerrar la aplicación.
  * 
+ * Singleton para que los datos persistan entre navegaciones.
  * Thread-safe mediante sincronización.
  */
-class InMemoryIsbnRepository : IsbnRepository {
+class InMemoryIsbnRepository private constructor() : IsbnRepository {
+    
+    companion object {
+        val instance: InMemoryIsbnRepository by lazy { InMemoryIsbnRepository() }
+    }
     
     private val booksMap = mutableMapOf<String, ScannedIsbn>()
     private val lock = Any()

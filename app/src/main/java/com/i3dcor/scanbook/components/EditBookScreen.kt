@@ -31,10 +31,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,26 +42,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.compose.BackHandler
+import com.i3dcor.scanbook.presentation.state.EditBookUiState
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 @Composable
 fun EditBookScreen(
-    modifier: Modifier = Modifier,
-    onSaveClick: () -> Unit = {},
-    onBackClick: () -> Unit = {}
+    uiState: EditBookUiState,
+    onIsbnChange: (String) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onAuthorChange: (String) -> Unit,
+    onGenreChange: (String) -> Unit,
+    onPriceChange: (String) -> Unit,
+    onConditionChange: (String) -> Unit,
+    onSaveClick: () -> Unit,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     // Manejar botón atrás del sistema Android
     BackHandler {
         onBackClick()
     }
-
-    // State holders for preview purposes
-    var title by remember { mutableStateOf("Domain-Driven Design") }
-    var author by remember { mutableStateOf("Eric Evans") }
-    var isbn by remember { mutableStateOf("978-0-321-12521-7") }
-    var genre by remember { mutableStateOf("Computer Science") }
-    var price by remember { mutableStateOf("54.99") }
-    var condition by remember { mutableStateOf("Good") }
 
     Box(
         modifier = modifier
@@ -90,8 +86,8 @@ fun EditBookScreen(
             // Form Fields
             BookTextField(
                 label = "ISBN",
-                value = isbn,
-                onValueChange = { isbn = it },
+                value = uiState.isbn,
+                onValueChange = onIsbnChange,
                 trailingIcon = {
                     // Placeholder for barcode icon
                     Box(
@@ -106,23 +102,23 @@ fun EditBookScreen(
             
             BookTextField(
                 label = "Title",
-                value = title,
-                onValueChange = { title = it }
+                value = uiState.title,
+                onValueChange = onTitleChange
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             BookTextField(
                 label = "Author",
-                value = author,
-                onValueChange = { author = it }
+                value = uiState.author,
+                onValueChange = onAuthorChange
             )
             
             Spacer(modifier = Modifier.height(16.dp))
             
             GenreDropdownField(
                 label = "Genre",
-                value = genre,
+                value = uiState.genre,
                 onClick = { /* Open dropdown */ }
             )
             
@@ -130,8 +126,8 @@ fun EditBookScreen(
             
             BookTextField(
                 label = "Price",
-                value = price,
-                onValueChange = { price = it },
+                value = uiState.price,
+                onValueChange = onPriceChange,
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.AttachMoney,
@@ -154,8 +150,8 @@ fun EditBookScreen(
             )
             
             ConditionSelector(
-                selectedCondition = condition,
-                onConditionSelected = { condition = it }
+                selectedCondition = uiState.condition,
+                onConditionSelected = onConditionChange
             )
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -435,6 +431,23 @@ fun SaveButton(
 @Composable
 fun EditBookScreenPreview() {
     ScanBookTheme {
-        EditBookScreen()
+        EditBookScreen(
+            uiState = EditBookUiState(
+                isbn = "978-0-321-12521-7",
+                title = "Domain-Driven Design",
+                author = "Eric Evans",
+                genre = "Computer Science",
+                price = "54.99",
+                condition = "Good"
+            ),
+            onIsbnChange = {},
+            onTitleChange = {},
+            onAuthorChange = {},
+            onGenreChange = {},
+            onPriceChange = {},
+            onConditionChange = {},
+            onSaveClick = {},
+            onBackClick = {}
+        )
     }
 }
