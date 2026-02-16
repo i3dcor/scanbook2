@@ -33,9 +33,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
+import com.i3dcor.scanbook.components.EditBookScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
+import com.i3dcor.scanbook.domain.model.ScannedIsbn
+import com.i3dcor.scanbook.presentation.viewmodel.EditBookViewModel
 import com.i3dcor.scanbook.presentation.viewmodel.ScanResultViewModel
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
@@ -63,6 +66,7 @@ private sealed class AppScreen {
     data object Home : AppScreen()
     data object Camera : AppScreen()
     data class ScanResult(val isbn: String) : AppScreen()
+    data class EditBook(val book: ScannedIsbn?, val from: AppScreen) : AppScreen()
 }
 
 @Composable
@@ -80,7 +84,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         is AppScreen.Camera -> {
             CameraScreen(
                 onBackClick = { currentScreen = AppScreen.Home },
-                onManualInputClick = { /* TODO: Implement manual input */ },
+                onManualInputClick = { currentScreen = AppScreen.EditBook(book = null, from = AppScreen.Camera) },
                 onIsbnDetected = { isbn ->
                     Log.d("ScanBook", "ISBN detected: $isbn")
                     currentScreen = AppScreen.ScanResult(isbn)
@@ -99,11 +103,33 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
             ScanResultScreen(
                 uiState = uiState,
                 onBackClick = { currentScreen = AppScreen.Camera },
-                onEditClick = { /* TODO: Implement edit */ },
+                onEditClick = { currentScreen = AppScreen.EditBook(book = uiState.scannedIsbn, from = AppScreen.ScanResult(screen.isbn)) },
                 onAddClick = { 
                     /* TODO: Add to collection */
                     currentScreen = AppScreen.Home
                 },
+                modifier = modifier
+            )
+        }
+        is AppScreen.EditBook -> {
+            val viewModel = remember(screen) {
+                EditBookViewModel(initialBook = screen.book)
+            }
+            val editUiState by viewModel.uiState.collectAsState()
+
+            EditBookScreen(
+                uiState = editUiState,
+                onIsbnChange = viewModel::onIsbnChange,
+                onTitleChange = viewModel::onTitleChange,
+                onAuthorChange = viewModel::onAuthorChange,
+                onGenreChange = viewModel::onGenreChange,
+                onPriceChange = viewModel::onPriceChange,
+                onConditionChange = viewModel::onConditionChange,
+                onSaveClick = {
+                    viewModel.onSave()
+                    currentScreen = AppScreen.Home
+                },
+                onBackClick = { currentScreen = screen.from },
                 modifier = modifier
             )
         }
