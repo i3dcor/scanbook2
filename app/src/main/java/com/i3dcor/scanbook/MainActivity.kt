@@ -127,8 +127,8 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 uiState = uiState,
                 onBackClick = { currentScreen = AppScreen.Camera },
                 onEditClick = { currentScreen = AppScreen.EditBook(book = uiState.scannedIsbn, from = AppScreen.ScanResult(screen.isbn)) },
-                onAddClick = { 
-                    /* TODO: Add to collection */
+                onAddClick = {
+                    homeViewModel.addBook(uiState.scannedIsbn)
                     currentScreen = AppScreen.Home
                 },
                 modifier = modifier
