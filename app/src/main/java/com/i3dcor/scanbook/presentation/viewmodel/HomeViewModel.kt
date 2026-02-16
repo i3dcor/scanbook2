@@ -35,4 +35,15 @@ class HomeViewModel(
             _books.value = result
         }
     }
+
+    /**
+     * Elimina un libro por su ISBN y refresca la lista.
+     */
+    fun deleteBook(isbn: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.delete(isbn)
+            val result = repository.getAll()
+            _books.value = result
+        }
+    }
 }

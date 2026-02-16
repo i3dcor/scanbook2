@@ -18,10 +18,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -98,6 +100,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 books = books,
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
+                onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
                 onScanClick = { currentScreen = AppScreen.Camera }
             )
         }
@@ -160,9 +163,11 @@ fun HomeScreen(
     books: List<ScannedIsbn>,
     modifier: Modifier = Modifier,
     onBookClick: (ScannedIsbn) -> Unit,
+    onDeleteBook: (String) -> Unit,
     onScanClick: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
+    var bookToDelete by remember { mutableStateOf<ScannedIsbn?>(null) }
 
     Box(
         modifier = modifier
@@ -208,7 +213,7 @@ fun HomeScreen(
                             title = book.title.orEmpty(),
                             author = book.author.orEmpty(),
                             onItemClick = { onBookClick(book) },
-                            onMoreActionClick = { /* Mostrar menú contextual */ }
+                            onDeleteClick = { bookToDelete = book }
                         ) {
                             Icon(//TODO cambiar por portada
                                 imageVector = Icons.Default.Book,
@@ -226,6 +231,28 @@ fun HomeScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
+        )
+    }
+
+    // Diálogo de confirmación de borrado
+    bookToDelete?.let { book ->
+        AlertDialog(
+            onDismissRequest = { bookToDelete = null },
+            title = { Text("Eliminar libro") },
+            text = { Text("¿Seguro que quieres eliminar \"${book.title.orEmpty()}\"?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDeleteBook(book.isbn)
+                    bookToDelete = null
+                }) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { bookToDelete = null }) {
+                    Text("Cancelar")
+                }
+            }
         )
     }
 }
@@ -248,7 +275,7 @@ fun HomeScreenPreview() {
         ScannedIsbn(isbn = "4", title = "Refactoring", author = "Martin Fowler")
     )
     ScanBookTheme {
-        HomeScreen(books = sampleBooks, onBookClick = {}, onScanClick = {})
+        HomeScreen(books = sampleBooks, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
 
@@ -256,6 +283,6 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenEmptyPreview() {
     ScanBookTheme {
-        HomeScreen(books = emptyList(), onBookClick = {}, onScanClick = {})
+        HomeScreen(books = emptyList(), onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
