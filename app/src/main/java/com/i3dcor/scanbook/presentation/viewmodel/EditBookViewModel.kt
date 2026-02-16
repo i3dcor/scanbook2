@@ -1,14 +1,17 @@
 package com.i3dcor.scanbook.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.i3dcor.scanbook.data.repository.InMemoryIsbnRepository
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class EditBookViewModel(
     initialBook: ScannedIsbn?,
@@ -42,7 +45,7 @@ class EditBookViewModel(
         _uiState.update { it.copy(condition = value) }
     }
 
-    fun onSave() {
+    fun onSave(onComplete: () -> Unit) {
         val state = _uiState.value
         val scannedIsbn = ScannedIsbn(
             isbn = state.isbn,
@@ -53,7 +56,12 @@ class EditBookViewModel(
             condition = state.condition.ifBlank { null },
             coverUrl = state.coverUrl
         )
-        repository.insert(scannedIsbn)
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insert(scannedIsbn)
+            launch(Dispatchers.Main) {
+                onComplete()
+            }
+        }
     }
 
     private fun mapToUiState(book: ScannedIsbn?): EditBookUiState {

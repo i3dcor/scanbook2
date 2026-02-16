@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i3dcor.scanbook.components.BookListItem
@@ -37,6 +38,8 @@ import com.i3dcor.scanbook.components.EditBookScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
+import com.i3dcor.scanbook.data.local.ScanBookDatabase
+import com.i3dcor.scanbook.data.repository.RoomIsbnRepository
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.presentation.viewmodel.EditBookViewModel
 import com.i3dcor.scanbook.presentation.viewmodel.ScanResultViewModel
@@ -73,6 +76,13 @@ private sealed class AppScreen {
 fun ScanBookApp(modifier: Modifier = Modifier) {
     // Estado para controlar la navegación entre pantallas
     var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.Home) }
+
+    // Crear el repositorio Room una sola vez
+    val context = LocalContext.current
+    val repository = remember {
+        val db = ScanBookDatabase.getInstance(context)
+        RoomIsbnRepository(db.bookDao())
+    }
 
     when (val screen = currentScreen) {
         is AppScreen.Home -> {
@@ -113,7 +123,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         }
         is AppScreen.EditBook -> {
             val viewModel = remember(screen) {
-                EditBookViewModel(initialBook = screen.book)
+                EditBookViewModel(initialBook = screen.book, repository = repository)
             }
             val editUiState by viewModel.uiState.collectAsState()
 
@@ -126,8 +136,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 onPriceChange = viewModel::onPriceChange,
                 onConditionChange = viewModel::onConditionChange,
                 onSaveClick = {
-                    viewModel.onSave()
-                    currentScreen = AppScreen.Home
+                    viewModel.onSave { currentScreen = AppScreen.Home }
                 },
                 onBackClick = { currentScreen = screen.from },
                 modifier = modifier
