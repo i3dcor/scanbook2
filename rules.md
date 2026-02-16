@@ -36,6 +36,14 @@ Documento central de reglas que Claude debe consultar **siempre** antes de reali
 
 ---
 
+### 3. Sugerir mensaje de commit antes de ejecutar
+
+**Obligación**: Antes de hacer `git commit` y/o `git push`, Claude debe proponer el mensaje de commit al usuario y esperar su aprobación o corrección antes de ejecutarlo.
+
+**Formato**: Conventional commits en español (ej: `feat:`, `fix:`, `refactor:`, `docs:`).
+
+---
+
 ## Cómo añadir nuevas reglas
 
 Añadir una nueva sección bajo "Reglas activas" con:

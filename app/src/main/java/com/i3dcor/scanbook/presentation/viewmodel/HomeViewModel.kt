@@ -37,6 +37,17 @@ class HomeViewModel(
     }
 
     /**
+     * Guarda un libro en la base de datos y refresca la lista.
+     */
+    fun addBook(book: ScannedIsbn) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.insert(book)
+            val result = repository.getAll()
+            _books.value = result
+        }
+    }
+
+    /**
      * Elimina un libro por su ISBN y refresca la lista.
      */
     fun deleteBook(isbn: String) {
