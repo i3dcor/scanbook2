@@ -97,6 +97,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
             HomeScreen(
                 books = books,
                 modifier = modifier,
+                onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onScanClick = { currentScreen = AppScreen.Camera }
             )
         }
@@ -158,6 +159,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
 fun HomeScreen(
     books: List<ScannedIsbn>,
     modifier: Modifier = Modifier,
+    onBookClick: (ScannedIsbn) -> Unit,
     onScanClick: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -205,7 +207,7 @@ fun HomeScreen(
                         BookListItem(
                             title = book.title.orEmpty(),
                             author = book.author.orEmpty(),
-                            onItemClick = { /* Navegar al detalle del libro */ },
+                            onItemClick = { onBookClick(book) },
                             onMoreActionClick = { /* Mostrar menú contextual */ }
                         ) {
                             Icon(//TODO cambiar por portada
@@ -246,7 +248,7 @@ fun HomeScreenPreview() {
         ScannedIsbn(isbn = "4", title = "Refactoring", author = "Martin Fowler")
     )
     ScanBookTheme {
-        HomeScreen(books = sampleBooks, onScanClick = {})
+        HomeScreen(books = sampleBooks, onBookClick = {}, onScanClick = {})
     }
 }
 
@@ -254,6 +256,6 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenEmptyPreview() {
     ScanBookTheme {
-        HomeScreen(books = emptyList(), onScanClick = {})
+        HomeScreen(books = emptyList(), onBookClick = {}, onScanClick = {})
     }
 }
