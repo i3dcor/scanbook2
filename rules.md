@@ -44,6 +44,14 @@ Documento central de reglas que Claude debe consultar **siempre** antes de reali
 
 ---
 
+### 4. Componentes reutilizables en el directorio components
+
+**Obligación**: Siempre que se cree un componente reutilizable de UI (Composable), debe ubicarse en el directorio `components/`.
+
+**Ruta**: `app/src/main/java/com/i3dcor/scanbook/components/`
+
+---
+
 ## Cómo añadir nuevas reglas
 
 Añadir una nueva sección bajo "Reglas activas" con:
