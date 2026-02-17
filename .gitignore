@@ -1,43 +1,20 @@
 *.iml
 .gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
 .DS_Store
-/build
-/captures
 .externalNativeBuild
 .cxx
-
-# Android Studio 4.0+ specific
-.idea/
-/.idea/*
-!.idea/gradle.xml
-!.idea/misc.xml
-!.idea/modules.xml
-!.idea/vcs.xml
-!.idea/codeStyles
-!.idea/runConfigurations
-
-
 local.properties
-/.github/
-/.idea/
+
+/build
+/captures
 /.kotlin/
 /patches/
 
-# Android Studio 4.0+ specific
+# Android Studio / IntelliJ
 .idea/
-/.idea/*
 !.idea/gradle.xml
 !.idea/misc.xml
 !.idea/modules.xml
 !.idea/vcs.xml
 !.idea/codeStyles
 !.idea/runConfigurations
-
-
