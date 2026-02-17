@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
@@ -37,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.i3dcor.scanbook.components.BookCoverThumbnail
 import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.EditBookScreen
@@ -215,11 +215,7 @@ fun HomeScreen(
                             onItemClick = { onBookClick(book) },
                             onDeleteClick = { bookToDelete = book }
                         ) {
-                            Icon(//TODO cambiar por portada
-                                imageVector = Icons.Default.Book,
-                                contentDescription = "Book cover",
-                                tint = Color.Gray
-                            )
+                            BookCoverThumbnail(coverUrl = book.coverUrl)
                         }
                     }
                 }
