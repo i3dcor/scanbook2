@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -90,14 +91,34 @@ fun EditBookScreen(
                 value = uiState.isbn,
                 onValueChange = onIsbnChange,
                 trailingIcon = {
-                    // Placeholder for barcode icon
-                    Box(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .background(Color.Gray, RoundedCornerShape(2.dp))
-                    )
+                    if (uiState.isSearching) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            color = Color(0xFF448AFF),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        // Placeholder for barcode icon
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .background(Color.Gray, RoundedCornerShape(2.dp))
+                        )
+                    }
                 }
             )
+            
+            if (uiState.searchError != null) {
+                Text(
+                    text = uiState.searchError,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = Color(0xFFEF5350)
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 4.dp)
+                )
+            }
             
             Spacer(modifier = Modifier.height(16.dp))
             

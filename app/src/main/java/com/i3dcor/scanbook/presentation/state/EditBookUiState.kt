@@ -7,5 +7,7 @@ data class EditBookUiState(
     val genre: String = "",
     val price: String = "",
     val condition: String = "Good",
-    val coverUrl: String? = null
+    val coverUrl: String? = null,
+    val isSearching: Boolean = false,
+    val searchError: String? = null
 )
