@@ -119,7 +119,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
             // Crear ViewModel con el ISBN detectado
             // remember con key = isbn para recrear el ViewModel si cambia el ISBN
             val viewModel = remember(screen.isbn) {
-                ScanResultViewModel(isbn = screen.isbn)
+                ScanResultViewModel(isbn = screen.isbn, isbnRepository = repository)
             }
             val uiState by viewModel.uiState.collectAsState()
             

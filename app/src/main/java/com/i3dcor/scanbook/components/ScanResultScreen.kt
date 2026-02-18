@@ -122,7 +122,8 @@ fun ScanResultScreen(
             
             ScanResultActions(
                 onEditClick = onEditClick,
-                onAddClick = onAddClick
+                onAddClick = onAddClick,
+                alreadyExists = uiState.alreadyExists
             )
         }
     }
@@ -332,11 +333,26 @@ fun MetadataBadge(
 @Composable
 fun ScanResultActions(
     onEditClick: () -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    alreadyExists: Boolean = false
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        if (alreadyExists) {
+            Text(
+                text = "¡Este libro ya estaba registrado!",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = Color(0xFFFFA726),
+                    fontWeight = FontWeight.Bold
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp)
+            )
+        }
+
         OutlinedButton(
             onClick = onEditClick,
             modifier = Modifier
@@ -358,11 +374,14 @@ fun ScanResultActions(
 
         Button(
             onClick = onAddClick,
+            enabled = !alreadyExists,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2962FF)
+                containerColor = Color(0xFF2962FF),
+                disabledContainerColor = Color(0xFF3A3A3C),
+                disabledContentColor = Color.Gray
             )
         ) {
             Icon(
