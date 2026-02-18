@@ -9,7 +9,8 @@ import com.i3dcor.scanbook.domain.model.ScannedIsbn
 data class ScanResultUiState(
     val scannedIsbn: ScannedIsbn,
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: String? = null,
+    val alreadyExists: Boolean = false
 ) {
     companion object {
         /**
