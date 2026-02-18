@@ -9,6 +9,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -337,7 +338,7 @@ fun ScanResultActions(
     alreadyExists: Boolean = false
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (alreadyExists) {
             Text(
@@ -353,44 +354,51 @@ fun ScanResultActions(
             )
         }
 
-        OutlinedButton(
-            onClick = onEditClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = Color.White
-            ),
-            border = BorderStroke(1.dp, Color.Gray)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Edit Details")
-        }
+            OutlinedButton(
+                onClick = onEditClick,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(42.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color.White
+                ),
+                border = BorderStroke(1.dp, Color.Gray),
+                contentPadding = PaddingValues(horizontal = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = "Edit", style = MaterialTheme.typography.bodyMedium)
+            }
 
-        Button(
-            onClick = onAddClick,
-            enabled = !alreadyExists,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2962FF),
-                disabledContainerColor = Color(0xFF3A3A3C),
-                disabledContentColor = Color.Gray
-            )
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(text = "Add to Collection")
+            Button(
+                onClick = onAddClick,
+                enabled = !alreadyExists,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(42.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2962FF),
+                    disabledContainerColor = Color(0xFF3A3A3C),
+                    disabledContentColor = Color.Gray
+                ),
+                contentPadding = PaddingValues(horizontal = 12.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = "Add", style = MaterialTheme.typography.bodyMedium)
+            }
         }
     }
 }
