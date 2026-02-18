@@ -44,6 +44,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Dialog
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
@@ -200,6 +205,8 @@ fun EditBookHeader() {
 
 @Composable
 fun BookPhotoSection(coverUrl: String? = null) {
+    var showCoverDialog by remember { mutableStateOf(false) }
+
     if (coverUrl != null) {
         Surface(
             color = Color(0xFF252528),
@@ -207,6 +214,7 @@ fun BookPhotoSection(coverUrl: String? = null) {
             modifier = Modifier
                 .height(150.dp)
                 .aspectRatio(1f)
+                .clickable { showCoverDialog = true }
                 .border(
                     width = 1.dp,
                     color = Color(0xFF3A3A3C),
@@ -217,6 +225,24 @@ fun BookPhotoSection(coverUrl: String? = null) {
                 coverUrl = coverUrl,
                 modifier = Modifier.fillMaxSize()
             )
+        }
+
+        if (showCoverDialog) {
+            Dialog(onDismissRequest = { showCoverDialog = false }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCoverDialog = false }
+                ) {
+                    BookCoverThumbnail(
+                        coverUrl = coverUrl,
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .aspectRatio(0.65f)
+                    )
+                }
+            }
         }
     } else {
         PhotoPlaceholderButton(
