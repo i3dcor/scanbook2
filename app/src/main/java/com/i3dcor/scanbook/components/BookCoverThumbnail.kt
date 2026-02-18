@@ -30,7 +30,7 @@ fun BookCoverThumbnail(
             model = coverUrl,
             contentDescription = "Portada del libro",
             modifier = modifier,
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Fit
         )
     } else {
         Icon(
