@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.aspectRatio
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
@@ -79,7 +80,7 @@ fun EditBookScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            BookPhotoSection()
+            BookPhotoSection(coverUrl = uiState.coverUrl)
             
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -177,18 +178,29 @@ fun EditBookHeader() {
 }
 
 @Composable
-fun BookPhotoSection() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
+fun BookPhotoSection(coverUrl: String? = null) {
+    if (coverUrl != null) {
+        Surface(
+            color = Color(0xFF252528),
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .height(150.dp)
+                .aspectRatio(1f)
+                .border(
+                    width = 1.dp,
+                    color = Color(0xFF3A3A3C),
+                    shape = RoundedCornerShape(12.dp)
+                )
+        ) {
+            BookCoverThumbnail(
+                coverUrl = coverUrl,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    } else {
         PhotoPlaceholderButton(
             text = "Front Cover",
-            modifier = Modifier.weight(1f)
-        )
-        PhotoPlaceholderButton(
-            text = "Back Cover",
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
