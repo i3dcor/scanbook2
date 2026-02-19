@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
@@ -44,6 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.window.Dialog
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
@@ -99,11 +103,11 @@ fun EditBookScreen(
                         )
                     } else {
                         // Placeholder for barcode icon
-                        Box(
+/*                        Box(
                             modifier = Modifier
                                 .size(24.dp)
                                 .background(Color.Gray, RoundedCornerShape(2.dp))
-                        )
+                        )*/
                     }
                 }
             )
@@ -138,10 +142,10 @@ fun EditBookScreen(
             
             Spacer(modifier = Modifier.height(16.dp))
             
-            GenreDropdownField(
+            BookTextField(
                 label = "Genre",
                 value = uiState.genre,
-                onClick = { /* Open dropdown */ }
+                onValueChange = onGenreChange
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -150,14 +154,14 @@ fun EditBookScreen(
                 label = "Price",
                 value = uiState.price,
                 onValueChange = onPriceChange,
-                leadingIcon = {
+/*                leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.AttachMoney,
                         contentDescription = null,
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                }
+                }*/
             )
             
             Spacer(modifier = Modifier.height(16.dp))
@@ -200,6 +204,8 @@ fun EditBookHeader() {
 
 @Composable
 fun BookPhotoSection(coverUrl: String? = null) {
+    var showCoverDialog by remember { mutableStateOf(false) }
+
     if (coverUrl != null) {
         Surface(
             color = Color(0xFF252528),
@@ -207,6 +213,7 @@ fun BookPhotoSection(coverUrl: String? = null) {
             modifier = Modifier
                 .height(150.dp)
                 .aspectRatio(1f)
+                .clickable { showCoverDialog = true }
                 .border(
                     width = 1.dp,
                     color = Color(0xFF3A3A3C),
@@ -217,6 +224,24 @@ fun BookPhotoSection(coverUrl: String? = null) {
                 coverUrl = coverUrl,
                 modifier = Modifier.fillMaxSize()
             )
+        }
+
+        if (showCoverDialog) {
+            Dialog(onDismissRequest = { showCoverDialog = false }) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showCoverDialog = false }
+                ) {
+                    BookCoverThumbnail(
+                        coverUrl = coverUrl,
+                        modifier = Modifier
+                            .fillMaxWidth(0.9f)
+                            .aspectRatio(0.65f)
+                    )
+                }
+            }
         }
     } else {
         PhotoPlaceholderButton(
@@ -331,50 +356,6 @@ fun BookTextField(
                     Spacer(modifier = Modifier.width(8.dp))
                     trailingIcon()
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun GenreDropdownField(
-    label: String,
-    value: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = Color.White,
-                fontWeight = FontWeight.Medium
-            ),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        Surface(
-            color = Color(0xFF252528),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .border(1.dp, Color(0xFF3A3A3C), RoundedCornerShape(8.dp))
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
-            ) {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
-                )
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null,
-                    tint = Color.Gray
-                )
             }
         }
     }
