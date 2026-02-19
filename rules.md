@@ -59,3 +59,10 @@ Añadir una nueva sección bajo "Reglas activas" con:
 - Archivo relacionado (si aplica)
 - Descripción de la obligación
 - Consecuencias de incumplimiento
+
+---
+
+## Referencias
+
+- **Convenciones de ramas y commits:** Ver [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Arquitectura técnica:** Ver [ARCHITECTURE.md](ARCHITECTURE.md)
