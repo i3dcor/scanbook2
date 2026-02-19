@@ -174,17 +174,22 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 ### 🚧 En progreso / Próximo
 - [ ] Captura de portada con cámara/galería
 - [ ] Sistema de búsqueda/filtros en lista
-- [ ] Autenticación de usuario
 - [ ] Sincronización offline/online
 - [ ] Exportar/importar colección
 
 ### 🔮 Futuro (Nice to have)
 - [ ] Integración de IA (Gemini Vision) para análisis de estado
+- [ ] Estimación de estado de conservación (Malo, Bueno, Como Nuevo)
+- [ ] Sugerencia de precio en EUR (10% por debajo de la media de mercado)
 - [ ] Estadísticas de colección
 - [ ] Integración con plataformas de venta
 - [ ] Lista de deseos (wishlist)
 - [ ] Tracking de préstamos
 - [ ] Speech-to-Text para entrada manual
+- [ ] Integración con plataformas de venta (Wallapop, Vinted, etc.)
+- [ ] Autenticación de usuario
+- [ ] Cloud sync
+- [ ] Offline support
 
 ## Licencia
 
