@@ -1,86 +1,155 @@
 # ScanBook
 
-Una aplicación Android nativa en Kotlin para revender libros usados de forma rápida y sencilla.
+Una aplicación Android nativa en Kotlin para gestionar colecciones de libros mediante escaneo de ISBN.
 
 ## Descripción
 
 ScanBook permite a los usuarios:
-- Escanear códigos de barras/ISBN de libros
-- Obtener información automática del libro (título, autor, categoría)
-- Capturar fotos de la portada y contraportada
-- Analizar el estado de conservación con IA (Google Gemini Vision)
-- Recibir un precio sugerido para la venta
+- 📚 Escanear códigos de barras/ISBN de libros usando la cámara
+- 🔍 Buscar información automática del libro (título, autor, género, portada)
+- ✏️ Editar y completar datos del libro manualmente
+- 💰 Registrar precio y estado de conservación
+- 🏠 Gestionar una colección personal de libros
+- 🔎 Buscar libros por ISBN automáticamente al editar
 
-## Características Principales
+## Características Implementadas
 
-### 1. Escaneo Automático (ML Kit)
-- Detección instantánea de ISBN usando Google ML Kit
-- Congelamiento de cámara y vibración al detectar
-- Análisis de códigos EAN-13, UPC, CODE-128, etc.
+### ✅ Escaneo de ISBN (ML Kit)
+- Detección en tiempo real de códigos de barras usando Google ML Kit
+- Soporte para ISBN-10 e ISBN-13
+- Válido para códigos EAN-13
+- Integración con cámara nativa
 
-### 2. (TODO) Integración de IA Generativa (Gemini Vision)
-- `AnalyzeBookConditionUseCase`: Analiza fotos de portada y contraportada
-- Estimación de estado de conservación (Malo, Bueno, Como Nuevo)
-- Sugerencia de precio en EUR (10% por debajo de la media de mercado)
-- Respuesta estructurada en JSON
+### ✅ Búsqueda de Libros (APIs)
+- **OpenLibrary API**: Primera fuente de metadatos
+- **Google Books API**: Fallback automático si OpenLibrary no encuentra el libro
+- Datos obtenidos: título, autor(es), género, URL de portada
 
-### 3. (TODO) API de Libros
-- Google Books API para traer metadatos automáticamente
-- Título, autor, idioma, categoría, cover
+### ✅ Gestión de Colección (Room Database)
+- Persistencia local con SQLite/Room
+- Lista de libros con miniaturas de portada
+- Estados de conservación: New, Good, Damaged
+- Edición completa de metadatos
+- Eliminación con confirmación
+- Detección de duplicados al escanear
 
-### 4. UI Moderna (Jetpack Compose + Material 3)
-- Diseño minimalista y rápido
-- Estados visuales claros (Idle, Scanning, Loading, Success, Error)
-- Animaciones fluidas
+### ✅ Edición de Libros
+- Formulario completo con campos editables:
+  - ISBN (con búsqueda automática por debounce)
+  - Título
+  - Autor
+  - Género
+  - Precio
+  - Estado de conservación
+- Portada del libro con vista ampliada (click para zoom)
+- Búsqueda automática al modificar ISBN
+
+### ✅ UI Moderna (Jetpack Compose)
+- Diseño minimalista con tema oscuro
+- Estados visuales claros (Loading, Success, Error, Empty)
+- Navegación fluida entre pantallas
+- Componentes reutilizables
+- Soporte para botón atrás de Android
 
 ## Arquitectura
 
 ```
-app/
-├── presentation/              # UI Layer (Jetpack Compose)
-│   ├── ui/
-│   │   ├── screens/          # ScannerScreen, ResultScreen, etc.
-│   │   └── components/       # CameraPreview, etc.
-│   └── viewmodel/            # ScanViewModel (StateFlow-based)
+app/src/main/java/com/i3dcor/scanbook/
+├── components/               # Componentes UI reutilizables (Compose)
+│   ├── CameraScreen.kt
+│   ├── ScanResultScreen.kt
+│   ├── EditBookScreen.kt
+│   ├── HomeScreen.kt
+│   ├── BookListItem.kt
+│   ├── BookCoverThumbnail.kt
+│   └── ...
 │
+├── presentation/
+│   ├── state/               # Estados de UI (UiState)
+│   │   ├── ScanResultUiState.kt
+│   │   ├── EditBookUiState.kt
+│   │   └── ...
+│   └── viewmodel/           # ViewModels (MVVM)
+│       ├── ScanResultViewModel.kt
+│       ├── EditBookViewModel.kt
+│       └── ...
+│
+├── domain/                  # Lógica de negocio pura (Kotlin)
+│   ├── model/
+│   │   └── ScannedIsbn.kt
+│   └── repository/
+│       ├── IsbnRepository.kt
+│       └── BookLookupRepository.kt
+│
+├── data/                    # Implementaciones de repositorios
+│   ├── repository/
+│   │   ├── RoomIsbnRepository.kt
+│   │   ├── CompositeBookLookupRepository.kt
+│   │   ├── OpenLibraryBookRepository.kt
+│   │   └── GoogleBooksRepository.kt
+│   ├── local/              # Room Database
+│   │   ├── dao/
+│   │   ├── entity/
+│   │   └── mapper/
+│   └── network/            # Retrofit + DTOs
+│       ├── dto/
+│       └── RetrofitClient.kt
+│
+└── MainActivity.kt         # Punto de entrada y navegación
 ```
+
+**Patrón arquitectónico:** MVVM + Clean Architecture  
+**Dirección de dependencias:** Presentation → Domain ← Data
 
 ## Flujo de Usuario
 
-1. **Inicio**: Usuario toca "Iniciar Escaneo"
-2. **Cámara Always-On**: Se inicia la cámara
-3. **Detección ISBN**: ML Kit detecta código, cámara se congela
-4. **Fetch Info**: Se consulta Google Books API
-5. **Captura Fotos**: Usuario captura portada y contraportada
-6. **IA Analysis**: Gemini Vision analiza las imágenes
-7. **Resultado**: Se muestra estado y precio sugerido
+1. **Home**: Lista de libros guardados (empty state si no hay libros)
+2. **Escanear**: Abre cámara, detecta ISBN automáticamente
+3. **Resultado**: Muestra datos del libro encontrado o error
+   - Si ya existe: mensaje de "libro duplicado"
+   - Si es nuevo: opción de añadir a colección o editar
+4. **Editar**: Formulario para modificar/Completar datos
+   - Búsqueda automática por ISBN con debounce (1s)
+   - Portada clickleable para vista ampliada
+5. **Guardar**: Persiste en Room y vuelve a Home
+
+## Screenshots
+
+*(Pendiente de añadir)*
+
+## Tecnologías
+
+- **Lenguaje:** Kotlin 1.9+
+- **UI:** Jetpack Compose (Material 3)
+- **Arquitectura:** MVVM + Clean Architecture
+- **Persistencia:** Room (SQLite)
+- **Red:** Retrofit + OkHttp + Kotlinx Serialization
+- **Imágenes:** Coil
+- **Cámara:** CameraX + ML Kit Barcode Scanning
+- **Inyección de dependencias:** Manual (constructor injection)
+- **Asincronía:** Kotlin Coroutines + Flow
 
 ## Configuración Requerida
 
-### 1. Google Gemini API Key
-```bash
-export GOOGLE_GEMINI_API_KEY="tu_api_key_aqui"
-```
-
-### 2. Permisos Android
+### Permisos Android
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
 <uses-permission android:name="android.permission.INTERNET" />
 ```
 
-El usuario debe otorgar permisos en tiempo de ejecución (runtime permissions).
+El usuario debe otorgar permisos en tiempo de ejecución.
 
 ## Compilación
 
 ```bash
+# Compilar proyecto
 ./gradlew build
-```
 
-## Instalación
-
-```bash
+# Instalar en dispositivo
 ./gradlew installDebug
+
+# Ejecutar tests
+./gradlew test
 ```
 
 ## Contribuir
@@ -91,43 +160,41 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - Flujo de trabajo y estilo de código
 - Checklist antes de crear PR
 
-## Desarrollo
+## Roadmap
 
-### Hot Reload (Compose)
-Supported natively in Android Studio with Compose tooling.
+### ✅ Completado (Fase 1 - MVP)
+- [x] Escaneo de ISBN con cámara
+- [x] Búsqueda de metadatos (OpenLibrary + Google Books)
+- [x] Persistencia local con Room
+- [x] Lista de libros con portadas
+- [x] Edición completa de libros
+- [x] Detección de duplicados
+- [x] Búsqueda automática por ISBN en edición
 
-### Testing
-```bash
-./gradlew test                    # Unit tests
-./gradlew connectedAndroidTest   # Instrumentation tests
-```
-
-## Consideraciones Futuras (Fase 2+)
-
-- [ ] Persistencia de datos (Room Database)
-- [ ] Historial de escaneos
-- [ ] Speech-to-Text para entrada manual
-- [ ] Entrada manual de ISBN (teclado)
-- [ ] Integración con plataformas de venta (Wallapop, Vinted, etc.)
+### 🚧 En progreso / Próximo
+- [ ] Captura de portada con cámara/galería
+- [ ] Sistema de búsqueda/filtros en lista
 - [ ] Autenticación de usuario
-- [ ] Cloud sync
-- [ ] Offline support
+- [ ] Sincronización offline/online
+- [ ] Exportar/importar colección
 
-## Notas de Desarrollo en BlendOS
-
-- Gradle está configurado como estándar (sin dependencias nativas del host)
-- CameraX maneja automáticamente las particularidades de hardware
-- ML Kit se descarga dinámicamente
-- Gemini API funciona sobre HTTPS estándar
+### 🔮 Futuro (Nice to have)
+- [ ] Integración de IA (Gemini Vision) para análisis de estado
+- [ ] Estadísticas de colección
+- [ ] Integración con plataformas de venta
+- [ ] Lista de deseos (wishlist)
+- [ ] Tracking de préstamos
+- [ ] Speech-to-Text para entrada manual
 
 ## Licencia
 
-AFFERO v3
+AFFERO GPL v3
 
 ## Autor
 
-Staff Android Engineer - Modern Android Development Expert
+Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Phase 1 - Skeleton + Scanner Screen Implementation ✅
+**Status**: Fase 1 - MVP Completado ✅ (19 features implementadas)  
+**Última actualización:** Febrero 2026
