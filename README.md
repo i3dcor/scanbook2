@@ -83,6 +83,14 @@ El usuario debe otorgar permisos en tiempo de ejecución (runtime permissions).
 ./gradlew installDebug
 ```
 
+## Contribuir
+
+Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
+- Convenciones de nombres de ramas (`feature/`, `fix/`, `docs/`, etc.)
+- Formato de mensajes de commit (Conventional Commits)
+- Flujo de trabajo y estilo de código
+- Checklist antes de crear PR
+
 ## Desarrollo
 
 ### Hot Reload (Compose)
