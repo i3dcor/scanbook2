@@ -15,11 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -185,13 +181,7 @@ fun HomeScreen(
                 query = searchQuery,
                 onQueryChange = onSearchQueryChange,
                 onSearch = { /* Búsqueda en tiempo real, no requiere acción extra */ },
-                onMenuClick = { /* Lógica de menú */ },
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                profileAction = {
-                    IconButton(onClick = { /* Lógica de perfil */ }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile", tint = Color.White)
-                    }
-                }
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             if (books.isEmpty()) {
