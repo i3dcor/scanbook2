@@ -94,10 +94,13 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         is AppScreen.Home -> {
             // Refrescar libros cada vez que se vuelve a Home
             homeViewModel.refresh()
-            val books by homeViewModel.books.collectAsState()
+            val books by homeViewModel.filteredBooks.collectAsState()
+            val searchQuery by homeViewModel.searchQuery.collectAsState()
 
             HomeScreen(
                 books = books,
+                searchQuery = searchQuery,
+                onSearchQueryChange = homeViewModel::onSearchQueryChange,
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
@@ -161,12 +164,13 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
 @Composable
 fun HomeScreen(
     books: List<ScannedIsbn>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     onBookClick: (ScannedIsbn) -> Unit,
     onDeleteBook: (String) -> Unit,
     onScanClick: () -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
     var bookToDelete by remember { mutableStateOf<ScannedIsbn?>(null) }
 
     Box(
@@ -178,9 +182,9 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             HomeSearchBar(
-                query = query,
-                onQueryChange = { query = it },
-                onSearch = { /* Lógica de búsqueda */ },
+                query = searchQuery,
+                onQueryChange = onSearchQueryChange,
+                onSearch = { /* Búsqueda en tiempo real, no requiere acción extra */ },
                 onMenuClick = { /* Lógica de menú */ },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                 profileAction = {
@@ -198,7 +202,11 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No hay libros aún.\nEscanea tu primer libro.",
+                        text = if (searchQuery.isNotBlank()) {
+                            "No se encontraron resultados\npara \"$searchQuery\""
+                        } else {
+                            "No hay libros aún.\nEscanea tu primer libro."
+                        },
                         color = Color.Gray,
                         textAlign = TextAlign.Center
                     )
@@ -271,7 +279,7 @@ fun HomeScreenPreview() {
         ScannedIsbn(isbn = "4", title = "Refactoring", author = "Martin Fowler")
     )
     ScanBookTheme {
-        HomeScreen(books = sampleBooks, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
+        HomeScreen(books = sampleBooks, searchQuery = "", onSearchQueryChange = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
 
@@ -279,6 +287,6 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenEmptyPreview() {
     ScanBookTheme {
-        HomeScreen(books = emptyList(), onBookClick = {}, onDeleteBook = {}, onScanClick = {})
+        HomeScreen(books = emptyList(), searchQuery = "", onSearchQueryChange = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
