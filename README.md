@@ -32,6 +32,7 @@ ScanBook permite a los usuarios:
 - Edición completa de metadatos
 - Eliminación con confirmación
 - Detección de duplicados al escanear
+- **Búsqueda en tiempo real por ISBN, título o autor**
 
 ### ✅ Edición de Libros
 - Formulario completo con campos editables:
@@ -173,7 +174,6 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 
 ### 🚧 En progreso / Próximo
 - [ ] Captura de portada con cámara/galería
-- [ ] Sistema de búsqueda/filtros en lista
 - [ ] Sincronización offline/online
 - [ ] Exportar/importar colección
 
@@ -188,8 +188,6 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] Speech-to-Text para entrada manual
 - [ ] Integración con plataformas de venta (Wallapop, Vinted, etc.)
 - [ ] Autenticación de usuario
-- [ ] Cloud sync
-- [ ] Offline support
 
 ## Licencia
 

@@ -11,11 +11,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 19 |
-| **Tiempo total estimado** | ~52-58 horas |
-| **Promedio por feature** | ~2.7-3 horas |
-| **Tasa de retrabajo** | Baja (5.3% - 1 bugfix en 19 tareas) |
-| **Líneas de código aproximadas** | ~3,500-4,000 |
+| **Total features implementadas** | 21 |
+| **Tiempo total estimado** | ~55-62 horas |
+| **Promedio por feature** | ~2.6-3 horas |
+| **Tasa de retrabajo** | Baja (4.8% - 1 bugfix en 21 tareas) |
+| **Líneas de código aproximadas** | ~3,600-4,100 |
 
 **Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.7-3 horas por feature indica muy buena productividad.
 
@@ -206,6 +206,27 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 ---
 
+### 2.7 Búsqueda y UI (Sesión Reciente)
+
+#### Feature 20: Búsqueda en tiempo real por ISBN, título y autor
+- **Descripción:** Sistema de filtrado reactivo en HomeScreen que busca simultáneamente en isbn, título y autor
+- **Tiempo estimado:** 2-3 horas
+- **Complejidad:** Media
+- **Archivos afectados:** `HomeViewModel.kt`, `MainActivity.kt`
+- **Notas:** 
+  - Uso de StateFlow y combine para filtrado reactivo
+  - Filtro case-insensitive, null-safe
+  - Mensaje diferenciado cuando no hay resultados
+
+#### Feature 21: Icono de cancelar búsqueda
+- **Descripción:** Botón "X" circular en la barra de búsqueda para limpiar el texto
+- **Tiempo estimado:** 1-1.5 horas
+- **Complejidad:** Baja
+- **Archivos afectados:** `Searcher.kt`
+- **Notas:** 
+  - Icono visible solo cuando hay texto
+  - Limpia query y oculta teclado al pulsar
+
 ## 3. Resumen por Categorías
 
 ### 3.1 Distribución de esfuerzo
@@ -218,14 +239,14 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | **Gestión y funcionalidades** | 6-9h | ~14% |
 | **Mejoras UI/Polish** | 9-11h | ~19% |
 | **Bugfixes/Refinamiento** | 2-3h | ~5% |
-| **TOTAL** | **~52-58h** | **100%** |
+| **TOTAL** | **~55-62h** | **100%** |
 
 ### 3.2 Análisis de complejidad
 
 | Complejidad | Cantidad | Tiempo promedio |
-|-------------|----------|-----------------|
+|-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 7 | 1-2h |
+| Baja | 9 | 1-2h |
 | Media | 9 | 3-4h |
 | Media-Alta | 2 | 4-5h |
 | Alta | 1 | 4-5h |
@@ -544,6 +565,7 @@ El proyecto demuestra:
 | Versión | Fecha | Autor | Cambios |
 |---------|-------|-------|---------|
 | 1.0 | 2026-02-18 | Claude | Documento inicial con análisis completo de 19 features implementadas, métricas de productividad y proyección futura de 123-171h |
+| 1.1 | 2026-02-20 | Claude | Añadir features 20 (búsqueda en tiempo real) y 21 (icono cancelar búsqueda), actualizar contadores: 21 features, ~55-62h |
 
 ---
 
