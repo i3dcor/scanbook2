@@ -6,8 +6,11 @@ import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /**
@@ -21,8 +24,35 @@ class HomeViewModel(
     private val _books = MutableStateFlow<List<ScannedIsbn>>(emptyList())
     val books: StateFlow<List<ScannedIsbn>> = _books.asStateFlow()
 
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    /**
+     * Lista de libros filtrada en tiempo real por ISBN, título o autor.
+     * Si la query está vacía, devuelve todos los libros.
+     */
+    val filteredBooks: StateFlow<List<ScannedIsbn>> = combine(_books, _searchQuery) { books, query ->
+        if (query.isBlank()) {
+            books
+        } else {
+            val lowerQuery = query.lowercase()
+            books.filter { book ->
+                book.isbn.lowercase().contains(lowerQuery) ||
+                    book.title.orEmpty().lowercase().contains(lowerQuery) ||
+                    book.author.orEmpty().lowercase().contains(lowerQuery)
+            }
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     init {
         refresh()
+    }
+
+    /**
+     * Actualiza la query de búsqueda para filtrar libros en tiempo real.
+     */
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
     }
 
     /**

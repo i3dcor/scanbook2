@@ -15,11 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -94,10 +90,13 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         is AppScreen.Home -> {
             // Refrescar libros cada vez que se vuelve a Home
             homeViewModel.refresh()
-            val books by homeViewModel.books.collectAsState()
+            val books by homeViewModel.filteredBooks.collectAsState()
+            val searchQuery by homeViewModel.searchQuery.collectAsState()
 
             HomeScreen(
                 books = books,
+                searchQuery = searchQuery,
+                onSearchQueryChange = homeViewModel::onSearchQueryChange,
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
@@ -161,12 +160,13 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
 @Composable
 fun HomeScreen(
     books: List<ScannedIsbn>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     onBookClick: (ScannedIsbn) -> Unit,
     onDeleteBook: (String) -> Unit,
     onScanClick: () -> Unit
 ) {
-    var query by remember { mutableStateOf("") }
     var bookToDelete by remember { mutableStateOf<ScannedIsbn?>(null) }
 
     Box(
@@ -178,16 +178,10 @@ fun HomeScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             HomeSearchBar(
-                query = query,
-                onQueryChange = { query = it },
-                onSearch = { /* Lógica de búsqueda */ },
-                onMenuClick = { /* Lógica de menú */ },
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                profileAction = {
-                    IconButton(onClick = { /* Lógica de perfil */ }) {
-                        Icon(Icons.Default.Person, contentDescription = "Profile", tint = Color.White)
-                    }
-                }
+                query = searchQuery,
+                onQueryChange = onSearchQueryChange,
+                onSearch = { /* Búsqueda en tiempo real, no requiere acción extra */ },
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             if (books.isEmpty()) {
@@ -198,7 +192,11 @@ fun HomeScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "No hay libros aún.\nEscanea tu primer libro.",
+                        text = if (searchQuery.isNotBlank()) {
+                            "No se encontraron resultados\npara \"$searchQuery\""
+                        } else {
+                            "No hay libros aún.\nEscanea tu primer libro."
+                        },
                         color = Color.Gray,
                         textAlign = TextAlign.Center
                     )
@@ -271,7 +269,7 @@ fun HomeScreenPreview() {
         ScannedIsbn(isbn = "4", title = "Refactoring", author = "Martin Fowler")
     )
     ScanBookTheme {
-        HomeScreen(books = sampleBooks, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
+        HomeScreen(books = sampleBooks, searchQuery = "", onSearchQueryChange = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
 
@@ -279,6 +277,6 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenEmptyPreview() {
     ScanBookTheme {
-        HomeScreen(books = emptyList(), onBookClick = {}, onDeleteBook = {}, onScanClick = {})
+        HomeScreen(books = emptyList(), searchQuery = "", onSearchQueryChange = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
