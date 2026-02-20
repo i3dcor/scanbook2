@@ -1,13 +1,21 @@
 package com.i3dcor.scanbook.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -52,20 +60,20 @@ fun HomeSearchBar(
             .fillMaxWidth()
             .height(56.dp),
         shape = CircleShape,
-        color = Color(0xFF2C2C2E), // Color oscuro extraído de la imagen
+        color = Color(0xFF2C2C2E),
         shadowElevation = 3.dp
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.Center
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Campo de texto para la búsqueda
             BasicTextField(
                 value = query,
                 onValueChange = onQueryChange,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 singleLine = true,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
@@ -73,7 +81,6 @@ fun HomeSearchBar(
                 keyboardActions = KeyboardActions(
                     onSearch = {
                         onSearch(query)
-                        // Ocultar teclado al buscar
                         focusManager.clearFocus()
                     }
                 ),
@@ -90,6 +97,30 @@ fun HomeSearchBar(
                     }
                 }
             )
+
+            // Icono de cancelar búsqueda (visible solo cuando hay texto)
+            if (query.isNotEmpty()) {
+                IconButton(
+                    onClick = {
+                        onQueryChange("")
+                        focusManager.clearFocus()
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Borrar búsqueda",
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(
+                                color = Color.Gray.copy(alpha = 0.6f),
+                                shape = CircleShape
+                            )
+                            .padding(3.dp),
+                        tint = Color.White
+                    )
+                }
+            }
         }
     }
 }
