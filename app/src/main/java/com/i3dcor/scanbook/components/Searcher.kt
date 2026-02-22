@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.dp
  * @param query El texto actual en la barra de búsqueda.
  * @param onQueryChange Callback que se invoca cuando el usuario modifica el texto.
  * @param onSearch Callback que se invoca cuando el usuario ejecuta una acción de búsqueda (ej. desde el teclado).
+ * @param onExportClick Callback que se invoca al pulsar el botón de exportar.
  * @param modifier Modificador para personalizar el estilo y layout del componente.
  * @param placeholderText Texto que se muestra cuando la búsqueda está vacía.
  */
@@ -50,6 +52,7 @@ fun HomeSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
+    onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
     placeholderText: String = "Search titles or authors"
 ) {
@@ -120,6 +123,19 @@ fun HomeSearchBar(
                         tint = Color.White
                     )
                 }
+            } else {
+                // Botón de exportar (visible cuando no hay búsqueda activa)
+                IconButton(
+                    onClick = onExportClick,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Upload,
+                        contentDescription = "Exportar colección",
+                        modifier = Modifier.size(22.dp),
+                        tint = Color.White.copy(alpha = 0.8f)
+                    )
+                }
             }
         }
     }
@@ -133,7 +149,8 @@ private fun HomeSearchBarPreview() {
         HomeSearchBar(
             query = query,
             onQueryChange = { query = it },
-            onSearch = { }
+            onSearch = { },
+            onExportClick = { }
         )
     }
 }
@@ -146,7 +163,8 @@ private fun HomeSearchBarWithTextPreview() {
         HomeSearchBar(
             query = query,
             onQueryChange = { query = it },
-            onSearch = { }
+            onSearch = { },
+            onExportClick = { }
         )
     }
 }
