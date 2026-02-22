@@ -36,6 +36,7 @@ import com.i3dcor.scanbook.components.BookCoverThumbnail
 import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.EditBookScreen
+import com.i3dcor.scanbook.components.ExportDataScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
@@ -67,6 +68,7 @@ class MainActivity : ComponentActivity() {
 private sealed class AppScreen {
     data object Home : AppScreen()
     data object Camera : AppScreen()
+    data object Export : AppScreen()
     data class ScanResult(val isbn: String) : AppScreen()
     data class EditBook(val book: ScannedIsbn?, val from: AppScreen) : AppScreen()
 }
@@ -97,10 +99,17 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 books = books,
                 searchQuery = searchQuery,
                 onSearchQueryChange = homeViewModel::onSearchQueryChange,
+                onExportClick = { currentScreen = AppScreen.Export },
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
                 onScanClick = { currentScreen = AppScreen.Camera }
+            )
+        }
+        is AppScreen.Export -> {
+            ExportDataScreen(
+                onCloseClick = { currentScreen = AppScreen.Home },
+                modifier = modifier
             )
         }
         is AppScreen.Camera -> {
@@ -162,6 +171,7 @@ fun HomeScreen(
     books: List<ScannedIsbn>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
+    onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
     onBookClick: (ScannedIsbn) -> Unit,
     onDeleteBook: (String) -> Unit,
@@ -181,6 +191,7 @@ fun HomeScreen(
                 query = searchQuery,
                 onQueryChange = onSearchQueryChange,
                 onSearch = { /* Búsqueda en tiempo real, no requiere acción extra */ },
+                onExportClick = onExportClick,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
@@ -269,7 +280,7 @@ fun HomeScreenPreview() {
         ScannedIsbn(isbn = "4", title = "Refactoring", author = "Martin Fowler")
     )
     ScanBookTheme {
-        HomeScreen(books = sampleBooks, searchQuery = "", onSearchQueryChange = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
+        HomeScreen(books = sampleBooks, searchQuery = "", onSearchQueryChange = {}, onExportClick = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
 
@@ -277,6 +288,6 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenEmptyPreview() {
     ScanBookTheme {
-        HomeScreen(books = emptyList(), searchQuery = "", onSearchQueryChange = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
+        HomeScreen(books = emptyList(), searchQuery = "", onSearchQueryChange = {}, onExportClick = {}, onBookClick = {}, onDeleteBook = {}, onScanClick = {})
     }
 }
