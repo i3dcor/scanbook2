@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
 private sealed class AppScreen {
     data object Home : AppScreen()
     data object Camera : AppScreen()
-    data object Export : AppScreen()
+    data class Export(val books: List<ScannedIsbn>) : AppScreen()
     data class ScanResult(val isbn: String) : AppScreen()
     data class EditBook(val book: ScannedIsbn?, val from: AppScreen) : AppScreen()
 }
@@ -99,7 +99,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 books = books,
                 searchQuery = searchQuery,
                 onSearchQueryChange = homeViewModel::onSearchQueryChange,
-                onExportClick = { currentScreen = AppScreen.Export },
+                onExportClick = { currentScreen = AppScreen.Export(books) },
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
@@ -108,6 +108,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         }
         is AppScreen.Export -> {
             ExportDataScreen(
+                books = screen.books,
                 onCloseClick = { currentScreen = AppScreen.Home },
                 modifier = modifier
             )
