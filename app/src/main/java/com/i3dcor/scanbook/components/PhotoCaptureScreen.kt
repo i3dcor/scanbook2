@@ -1,5 +1,18 @@
 package com.i3dcor.scanbook.components
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.util.Log
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -20,6 +33,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,42 +44,95 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
+import java.io.File
 
 @Composable
 fun PhotoCaptureScreen(
+    isbn: String,
     modifier: Modifier = Modifier,
-    onCaptureClick: () -> Unit = {},
-    onFlashClick: (Boolean) -> Unit = {},
+    onPhotoCaptured: (String) -> Unit = {},
     onBackClick: () -> Unit = {}
 ) {
+    val context = LocalContext.current
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
     var isFlashOn by remember { mutableStateOf(false) }
+    var imageCapture by remember { mutableStateOf<ImageCapture?>(null) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted -> hasCameraPermission = isGranted }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
+    BackHandler { onBackClick() }
 
     Box(modifier = modifier.fillMaxSize()) {
-        // Placeholder for CameraX Preview
-        CameraPreviewPlaceholder(modifier = Modifier.fillMaxSize())
+        if (hasCameraPermission) {
+            CameraPreviewWithCapture(
+                isFlashOn = isFlashOn,
+                onImageCaptureReady = { imageCapture = it },
+                modifier = Modifier.fillMaxSize()
+            )
+        } else {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "Camera permission required", color = Color.White)
+            }
+        }
 
-        // Top right flash button
         FlashToggleButton(
             isFlashOn = isFlashOn,
-            onClick = {
-                isFlashOn = !isFlashOn
-                onFlashClick(isFlashOn)
-            },
+            onClick = { isFlashOn = !isFlashOn },
             modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(24.dp)
         )
 
-        // Bottom section with gradient and capture button
         BottomControlsOverlay(
             modifier = Modifier.align(Alignment.BottomCenter)
         ) {
             CapturePhotoButton(
-                onClick = onCaptureClick,
+                onClick = {
+                    val ic = imageCapture ?: return@CapturePhotoButton
+                    val coversDir = File(context.filesDir, "covers").also { it.mkdirs() }
+                    val filename = if (isbn.isNotBlank()) "$isbn.jpg" else "temp_capture.jpg"
+                    val file = File(coversDir, filename)
+                    ic.takePicture(
+                        ImageCapture.OutputFileOptions.Builder(file).build(),
+                        ContextCompat.getMainExecutor(context),
+                        object : ImageCapture.OnImageSavedCallback {
+                            override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                                onPhotoCaptured(file.absolutePath)
+                            }
+                            override fun onError(exc: ImageCaptureException) {
+                                Log.e("PhotoCapture", "Capture failed: ${exc.message}")
+                            }
+                        }
+                    )
+                },
                 modifier = Modifier.padding(bottom = 48.dp, start = 32.dp, end = 32.dp)
             )
         }
@@ -72,20 +140,62 @@ fun PhotoCaptureScreen(
 }
 
 @Composable
-fun CameraPreviewPlaceholder(modifier: Modifier = Modifier) {
-    // Represents the camera feed. For UI preview purposes, we use a solid peach color
-    // to match the background in the provided image.
-    Box(
-        modifier = modifier
-            .background(Color(0xFFF1D4C9)) // Peach background from image
-    ) {
-        // In a real implementation, CameraX's AndroidView would go here.
-        // I won't draw the fake camera inside, as the requirement is just the UI overlay.
+private fun CameraPreviewWithCapture(
+    isFlashOn: Boolean,
+    onImageCaptureReady: (ImageCapture) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var camera by remember { mutableStateOf<Camera?>(null) }
+
+    LaunchedEffect(isFlashOn) {
+        camera?.cameraControl?.enableTorch(isFlashOn)
     }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            camera?.cameraControl?.enableTorch(false)
+        }
+    }
+
+    AndroidView(
+        factory = { ctx ->
+            PreviewView(ctx).apply {
+                implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+                scaleType = PreviewView.ScaleType.FILL_CENTER
+            }
+        },
+        modifier = modifier,
+        update = { previewView ->
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+            cameraProviderFuture.addListener({
+                val cameraProvider = cameraProviderFuture.get()
+                val preview = Preview.Builder().build().also {
+                    it.surfaceProvider = previewView.surfaceProvider
+                }
+                val imageCaptureUseCase = ImageCapture.Builder().build()
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+                try {
+                    cameraProvider.unbindAll()
+                    camera = cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        cameraSelector,
+                        preview,
+                        imageCaptureUseCase
+                    )
+                    camera?.cameraControl?.enableTorch(isFlashOn)
+                    onImageCaptureReady(imageCaptureUseCase)
+                } catch (e: Exception) {
+                    Log.e("PhotoCapture", "Camera binding failed", e)
+                }
+            }, ContextCompat.getMainExecutor(context))
+        }
+    )
 }
 
 @Composable
-fun FlashToggleButton(
+private fun FlashToggleButton(
     isFlashOn: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -94,7 +204,7 @@ fun FlashToggleButton(
         modifier = modifier
             .size(48.dp)
             .clip(CircleShape)
-            .background(Color.Black.copy(alpha = 0.2f)) // Semi-transparent black
+            .background(Color.Black.copy(alpha = 0.2f))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -108,7 +218,7 @@ fun FlashToggleButton(
 }
 
 @Composable
-fun BottomControlsOverlay(
+private fun BottomControlsOverlay(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
@@ -120,7 +230,7 @@ fun BottomControlsOverlay(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color.Transparent,
-                        Color.Black.copy(alpha = 0.5f) // Dark gradient at the bottom
+                        Color.Black.copy(alpha = 0.5f)
                     )
                 )
             ),
@@ -131,7 +241,7 @@ fun BottomControlsOverlay(
 }
 
 @Composable
-fun CapturePhotoButton(
+private fun CapturePhotoButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -139,11 +249,11 @@ fun CapturePhotoButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(60.dp), // A bit taller than standard buttons
+            .height(60.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF2962FF) // Primary Blue
+            containerColor = Color(0xFF2962FF)
         ),
-        shape = RoundedCornerShape(30.dp) // Fully rounded
+        shape = RoundedCornerShape(30.dp)
     ) {
         Icon(
             imageVector = Icons.Default.CameraAlt,
@@ -161,10 +271,10 @@ fun CapturePhotoButton(
     }
 }
 
-@Preview(showBackground = true)
+@ComposePreview(showBackground = true)
 @Composable
 fun PhotoCaptureScreenPreview() {
     ScanBookTheme {
-        PhotoCaptureScreen()
+        PhotoCaptureScreen(isbn = "")
     }
 }
