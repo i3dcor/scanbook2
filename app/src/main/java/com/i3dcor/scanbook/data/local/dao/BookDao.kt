@@ -27,4 +27,7 @@ interface BookDao {
 
     @Query("SELECT * FROM books WHERE isbn = :isbn LIMIT 1")
     fun getByIsbn(isbn: String): BookEntity?
+
+    @Query("UPDATE books SET coverLocalPath = :localPath WHERE isbn = :isbn")
+    fun updateCoverLocalPath(isbn: String, localPath: String)
 }

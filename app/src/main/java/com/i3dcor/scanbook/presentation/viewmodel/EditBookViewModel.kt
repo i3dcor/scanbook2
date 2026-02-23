@@ -9,6 +9,7 @@ import com.i3dcor.scanbook.data.repository.OpenLibraryBookRepository
 import com.i3dcor.scanbook.domain.model.BookNotFoundException
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.domain.repository.BookLookupRepository
+import com.i3dcor.scanbook.domain.repository.CoverDownloadScheduler
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,8 @@ class EditBookViewModel(
             OpenLibraryBookRepository(),
             GoogleBooksRepository()
         )
-    )
+    ),
+    private val coverScheduler: CoverDownloadScheduler? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(mapToUiState(initialBook))
@@ -76,6 +78,9 @@ class EditBookViewModel(
         )
         viewModelScope.launch(Dispatchers.IO) {
             repository.insert(scannedIsbn)
+            scannedIsbn.coverUrl?.let { url ->
+                coverScheduler?.scheduleCoverDownload(scannedIsbn.isbn, url)
+            }
             launch(Dispatchers.Main) {
                 onComplete()
             }
