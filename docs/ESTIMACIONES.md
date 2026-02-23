@@ -600,10 +600,10 @@ El proyecto demuestra:
 
 | Versión | Fecha | Autor | Cambios |
 |---------|-------|-------|---------|
-| 1.0 | 2026-02-18 | Claude | Documento inicial con análisis completo de 19 features implementadas, métricas de productividad y proyección futura de 123-171h |
-| 1.1 | 2026-02-20 | Claude | Añadir features 20 (búsqueda en tiempo real) y 21 (icono cancelar búsqueda), actualizar contadores: 21 features, ~55-62h |
-| 1.2 | 2026-02-23 | Claude | Features 22 (portadas locales con WorkManager) y 23 (exportación ZIP); marcar como completados búsqueda/filtros y exportación en tareas futuras; distribución de esfuerzo actualizada; total: 23 features, ~61-70h |
-| 1.3 | 2026-02-23 | Claude | Corregir secciones omitidas en v1.2: análisis de complejidad (Baja 9→10, Media-Alta 2→3), riesgo APIs externas mitigado, roadmap visual actualizado, fortaleza #6 WorkManager boundary, esfuerzo restante reducido (beta 30-40h→20-28h), próximos pasos actualizados |
+| 1.0 | 2026-02-18 | Cerqueiro | Documento inicial con análisis completo de 19 features implementadas, métricas de productividad y proyección futura de 123-171h |
+| 1.1 | 2026-02-20 | Cerqueiro | Añadir features 20 (búsqueda en tiempo real) y 21 (icono cancelar búsqueda), actualizar contadores: 21 features, ~55-62h |
+| 1.2 | 2026-02-23 | Cerqueiro | Features 22 (portadas locales con WorkManager) y 23 (exportación ZIP); marcar como completados búsqueda/filtros y exportación en tareas futuras; distribución de esfuerzo actualizada; total: 23 features, ~61-70h |
+| 1.3 | 2026-02-23 | Cerqueiro | Corregir secciones omitidas en v1.2: análisis de complejidad (Baja 9→10, Media-Alta 2→3), riesgo APIs externas mitigado, roadmap visual actualizado, fortaleza #6 WorkManager boundary, esfuerzo restante reducido (beta 30-40h→20-28h), próximos pasos actualizados |
 
 ---
 
