@@ -3,21 +3,26 @@ package com.i3dcor.scanbook.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +37,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 
 /**
@@ -43,7 +49,7 @@ import androidx.compose.ui.unit.dp
  * @param query El texto actual en la barra de búsqueda.
  * @param onQueryChange Callback que se invoca cuando el usuario modifica el texto.
  * @param onSearch Callback que se invoca cuando el usuario ejecuta una acción de búsqueda (ej. desde el teclado).
- * @param onExportClick Callback que se invoca al pulsar el botón de exportar.
+ * @param onExportClick Callback que se invoca al pulsar la opción de exportar en el menú.
  * @param modifier Modificador para personalizar el estilo y layout del componente.
  * @param placeholderText Texto que se muestra cuando la búsqueda está vacía.
  */
@@ -57,6 +63,7 @@ fun HomeSearchBar(
     placeholderText: String = "Search titles or authors"
 ) {
     val focusManager = LocalFocusManager.current
+    var showMenu by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier
@@ -69,9 +76,47 @@ fun HomeSearchBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Menú desplegable a la izquierda
+            Box {
+                IconButton(onClick = { showMenu = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Menu,
+                        contentDescription = "Menú de opciones",
+                        tint = Color.Gray
+                    )
+                }
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                    offset = DpOffset(0.dp, 10.dp),
+                    modifier = Modifier.background(Color(0xFF252528))
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Exportar", color = Color.White) },
+                        onClick = {
+                            showMenu = false
+                            onExportClick()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Upload,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
+                        },
+                        colors = MenuDefaults.itemColors(
+                            textColor = Color.White,
+                            leadingIconColor = Color.White
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
+
             // Campo de texto para la búsqueda
             BasicTextField(
                 value = query,
@@ -124,18 +169,9 @@ fun HomeSearchBar(
                     )
                 }
             } else {
-                // Botón de exportar (visible cuando no hay búsqueda activa)
-                IconButton(
-                    onClick = onExportClick,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Upload,
-                        contentDescription = "Exportar colección",
-                        modifier = Modifier.size(22.dp),
-                        tint = Color.White.copy(alpha = 0.8f)
-                    )
-                }
+                // Espacio vacío para equilibrar si se desea, o simplemente nada.
+                // Anteriormente estaba el botón de exportar aquí.
+                Spacer(modifier = Modifier.size(32.dp))
             }
         }
     }
