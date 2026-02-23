@@ -10,24 +10,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import java.io.File
 
 /**
  * Miniatura de la portada de un libro.
  *
- * Componente reutilizable que muestra la imagen de portada desde una URL
- * o un icono placeholder si no hay URL disponible.
+ * Prioriza el archivo local sobre la URL remota para funcionar sin internet.
  *
- * @param coverUrl URL de la portada del libro (nullable).
+ * @param coverUrl URL remota de la portada (nullable).
+ * @param coverLocalPath Ruta absoluta al archivo local comprimido (nullable).
  * @param modifier Modificador para personalizar el estilo y layout.
  */
 @Composable
 fun BookCoverThumbnail(
     coverUrl: String?,
+    coverLocalPath: String? = null,
     modifier: Modifier = Modifier
 ) {
-    if (coverUrl != null) {
+    val imageModel: Any? = when {
+        coverLocalPath != null -> File(coverLocalPath)
+        coverUrl != null -> coverUrl
+        else -> null
+    }
+    if (imageModel != null) {
         AsyncImage(
-            model = coverUrl,
+            model = imageModel,
             contentDescription = "Portada del libro",
             modifier = modifier,
             contentScale = ContentScale.Fit

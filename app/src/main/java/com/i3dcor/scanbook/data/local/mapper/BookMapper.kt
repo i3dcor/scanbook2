@@ -15,7 +15,8 @@ fun BookEntity.toDomain(): ScannedIsbn = ScannedIsbn(
     genre = genre,
     price = price,
     condition = condition,
-    coverUrl = coverUrl
+    coverUrl = coverUrl,
+    coverLocalPath = coverLocalPath
 )
 
 fun ScannedIsbn.toEntity(): BookEntity = BookEntity(
@@ -25,5 +26,6 @@ fun ScannedIsbn.toEntity(): BookEntity = BookEntity(
     genre = genre,
     price = price,
     condition = condition,
-    coverUrl = coverUrl
+    coverUrl = coverUrl,
+    coverLocalPath = coverLocalPath
 )

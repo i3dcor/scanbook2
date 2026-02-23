@@ -16,5 +16,6 @@ data class BookEntity(
     val genre: String? = null,
     val price: Double? = null,
     val condition: String? = null,
-    val coverUrl: String? = null
+    val coverUrl: String? = null,
+    val coverLocalPath: String? = null
 )

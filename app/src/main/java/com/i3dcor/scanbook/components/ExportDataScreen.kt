@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.runtime.key
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -53,6 +54,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
+import java.io.File
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 @Composable
 fun ExportDataScreen(
@@ -70,21 +74,26 @@ fun ExportDataScreen(
         estimateExportSize(books, selectedFormat)
     }
 
-    // SAF launcher: cuando el usuario elige dónde guardar, se escribe el contenido
-    val saveFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.CreateDocument(
-            if (selectedFormat == "CSV") "text/csv" else "application/json"
-        )
-    ) { uri: Uri? ->
-        if (uri != null) {
-            val content = if (selectedFormat == "CSV") {
-                booksToCsv(books)
-            } else {
-                booksToJson(books)
+    // SAF launcher: se recrea al cambiar de formato para actualizar el MIME type
+    val saveFileLauncher = key(selectedFormat) {
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.CreateDocument(
+                when (selectedFormat) {
+                    "CSV" -> "text/csv"
+                    "ZIP" -> "application/zip"
+                    else -> "application/json"
+                }
+            )
+        ) { uri: Uri? ->
+            if (uri != null) {
+                when (selectedFormat) {
+                    "CSV" -> writeContentToUri(context, uri, booksToCsv(books))
+                    "ZIP" -> writeBooksZipToUri(context, uri, books)
+                    else -> writeContentToUri(context, uri, booksToJson(books))
+                }
+                Toast.makeText(context, "Exportación completada", Toast.LENGTH_SHORT).show()
+                onExportClick()
             }
-            writeContentToUri(context, uri, content)
-            Toast.makeText(context, "Exportación completada", Toast.LENGTH_SHORT).show()
-            onExportClick()
         }
     }
 
@@ -127,6 +136,15 @@ fun ExportDataScreen(
                 onClick = { selectedFormat = "JSON" }
             )
 
+            Spacer(modifier = Modifier.height(12.dp))
+
+            ExportFormatOption(
+                title = "ZIP (Autocontenido)",
+                description = "Archivo comprimido con books.json y portadas locales descargadas.",
+                isSelected = selectedFormat == "ZIP",
+                onClick = { selectedFormat = "ZIP" }
+            )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             SectionTitle(text = "DESTINO")
@@ -146,7 +164,11 @@ fun ExportDataScreen(
             ) {
                 ExportActionButton(
                     onClick = {
-                        val extension = if (selectedFormat == "CSV") "csv" else "json"
+                        val extension = when (selectedFormat) {
+                            "CSV" -> "csv"
+                            "ZIP" -> "zip"
+                            else -> "json"
+                        }
                         val fileName = "scanbook_export.$extension"
                         saveFileLauncher.launch(fileName)
                     }
@@ -393,13 +415,18 @@ private fun estimateExportSize(books: List<ScannedIsbn>, format: String): String
 
     val totalBytes = when (format) {
         "CSV" -> {
-            val headerBytes = 50L // isbn,title,author,genre,price,condition
+            val headerBytes = 50L
             val perBookBytes = 120L
             headerBytes + (books.size * perBookBytes)
         }
+        "ZIP" -> {
+            val jsonBytes = 20L + (books.size * 350L)
+            val booksWithLocalCover = books.count { it.coverLocalPath != null }.toLong()
+            (jsonBytes * 0.4 + booksWithLocalCover * 8192).toLong()
+        }
         else -> { // JSON
-            val overheadBytes = 20L // [ ] + formatting
-            val perBookBytes = 350L // keys, values, coverUrl, braces, quotes
+            val overheadBytes = 20L
+            val perBookBytes = 350L
             overheadBytes + (books.size * perBookBytes)
         }
     }
@@ -492,6 +519,29 @@ private fun jsonString(value: String?): String {
 private fun writeContentToUri(context: Context, uri: Uri, content: String) {
     context.contentResolver.openOutputStream(uri)?.use { outputStream ->
         outputStream.write(content.toByteArray(Charsets.UTF_8))
+    }
+}
+
+/**
+ * Escribe un ZIP autocontenido en el Uri dado.
+ * Incluye books.json en la raíz y covers/{isbn}.jpg por cada portada local disponible.
+ */
+private fun writeBooksZipToUri(context: Context, uri: Uri, books: List<ScannedIsbn>) {
+    context.contentResolver.openOutputStream(uri)?.use { out ->
+        ZipOutputStream(out).use { zip ->
+            val json = booksToJson(books).toByteArray(Charsets.UTF_8)
+            zip.putNextEntry(ZipEntry("books.json"))
+            zip.write(json)
+            zip.closeEntry()
+            books.forEach { book ->
+                val path = book.coverLocalPath ?: return@forEach
+                val file = File(path)
+                if (!file.exists()) return@forEach
+                zip.putNextEntry(ZipEntry("covers/${book.isbn}.jpg"))
+                file.inputStream().use { it.copyTo(zip) }
+                zip.closeEntry()
+            }
+        }
     }
 }
 

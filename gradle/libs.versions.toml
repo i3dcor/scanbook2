@@ -19,6 +19,7 @@ ksp = "2.0.21-1.0.28"
 mockk = "1.13.8"
 coroutinesTest = "1.7.3"
 turbine = "1.0.0"
+work = "2.9.1"
 
 [libraries]
 # ML Kit
@@ -64,6 +65,9 @@ turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+
+# WorkManager
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

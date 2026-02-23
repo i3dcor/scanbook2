@@ -3,6 +3,7 @@ package com.i3dcor.scanbook.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
+import com.i3dcor.scanbook.domain.repository.CoverDownloadScheduler
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
  * Carga la lista de libros desde el repositorio y la expone como StateFlow.
  */
 class HomeViewModel(
-    private val repository: IsbnRepository
+    private val repository: IsbnRepository,
+    private val coverScheduler: CoverDownloadScheduler? = null
 ) : ViewModel() {
 
     private val _books = MutableStateFlow<List<ScannedIsbn>>(emptyList())
@@ -74,6 +76,19 @@ class HomeViewModel(
             repository.insert(book)
             val result = repository.getAll()
             _books.value = result
+        }
+    }
+
+    /**
+     * Re-encola la descarga de portadas para libros guardados que aún no tienen imagen local.
+     * Útil al arrancar la app para recuperar descargas fallidas o pendientes.
+     */
+    fun downloadPendingCovers() {
+        val scheduler = coverScheduler ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.getAll()
+                .filter { it.coverUrl != null && it.coverLocalPath == null }
+                .forEach { book -> scheduler.scheduleCoverDownload(book.isbn, book.coverUrl!!) }
         }
     }
 

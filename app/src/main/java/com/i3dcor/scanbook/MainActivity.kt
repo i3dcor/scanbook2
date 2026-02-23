@@ -20,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +43,7 @@ import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
 import com.i3dcor.scanbook.data.local.ScanBookDatabase
 import com.i3dcor.scanbook.data.repository.RoomIsbnRepository
+import com.i3dcor.scanbook.data.scheduler.WorkManagerCoverScheduler
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.presentation.viewmodel.EditBookViewModel
 import com.i3dcor.scanbook.presentation.viewmodel.HomeViewModel
@@ -85,13 +87,20 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         RoomIsbnRepository(db.bookDao())
     }
 
+    // Scheduler de portadas (WorkManager)
+    val coverScheduler = remember { WorkManagerCoverScheduler(context) }
+
     // ViewModel de Home (persiste entre navegaciones)
-    val homeViewModel = remember { HomeViewModel(repository) }
+    val homeViewModel = remember { HomeViewModel(repository, coverScheduler) }
 
     when (val screen = currentScreen) {
         is AppScreen.Home -> {
             // Refrescar libros cada vez que se vuelve a Home
             homeViewModel.refresh()
+            // Encolar descargas pendientes de portadas al arrancar/volver a Home
+            LaunchedEffect(Unit) {
+                homeViewModel.downloadPendingCovers()
+            }
             val books by homeViewModel.filteredBooks.collectAsState()
             val searchQuery by homeViewModel.searchQuery.collectAsState()
 
@@ -146,7 +155,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
         }
         is AppScreen.EditBook -> {
             val viewModel = remember(screen) {
-                EditBookViewModel(initialBook = screen.book, repository = repository)
+                EditBookViewModel(initialBook = screen.book, repository = repository, coverScheduler = coverScheduler)
             }
             val editUiState by viewModel.uiState.collectAsState()
 
@@ -226,7 +235,7 @@ fun HomeScreen(
                             onItemClick = { onBookClick(book) },
                             onDeleteClick = { bookToDelete = book }
                         ) {
-                            BookCoverThumbnail(coverUrl = book.coverUrl)
+                            BookCoverThumbnail(coverUrl = book.coverUrl, coverLocalPath = book.coverLocalPath)
                         }
                     }
                 }
