@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -39,6 +40,7 @@ class EditBookViewModel(
     val uiState: StateFlow<EditBookUiState> = _uiState.asStateFlow()
 
     private var lookupJob: Job? = null
+    private var capturedPhotoPath: String? = null
 
     fun onIsbnChange(value: String) {
         _uiState.update { it.copy(isbn = value, searchError = null) }
@@ -65,6 +67,17 @@ class EditBookViewModel(
         _uiState.update { it.copy(condition = value) }
     }
 
+    fun onLocalCoverCaptured(path: String) {
+        capturedPhotoPath = path
+        _uiState.update { it.copy(coverLocalPath = path) }
+    }
+
+    fun discardCapturedPhoto() {
+        capturedPhotoPath?.let { File(it).delete() }
+        capturedPhotoPath = null
+        _uiState.update { it.copy(coverLocalPath = null) }
+    }
+
     fun onSave(onComplete: () -> Unit) {
         val state = _uiState.value
         val scannedIsbn = ScannedIsbn(
@@ -74,12 +87,16 @@ class EditBookViewModel(
             genre = state.genre.ifBlank { null },
             price = state.price.toDoubleOrNull(),
             condition = state.condition.ifBlank { null },
-            coverUrl = state.coverUrl
+            coverUrl = state.coverUrl,
+            coverLocalPath = state.coverLocalPath
         )
         viewModelScope.launch(Dispatchers.IO) {
             repository.insert(scannedIsbn)
-            scannedIsbn.coverUrl?.let { url ->
-                coverScheduler?.scheduleCoverDownload(scannedIsbn.isbn, url)
+            capturedPhotoPath = null
+            if (scannedIsbn.coverLocalPath == null) {
+                scannedIsbn.coverUrl?.let { url ->
+                    coverScheduler?.scheduleCoverDownload(scannedIsbn.isbn, url)
+                }
             }
             launch(Dispatchers.Main) {
                 onComplete()
@@ -154,7 +171,8 @@ class EditBookViewModel(
             genre = book.genre.orEmpty(),
             price = book.price?.toString().orEmpty(),
             condition = book.condition ?: "Good",
-            coverUrl = book.coverUrl
+            coverUrl = book.coverUrl,
+            coverLocalPath = book.coverLocalPath
         )
     }
 }

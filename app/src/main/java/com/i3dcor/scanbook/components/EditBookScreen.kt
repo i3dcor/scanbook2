@@ -62,10 +62,15 @@ fun EditBookScreen(
     onConditionChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     onBackClick: () -> Unit,
+    onLocalCoverCaptured: (String) -> Unit,
+    onDiscardPhoto: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showPhotoCapture by remember { mutableStateOf(false) }
+
     // Manejar botón atrás del sistema Android
     BackHandler {
+        onDiscardPhoto()
         onBackClick()
     }
 
@@ -85,7 +90,11 @@ fun EditBookScreen(
             
             Spacer(modifier = Modifier.height(24.dp))
             
-            BookPhotoSection(coverUrl = uiState.coverUrl)
+            BookPhotoSection(
+                coverUrl = uiState.coverUrl,
+                coverLocalPath = uiState.coverLocalPath,
+                onPhotoClick = { showPhotoCapture = true }
+            )
             
             Spacer(modifier = Modifier.height(24.dp))
             
@@ -183,8 +192,20 @@ fun EditBookScreen(
             Spacer(modifier = Modifier.height(32.dp))
             
             SaveButton(onClick = onSaveClick)
-            
+
             Spacer(modifier = Modifier.height(32.dp))
+        }
+
+        if (showPhotoCapture) {
+            PhotoCaptureScreen(
+                isbn = uiState.isbn,
+                onPhotoCaptured = { path ->
+                    onLocalCoverCaptured(path)
+                    showPhotoCapture = false
+                },
+                onBackClick = { showPhotoCapture = false },
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }
@@ -203,10 +224,14 @@ fun EditBookHeader() {
 }
 
 @Composable
-fun BookPhotoSection(coverUrl: String? = null) {
+fun BookPhotoSection(
+    coverUrl: String? = null,
+    coverLocalPath: String? = null,
+    onPhotoClick: () -> Unit = {}
+) {
     var showCoverDialog by remember { mutableStateOf(false) }
 
-    if (coverUrl != null) {
+    if (coverLocalPath != null || coverUrl != null) {
         Surface(
             color = Color(0xFF252528),
             shape = RoundedCornerShape(12.dp),
@@ -222,6 +247,7 @@ fun BookPhotoSection(coverUrl: String? = null) {
         ) {
             BookCoverThumbnail(
                 coverUrl = coverUrl,
+                coverLocalPath = coverLocalPath,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -236,6 +262,7 @@ fun BookPhotoSection(coverUrl: String? = null) {
                 ) {
                     BookCoverThumbnail(
                         coverUrl = coverUrl,
+                        coverLocalPath = coverLocalPath,
                         modifier = Modifier
                             .fillMaxWidth(0.9f)
                             .aspectRatio(0.65f)
@@ -246,7 +273,8 @@ fun BookPhotoSection(coverUrl: String? = null) {
     } else {
         PhotoPlaceholderButton(
             text = "Front Cover",
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            onClick = onPhotoClick
         )
     }
 }
@@ -461,7 +489,9 @@ fun EditBookScreenPreview() {
             onPriceChange = {},
             onConditionChange = {},
             onSaveClick = {},
-            onBackClick = {}
+            onBackClick = {},
+            onLocalCoverCaptured = {},
+            onDiscardPhoto = {}
         )
     }
 }

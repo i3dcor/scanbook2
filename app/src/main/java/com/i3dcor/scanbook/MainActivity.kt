@@ -171,6 +171,8 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                     viewModel.onSave { currentScreen = AppScreen.Home }
                 },
                 onBackClick = { currentScreen = screen.from },
+                onLocalCoverCaptured = viewModel::onLocalCoverCaptured,
+                onDiscardPhoto = viewModel::discardCapturedPhoto,
                 modifier = modifier
             )
         }
