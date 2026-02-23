@@ -11,6 +11,8 @@ ScanBook permite a los usuarios:
 - 💰 Registrar precio y estado de conservación
 - 🏠 Gestionar una colección personal de libros
 - 🔎 Buscar libros por ISBN automáticamente al editar
+- 📥 Descargar portadas en background y verlas sin internet (modo avión)
+- 📦 Exportar colección a CSV, JSON o ZIP autocontenido
 
 ## Características Implementadas
 
@@ -44,6 +46,20 @@ ScanBook permite a los usuarios:
   - Estado de conservación
 - Portada del libro con vista ampliada (click para zoom)
 - Búsqueda automática al modificar ISBN
+
+### ✅ Portadas locales offline (WorkManager)
+- Descarga automática en background al guardar un libro
+- Compresión local: 100×150px, JPEG Q60 (~8 KB/portada)
+- Almacenadas en `filesDir/covers/{isbn}.jpg` (Internal Storage)
+- Visibles sin conexión a internet (modo avión)
+- Re-descarga automática de portadas pendientes al arrancar la app
+
+### ✅ Exportación de colección
+- **CSV**: texto plano, compatible con Excel y hojas de cálculo
+- **JSON**: respaldo estructurado con metadatos completos
+- **ZIP**: archivo autocontenido con `books.json` + portadas descargadas
+- Integración con SAF (Storage Access Framework) para elegir destino
+- Estimación de tamaño antes de exportar
 
 ### ✅ UI Moderna (Jetpack Compose)
 - Diseño minimalista con tema oscuro
@@ -80,7 +96,8 @@ app/src/main/java/com/i3dcor/scanbook/
 │   │   └── ScannedIsbn.kt
 │   └── repository/
 │       ├── IsbnRepository.kt
-│       └── BookLookupRepository.kt
+│       ├── BookLookupRepository.kt
+│       └── CoverDownloadScheduler.kt
 │
 ├── data/                    # Implementaciones de repositorios
 │   ├── repository/
@@ -92,6 +109,10 @@ app/src/main/java/com/i3dcor/scanbook/
 │   │   ├── dao/
 │   │   ├── entity/
 │   │   └── mapper/
+│   ├── scheduler/          # WorkManager schedulers
+│   │   └── WorkManagerCoverScheduler.kt
+│   ├── worker/             # CoroutineWorkers
+│   │   └── DownloadCoverWorker.kt
 │   └── network/            # Retrofit + DTOs
 │       ├── dto/
 │       └── RetrofitClient.kt
@@ -109,10 +130,11 @@ app/src/main/java/com/i3dcor/scanbook/
 3. **Resultado**: Muestra datos del libro encontrado o error
    - Si ya existe: mensaje de "libro duplicado"
    - Si es nuevo: opción de añadir a colección o editar
-4. **Editar**: Formulario para modificar/Completar datos
+4. **Editar**: Formulario para modificar/completar datos
    - Búsqueda automática por ISBN con debounce (1s)
-   - Portada clickleable para vista ampliada
-5. **Guardar**: Persiste en Room y vuelve a Home
+   - Portada clickeable para vista ampliada
+5. **Guardar**: Persiste en Room, encola descarga de portada en background y vuelve a Home
+6. **Exportar**: Desde Home → menú → Exportar → elige formato (CSV / JSON / ZIP) y destino
 
 ## Screenshots
 
@@ -127,6 +149,7 @@ app/src/main/java/com/i3dcor/scanbook/
 - **Red:** Retrofit + OkHttp + Kotlinx Serialization
 - **Imágenes:** Coil
 - **Cámara:** CameraX + ML Kit Barcode Scanning
+- **Background tasks:** WorkManager (descarga de portadas en background)
 - **Inyección de dependencias:** Manual (constructor injection)
 - **Asincronía:** Kotlin Coroutines + Flow
 
@@ -171,10 +194,14 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Edición completa de libros
 - [x] Detección de duplicados
 - [x] Búsqueda automática por ISBN en edición
+- [x] Búsqueda en tiempo real por ISBN, título y autor
+- [x] Exportar colección (CSV, JSON, ZIP autocontenido)
+- [x] Portadas locales offline con WorkManager
 
 ### 🚧 En progreso / Próximo
 - [ ] Captura de portada con cámara/galería
-- [ ] Exportar/importar colección
+- [ ] Tests unitarios (DownloadCoverWorker, ViewModels)
+- [ ] Autenticación de usuario
 
 ### 🔮 Futuro (Nice to have)
 - [ ] Integración de IA (Gemini Vision) para análisis de estado
@@ -198,5 +225,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (19 features implementadas)  
+**Status**: Fase 1 - MVP Completado ✅ (23 features implementadas)
 **Última actualización:** Febrero 2026
