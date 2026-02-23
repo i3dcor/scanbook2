@@ -11,11 +11,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 21 |
-| **Tiempo total estimado** | ~55-62 horas |
-| **Promedio por feature** | ~2.6-3 horas |
-| **Tasa de retrabajo** | Baja (4.8% - 1 bugfix en 21 tareas) |
-| **Líneas de código aproximadas** | ~3,600-4,100 |
+| **Total features implementadas** | 23 |
+| **Tiempo total estimado** | ~61-70 horas |
+| **Promedio por feature** | ~2.7-3 horas |
+| **Tasa de retrabajo** | Baja (4.3% - 1 bugfix en 23 tareas) |
+| **Líneas de código aproximadas** | ~3,900-4,500 |
 
 **Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.7-3 horas por feature indica muy buena productividad.
 
@@ -223,9 +223,41 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 - **Tiempo estimado:** 1-1.5 horas
 - **Complejidad:** Baja
 - **Archivos afectados:** `Searcher.kt`
-- **Notas:** 
+- **Notas:**
   - Icono visible solo cuando hay texto
   - Limpia query y oculta teclado al pulsar
+
+---
+
+### 2.8 Portadas locales y exportación avanzada
+
+#### Feature 22: Portadas locales comprimidas con WorkManager
+- **Descripción:** Descarga en background al guardar libro, escala a 100×150px, comprime como JPEG Q60 y persiste en `filesDir/covers/{isbn}.jpg`. Room v2 añade columna `coverLocalPath`.
+- **Tiempo estimado:** 4-6 horas
+- **Complejidad:** Media-Alta
+- **Archivos afectados:**
+  - `CoverDownloadScheduler.kt` (nuevo — interfaz Domain)
+  - `WorkManagerCoverScheduler.kt` (nuevo — implementación Data)
+  - `DownloadCoverWorker.kt` (nuevo — CoroutineWorker)
+  - `ScanBookDatabase.kt` (migración 1→2)
+  - `BookDao.kt`, `BookEntity.kt`, `BookMapper.kt`, `ScannedIsbn.kt`
+  - `EditBookViewModel.kt`, `HomeViewModel.kt`
+  - `BookCoverThumbnail.kt`, `MainActivity.kt`
+- **Notas:**
+  - `BookCoverThumbnail` prioriza archivo local sobre URL remota → portada visible en modo avión
+  - `HomeViewModel.downloadPendingCovers()` re-encola al arrancar libros sin portada local
+  - WorkManager reintenta con backoff exponencial en fallo de red
+  - DI manual: `WorkManagerCoverScheduler` instanciado con `remember` en `MainActivity`
+
+#### Feature 23: Exportación ZIP autocontenida
+- **Descripción:** Nuevo formato ZIP en ExportDataScreen que empaqueta `books.json` + `covers/{isbn}.jpg` por cada portada descargada localmente.
+- **Tiempo estimado:** 1.5-2 horas
+- **Complejidad:** Baja
+- **Archivos afectados:** `ExportDataScreen.kt`
+- **Notas:**
+  - Launcher SAF recreado con `key(selectedFormat)` al cambiar entre formatos (MIME type dinámico)
+  - Estimación de tamaño ZIP: `jsonBytes × 0.4 + portadasLocales × 8192`
+  - Solo 1 archivo modificado gracias a la arquitectura modular previa
 
 ## 3. Resumen por Categorías
 
@@ -233,13 +265,15 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Categoría | Horas | % del total |
 |-----------|-------|-------------|
-| **Infraestructura/Arquitectura** | 7-9h | ~14% |
-| **Capa de Datos** | 8-10h | ~17% |
-| **Pantallas principales (UI)** | 15-18h | ~31% |
-| **Gestión y funcionalidades** | 6-9h | ~14% |
-| **Mejoras UI/Polish** | 9-11h | ~19% |
-| **Bugfixes/Refinamiento** | 2-3h | ~5% |
-| **TOTAL** | **~55-62h** | **100%** |
+| **Infraestructura/Arquitectura** | 7-9h | ~12% |
+| **Capa de Datos** | 8-10h | ~14% |
+| **Pantallas principales (UI)** | 15-18h | ~26% |
+| **Gestión y funcionalidades** | 6-9h | ~12% |
+| **Mejoras UI/Polish** | 9-11h | ~16% |
+| **Background/WorkManager** | 4-6h | ~7% |
+| **Exportación avanzada** | 5-7h | ~9% |
+| **Bugfixes/Refinamiento** | 2-3h | ~4% |
+| **TOTAL** | **~61-70h** | **100%** |
 
 ### 3.2 Análisis de complejidad
 
@@ -276,13 +310,13 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Tarea | Estimación | Prioridad | Notas |
 |-------|------------|-----------|-------|
-| **Sistema de búsqueda/filtros en Home** | 4-6h | Alta | Búsqueda por título/autor/ISBN, filtros por género/condición |
+| ~~**Sistema de búsqueda/filtros en Home**~~ | ~~4-6h~~ | ~~Alta~~ | **COMPLETADO** — features 20-21 (búsqueda por título/autor/ISBN en tiempo real) |
 | **Edición completa de portada (cámara/galería)** | 6-8h | Alta | Tomar foto o elegir de galería, crop, upload |
-| **Sincronización offline/online** | 8-12h | Alta | WorkManager, cola de operaciones, sync cuando hay red |
+| **Sincronización offline/online** | 4-8h | Alta | WorkManager ya integrado; pendiente sync con cloud/backend |
 | **Autenticación de usuario** | 6-8h | Alta | Login/Register, Firebase Auth o similar |
-| **Exportar/importar colección** | 4-5h | Media-Alta | CSV/JSON backup, share |
+| ~~**Exportar/importar colección**~~ | ~~4-5h~~ | ~~Media-Alta~~ | **COMPLETADO** — features 21-23 (CSV, JSON, ZIP autocontenido) |
 
-**Subtotal críticas:** 28-39 horas (~1.5 semanas FT)
+**Subtotal críticas pendientes:** 16-24 horas (~1 semana FT)
 
 ### 4.2 Mejoras de UX/UI (Should Have)
 
@@ -402,11 +436,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
    - GitHub Actions: build, test, lint
    - Automatizar generación de APK
 
-3. **Sistema de búsqueda/filtros** (4-6h)
-   - SearchView en HomeScreen
-   - Filtros por género, condición, fecha
+3. ~~**Sistema de búsqueda/filtros**~~ → **COMPLETADO** (features 20-21)
 
-**Total Sprint 1-2:** 18-24 horas (~2 semanas)
+4. ~~**Exportar colección**~~ → **COMPLETADO** (features 21-23: CSV, JSON, ZIP)
+
+**Total Sprint 1-2:** 14-18 horas (~1.5 semanas)
 
 ### 6.2 Prioridad media (Sprint 3-4)
 
@@ -566,6 +600,7 @@ El proyecto demuestra:
 |---------|-------|-------|---------|
 | 1.0 | 2026-02-18 | Claude | Documento inicial con análisis completo de 19 features implementadas, métricas de productividad y proyección futura de 123-171h |
 | 1.1 | 2026-02-20 | Claude | Añadir features 20 (búsqueda en tiempo real) y 21 (icono cancelar búsqueda), actualizar contadores: 21 features, ~55-62h |
+| 1.2 | 2026-02-23 | Claude | Features 22 (portadas locales con WorkManager) y 23 (exportación ZIP); marcar como completados búsqueda/filtros y exportación en tareas futuras; distribución de esfuerzo actualizada; total: 23 features, ~61-70h |
 
 ---
 
