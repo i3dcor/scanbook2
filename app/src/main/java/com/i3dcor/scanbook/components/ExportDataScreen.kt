@@ -1,5 +1,10 @@
 package com.i3dcor.scanbook.components
 
+import android.content.Context
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,13 +61,31 @@ fun ExportDataScreen(
     onCloseClick: () -> Unit = {},
     onExportClick: () -> Unit = {}
 ) {
-    // State holders for preview purposes
     var selectedFormat by remember { mutableStateOf("JSON") }
     var selectedDestination by remember { mutableStateOf("Guardar") }
+    val context = LocalContext.current
 
     // Calcular tamaño estimado en función del formato seleccionado
     val estimatedSize = remember(books, selectedFormat) {
         estimateExportSize(books, selectedFormat)
+    }
+
+    // SAF launcher: cuando el usuario elige dónde guardar, se escribe el contenido
+    val saveFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument(
+            if (selectedFormat == "CSV") "text/csv" else "application/json"
+        )
+    ) { uri: Uri? ->
+        if (uri != null) {
+            val content = if (selectedFormat == "CSV") {
+                booksToCsv(books)
+            } else {
+                booksToJson(books)
+            }
+            writeContentToUri(context, uri, content)
+            Toast.makeText(context, "Exportación completada", Toast.LENGTH_SHORT).show()
+            onExportClick()
+        }
     }
 
     Box(
@@ -121,7 +145,11 @@ fun ExportDataScreen(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 ExportActionButton(
-                    onClick = onExportClick
+                    onClick = {
+                        val extension = if (selectedFormat == "CSV") "csv" else "json"
+                        val fileName = "scanbook_export.$extension"
+                        saveFileLauncher.launch(fileName)
+                    }
                 )
             }
         }
@@ -387,6 +415,83 @@ private fun formatBytes(bytes: Long): String {
         bytes < 1024 -> "~$bytes B"
         bytes < 1024 * 1024 -> "~%.1f KB".format(bytes / 1024.0)
         else -> "~%.1f MB".format(bytes / (1024.0 * 1024.0))
+    }
+}
+
+// ── Serialización ────────────────────────────────────────────────────────────
+
+/**
+ * Convierte la lista de libros a formato CSV.
+ * Escapa campos que contengan comas, comillas o saltos de línea.
+ */
+private fun booksToCsv(books: List<ScannedIsbn>): String {
+    val header = "isbn,title,author,genre,price,condition"
+    val rows = books.joinToString("\n") { book ->
+        listOf(
+            book.isbn,
+            book.title.orEmpty(),
+            book.author.orEmpty(),
+            book.genre.orEmpty(),
+            book.price?.toString().orEmpty(),
+            book.condition.orEmpty()
+        ).joinToString(",") { field -> escapeCsvField(field) }
+    }
+    return "$header\n$rows"
+}
+
+/**
+ * Escapa un campo CSV: si contiene coma, comilla doble o salto de línea,
+ * lo envuelve entre comillas dobles y duplica las comillas internas.
+ */
+private fun escapeCsvField(field: String): String {
+    return if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
+        "\"${field.replace("\"", "\"\"")}\""
+    } else {
+        field
+    }
+}
+
+/**
+ * Convierte la lista de libros a formato JSON.
+ * Serialización manual para evitar dependencias externas (Gson/Moshi).
+ */
+private fun booksToJson(books: List<ScannedIsbn>): String {
+    val items = books.joinToString(",\n") { book ->
+        val fields = mutableListOf<String>()
+        fields.add("    \"isbn\": ${jsonString(book.isbn)}")
+        fields.add("    \"title\": ${jsonString(book.title)}")
+        fields.add("    \"author\": ${jsonString(book.author)}")
+        fields.add("    \"genre\": ${jsonString(book.genre)}")
+        fields.add("    \"price\": ${book.price ?: "null"}")
+        fields.add("    \"condition\": ${jsonString(book.condition)}")
+        fields.add("    \"coverUrl\": ${jsonString(book.coverUrl)}")
+        "  {\n${fields.joinToString(",\n")}\n  }"
+    }
+    return "[\n$items\n]"
+}
+
+/**
+ * Escapa un string para JSON: maneja null, comillas y caracteres de control.
+ */
+private fun jsonString(value: String?): String {
+    if (value == null) return "null"
+    val escaped = value
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("\n", "\\n")
+        .replace("\r", "\\r")
+        .replace("\t", "\\t")
+    return "\"$escaped\""
+}
+
+// ── Escritura a fichero ──────────────────────────────────────────────────────
+
+/**
+ * Escribe contenido de texto en un Uri proporcionado por SAF (Storage Access Framework).
+ */
+private fun writeContentToUri(context: Context, uri: Uri, content: String) {
+    context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+        outputStream.write(content.toByteArray(Charsets.UTF_8))
     }
 }
 

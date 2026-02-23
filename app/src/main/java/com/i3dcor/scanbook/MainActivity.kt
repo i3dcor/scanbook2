@@ -110,6 +110,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
             ExportDataScreen(
                 books = screen.books,
                 onCloseClick = { currentScreen = AppScreen.Home },
+                onExportClick = { currentScreen = AppScreen.Home },
                 modifier = modifier
             )
         }
