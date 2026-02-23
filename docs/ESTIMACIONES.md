@@ -280,13 +280,13 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | Complejidad | Cantidad | Tiempo promedio |
 |-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 9 | 1-2h |
+| Baja | 10 | 1-2h |
 | Media | 9 | 3-4h |
-| Media-Alta | 2 | 4-5h |
+| Media-Alta | 3 | 4-6h |
 | Alta | 1 | 4-5h |
 
 **Observaciones:**
-- 89% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
+- 87% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
 - Solo una tarea de alta complejidad (CameraScreen) → MVP enfocado
 - Mejoras UI de baja complejidad indican refactorización incremental saludable
 - Promedio de 2.7-3 horas por feature es muy bueno para un senior
@@ -401,7 +401,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 |--------|---------|------------|
 | **Cobertura de tests baja** | Alto | Priorizar tests antes de nuevas features |
 | **Sin design system formal** | Medio | Documentar componentes existentes |
-| **Dependencia de APIs externas** | Medio | Implementar caching agresivo |
+| **Dependencia de APIs externas** | Bajo | Portadas descargadas localmente (feature 22); ya no se depende de internet para mostrar imágenes |
 | **Sin CI/CD** | Medio | Setup GitHub Actions (6-8h) |
 | **Documentación mínima** | Bajo | Crear README técnico (2-3h) |
 
@@ -477,8 +477,9 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 ### 6.4 Roadmap visual
 
 ```
-Mes 1:        [Tests + CI/CD] [Búsqueda/Filtros]
-Mes 2:        [Portada cámara] [Auth] [Sync offline]
+Hecho:        ✓Búsqueda/Filtros  ✓Exportación CSV/JSON/ZIP  ✓Portadas locales
+Mes 1:        [Tests + CI/CD]
+Mes 2:        [Portada cámara] [Auth] [Sync cloud]
 Mes 3:        [Estadísticas] [Compartir] [Wishlist]
 Futuro:       [Prestamos] [OCR] [Recomendaciones]
 ```
@@ -504,6 +505,7 @@ Futuro:       [Prestamos] [OCR] [Recomendaciones]
 3. **Estado unidireccional:** UiState → ViewModel → UI, sin side effects ocultos
 4. **Manejo de errores consistente:** Result<T> pattern en repositorios
 5. **Componentes reutilizables:** BookCoverThumbnail, BookTextField, etc.
+6. **Boundary Domain/Data explícito:** `CoverDownloadScheduler` como interfaz pura permitió integrar WorkManager sin contaminar ViewModels ni romper la regla de dependencias
 
 ### 7.3 Áreas de mejora
 
@@ -581,16 +583,16 @@ El proyecto demuestra:
 
 | Escenario | Horas | Timeline |
 |-----------|-------|----------|
-| **MVP estable (beta)** | 30-40h | 3-4 semanas PT |
-| **Release v1.0** | 60-80h | 6-8 semanas PT |
+| **MVP estable (beta)** | 20-28h | 2-3 semanas PT |
+| **Release v1.0** | 48-64h | 5-6 semanas PT |
 | **Producto completo** | 120-170h | 4-5 meses PT |
 
 ### 9.4 Próximos pasos recomendados
 
-1. **Esta semana:** Escribir tests unitarios para ViewModels
-2. **Próximas 2 semanas:** Implementar búsqueda/filtros en Home
+1. **Esta semana:** Escribir tests unitarios para ViewModels (incluido `HomeViewModel.downloadPendingCovers()` y `DownloadCoverWorker`)
+2. ~~**Próximas 2 semanas:** Implementar búsqueda/filtros en Home~~ → **COMPLETADO** (features 20-21)
 3. **Mes 1:** Setup CI/CD + Auth básico
-4. **Mes 2:** Sincronización offline + portada con cámara
+4. **Mes 2:** Sync cloud + portada con cámara (WorkManager ya integrado)
 
 ---
 
@@ -601,6 +603,7 @@ El proyecto demuestra:
 | 1.0 | 2026-02-18 | Claude | Documento inicial con análisis completo de 19 features implementadas, métricas de productividad y proyección futura de 123-171h |
 | 1.1 | 2026-02-20 | Claude | Añadir features 20 (búsqueda en tiempo real) y 21 (icono cancelar búsqueda), actualizar contadores: 21 features, ~55-62h |
 | 1.2 | 2026-02-23 | Claude | Features 22 (portadas locales con WorkManager) y 23 (exportación ZIP); marcar como completados búsqueda/filtros y exportación en tareas futuras; distribución de esfuerzo actualizada; total: 23 features, ~61-70h |
+| 1.3 | 2026-02-23 | Claude | Corregir secciones omitidas en v1.2: análisis de complejidad (Baja 9→10, Media-Alta 2→3), riesgo APIs externas mitigado, roadmap visual actualizado, fortaleza #6 WorkManager boundary, esfuerzo restante reducido (beta 30-40h→20-28h), próximos pasos actualizados |
 
 ---
 
