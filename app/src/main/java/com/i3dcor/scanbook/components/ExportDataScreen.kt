@@ -45,10 +45,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 
 @Composable
 fun ExportDataScreen(
+    books: List<ScannedIsbn>,
     modifier: Modifier = Modifier,
     onCloseClick: () -> Unit = {},
     onExportClick: () -> Unit = {}
@@ -56,6 +58,11 @@ fun ExportDataScreen(
     // State holders for preview purposes
     var selectedFormat by remember { mutableStateOf("JSON") }
     var selectedDestination by remember { mutableStateOf("Guardar") }
+
+    // Calcular tamaño estimado en función del formato seleccionado
+    val estimatedSize = remember(books, selectedFormat) {
+        estimateExportSize(books, selectedFormat)
+    }
 
     Box(
         modifier = modifier
@@ -72,7 +79,7 @@ fun ExportDataScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            EstimatedSizeBadge(sizeText = "~24 MB")
+            EstimatedSizeBadge(sizeText = estimatedSize)
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -344,10 +351,54 @@ fun ExportActionButton(
     }
 }
 
+/**
+ * Estima el tamaño de exportación según la lista de libros y el formato seleccionado.
+ *
+ * CSV: Se estima el tamaño de cada campo como texto plano separado por comas.
+ *      Línea de cabecera (~50 bytes) + ~120 bytes por libro (campos de texto).
+ *
+ * JSON: Incluye claves, llaves, comillas y la URL de portada (coverUrl).
+ *       Se estiman ~350 bytes por libro debido a la estructura y metadatos.
+ */
+private fun estimateExportSize(books: List<ScannedIsbn>, format: String): String {
+    if (books.isEmpty()) return "0 B"
+
+    val totalBytes = when (format) {
+        "CSV" -> {
+            val headerBytes = 50L // isbn,title,author,genre,price,condition
+            val perBookBytes = 120L
+            headerBytes + (books.size * perBookBytes)
+        }
+        else -> { // JSON
+            val overheadBytes = 20L // [ ] + formatting
+            val perBookBytes = 350L // keys, values, coverUrl, braces, quotes
+            overheadBytes + (books.size * perBookBytes)
+        }
+    }
+
+    return formatBytes(totalBytes)
+}
+
+/**
+ * Formatea una cantidad de bytes en una cadena legible (B, KB, MB).
+ */
+private fun formatBytes(bytes: Long): String {
+    return when {
+        bytes < 1024 -> "~$bytes B"
+        bytes < 1024 * 1024 -> "~%.1f KB".format(bytes / 1024.0)
+        else -> "~%.1f MB".format(bytes / (1024.0 * 1024.0))
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ExportDataScreenPreview() {
+    val sampleBooks = listOf(
+        ScannedIsbn(isbn = "978-0134685991", title = "Effective Java", author = "Joshua Bloch"),
+        ScannedIsbn(isbn = "978-0596009205", title = "Head First Design Patterns", author = "Eric Freeman"),
+        ScannedIsbn(isbn = "978-0132350884", title = "Clean Code", author = "Robert C. Martin")
+    )
     ScanBookTheme {
-        ExportDataScreen()
+        ExportDataScreen(books = sampleBooks)
     }
 }
