@@ -207,10 +207,10 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
 
 ### 🚧 Backlog (media prioridad)
-- [ ] Permite volver a hacer foto de portada cuando ya existe una
-- [ ] Opción de menú oscuro/claro/según sistema
-
+- [ ] Mejora el estilo visual del UI
 ### 🔮 Futuro (nice to have)
+- [ ] Opción de menú oscuro/claro/según sistema
+- [ ] Permite volver a hacer foto de portada cuando ya existe una
 - [ ] Añadir idioma inglés (`res/values-en/strings.xml`) — base ya lista
 - [ ] Speech-to-Text para entrada manual (icono de micrófono en el campo de texto)
 - [ ] Mejorar la velocidad de respuesta de la exportación:
