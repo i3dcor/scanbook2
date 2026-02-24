@@ -1,8 +1,10 @@
 package com.i3dcor.scanbook.components
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -169,8 +171,11 @@ fun ExportDataScreen(
                             "ZIP" -> "zip"
                             else -> "json"
                         }
-                        val fileName = "scanbook_export.$extension"
-                        saveFileLauncher.launch(fileName)
+                        if (selectedDestination == "Compartir") {
+                            shareExport(context, books, selectedFormat)
+                        } else {
+                            saveFileLauncher.launch("scanbook_export.$extension")
+                        }
                     }
                 )
             }
@@ -523,26 +528,58 @@ private fun writeContentToUri(context: Context, uri: Uri, content: String) {
 }
 
 /**
- * Escribe un ZIP autocontenido en el Uri dado.
- * Incluye books.json en la raíz y covers/{isbn}.jpg por cada portada local disponible.
+ * Núcleo de escritura ZIP: books.json + covers/{isbn}.jpg para portadas locales.
+ */
+private fun writeBooksZipContent(zip: ZipOutputStream, books: List<ScannedIsbn>) {
+    val json = booksToJson(books).toByteArray(Charsets.UTF_8)
+    zip.putNextEntry(ZipEntry("books.json"))
+    zip.write(json)
+    zip.closeEntry()
+    books.forEach { book ->
+        val path = book.coverLocalPath ?: return@forEach
+        val file = File(path)
+        if (!file.exists()) return@forEach
+        zip.putNextEntry(ZipEntry("covers/${book.isbn}.jpg"))
+        file.inputStream().use { it.copyTo(zip) }
+        zip.closeEntry()
+    }
+}
+
+/**
+ * Escribe un ZIP autocontenido en el Uri dado (destino Guardar vía SAF).
  */
 private fun writeBooksZipToUri(context: Context, uri: Uri, books: List<ScannedIsbn>) {
     context.contentResolver.openOutputStream(uri)?.use { out ->
-        ZipOutputStream(out).use { zip ->
-            val json = booksToJson(books).toByteArray(Charsets.UTF_8)
-            zip.putNextEntry(ZipEntry("books.json"))
-            zip.write(json)
-            zip.closeEntry()
-            books.forEach { book ->
-                val path = book.coverLocalPath ?: return@forEach
-                val file = File(path)
-                if (!file.exists()) return@forEach
-                zip.putNextEntry(ZipEntry("covers/${book.isbn}.jpg"))
-                file.inputStream().use { it.copyTo(zip) }
-                zip.closeEntry()
-            }
-        }
+        ZipOutputStream(out).use { zip -> writeBooksZipContent(zip, books) }
     }
+}
+
+/**
+ * Escribe el export en un fichero temporal (cacheDir/exports/) y lanza el share sheet.
+ * Compatible con todos los formatos: CSV, JSON, ZIP.
+ */
+private fun shareExport(context: Context, books: List<ScannedIsbn>, format: String) {
+    val extension = when (format) { "CSV" -> "csv"; "ZIP" -> "zip"; else -> "json" }
+    val mimeType = when (format) { "CSV" -> "text/csv"; "ZIP" -> "application/zip"; else -> "application/json" }
+
+    val exportsDir = File(context.cacheDir, "exports").apply { mkdirs() }
+    val file = File(exportsDir, "scanbook_export.$extension")
+
+    when (format) {
+        "CSV" -> file.writeText(booksToCsv(books), Charsets.UTF_8)
+        "ZIP" -> file.outputStream().use { out ->
+            ZipOutputStream(out).use { zip -> writeBooksZipContent(zip, books) }
+        }
+        else -> file.writeText(booksToJson(books), Charsets.UTF_8)
+    }
+
+    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        type = mimeType
+        putExtra(Intent.EXTRA_STREAM, uri)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    context.startActivity(Intent.createChooser(intent, null))
 }
 
 @Preview(showBackground = true)
