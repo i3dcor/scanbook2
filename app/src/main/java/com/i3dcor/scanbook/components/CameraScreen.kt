@@ -59,8 +59,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -307,7 +309,7 @@ fun CameraScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Camera permission required",
+                    text = stringResource(R.string.camera_permission_required),
                     color = Color.White
                 )
             }
@@ -328,7 +330,7 @@ fun CameraScreen(
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = stringResource(R.string.back),
                     tint = Color.White
                 )
             }
@@ -340,7 +342,7 @@ fun CameraScreen(
             ) {
                 Icon(
                     imageVector = if (isFlashEnabled) Icons.Default.FlashOn else Icons.Default.FlashOff,
-                    contentDescription = if (isFlashEnabled) "Flash On" else "Flash Off",
+                    contentDescription = stringResource(if (isFlashEnabled) R.string.flash_off else R.string.flash_on),
                     tint = Color.White
                 )
             }
@@ -371,7 +373,7 @@ fun CameraScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = "Align the barcode within the frame to scan",
+                    text = stringResource(R.string.align_barcode),
                     color = Color.White,
                     fontSize = 14.sp
                 )
@@ -394,7 +396,7 @@ fun CameraScreen(
                     modifier = Modifier.padding(end = 8.dp)
                 )
                 Text(
-                    text = "Enter ISBN Manually",
+                    text = stringResource(R.string.enter_isbn_manually),
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp

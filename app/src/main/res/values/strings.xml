@@ -1,3 +1,64 @@
 <resources>
     <string name="app_name">ScanBook</string>
+
+    <!-- Edición de libros -->
+    <string name="edit_book_title">Editar libro</string>
+    <string name="field_isbn">ISBN</string>
+    <string name="field_title">Título</string>
+    <string name="field_author">Autor</string>
+    <string name="field_genre">Género</string>
+    <string name="front_cover">Portada</string>
+    <string name="add_photo">Añadir foto</string>
+    <string name="save_changes">Guardar cambios</string>
+
+    <!-- Resultado de escaneo -->
+    <string name="scan_result_title">Resultado del escaneo</string>
+    <string name="unknown_title">Título desconocido</string>
+    <string name="unknown_author">Autor desconocido</string>
+    <string name="button_edit">Editar</string>
+    <string name="button_add">Añadir</string>
+    <string name="book_already_registered">¡Este libro ya estaba registrado!</string>
+
+    <!-- Cámara (escaneo ISBN) -->
+    <string name="camera_permission_required">Permiso de cámara requerido</string>
+    <string name="align_barcode">Alinea el código de barras en el marco para escanear</string>
+    <string name="enter_isbn_manually">Introducir ISBN manualmente</string>
+    <string name="back">Atrás</string>
+    <string name="flash_on">Encender flash</string>
+    <string name="flash_off">Apagar flash</string>
+
+    <!-- Captura de foto de portada -->
+    <string name="take_photo">Hacer foto</string>
+
+    <!-- Búsqueda -->
+    <string name="search_placeholder">Buscar por título o autor</string>
+    <string name="search_no_results">No se encontraron resultados\npara \"%s\"</string>
+    <string name="empty_library">No hay libros aún.\nEscanea tu primer libro.</string>
+
+    <!-- Lista y menú -->
+    <string name="delete_book">Eliminar libro</string>
+    <string name="delete_book_confirm">¿Seguro que quieres eliminar \"%s\"?</string>
+    <string name="button_delete">Eliminar</string>
+    <string name="button_cancel">Cancelar</string>
+    <string name="book_cover_description">Portada del libro</string>
+    <string name="scan_barcode_description">Escanear código de barras</string>
+    <string name="menu_options">Menú de opciones</string>
+    <string name="clear_search">Borrar búsqueda</string>
+    <string name="menu_export">Exportar</string>
+
+    <!-- Exportación -->
+    <string name="export_title">Exportar datos</string>
+    <string name="export_close">Cerrar</string>
+    <string name="export_size">Tamaño estimado: %s</string>
+    <string name="export_format_section">FORMATO DE ARCHIVO</string>
+    <string name="export_destination_section">DESTINO</string>
+    <string name="export_csv_title">CSV (Sin fotos)</string>
+    <string name="export_csv_desc">Texto ligero, compatible con Excel y hojas de cálculo.</string>
+    <string name="export_json_title">JSON (Con fotos)</string>
+    <string name="export_json_desc">Respaldo completo estructurado con imágenes y metadatos.</string>
+    <string name="export_zip_title">ZIP (Autocontenido)</string>
+    <string name="export_zip_desc">Archivo comprimido con books.json y portadas locales descargadas.</string>
+    <string name="export_save">Guardar</string>
+    <string name="export_share">Compartir</string>
+    <string name="export_completed">Exportación completada</string>
 </resources>

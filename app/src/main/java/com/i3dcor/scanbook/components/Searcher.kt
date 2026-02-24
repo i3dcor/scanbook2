@@ -34,6 +34,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
@@ -60,9 +62,10 @@ fun HomeSearchBar(
     onSearch: (String) -> Unit,
     onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholderText: String = "Search titles or authors"
+    placeholderText: String? = null
 ) {
     val focusManager = LocalFocusManager.current
+    val placeholder = placeholderText ?: stringResource(R.string.search_placeholder)
     var showMenu by remember { mutableStateOf(false) }
 
     Surface(
@@ -95,7 +98,7 @@ fun HomeSearchBar(
                     modifier = Modifier.background(Color(0xFF252528))
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Exportar", color = Color.White) },
+                        text = { Text(stringResource(R.string.menu_export), color = Color.White) },
                         onClick = {
                             showMenu = false
                             onExportClick()
@@ -136,7 +139,7 @@ fun HomeSearchBar(
                     Box(contentAlignment = Alignment.CenterStart) {
                         if (query.isEmpty()) {
                             Text(
-                                text = placeholderText,
+                                text = placeholder,
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = Color.Gray
                             )

@@ -45,8 +45,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -99,7 +101,7 @@ fun PhotoCaptureScreen(
                     .background(Color.Black),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "Camera permission required", color = Color.White)
+                Text(text = stringResource(R.string.camera_permission_required), color = Color.White)
             }
         }
 
@@ -210,7 +212,7 @@ private fun FlashToggleButton(
     ) {
         Icon(
             imageVector = if (isFlashOn) Icons.Default.FlashOn else Icons.Default.FlashOff,
-            contentDescription = if (isFlashOn) "Turn flash off" else "Turn flash on",
+            contentDescription = stringResource(if (isFlashOn) R.string.flash_off else R.string.flash_on),
             tint = Color.White,
             modifier = Modifier.size(24.dp)
         )
@@ -262,7 +264,7 @@ private fun CapturePhotoButton(
             tint = Color.White
         )
         Text(
-            text = "Hacer Foto",
+            text = stringResource(R.string.take_photo),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold,
                 color = Color.White

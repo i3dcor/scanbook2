@@ -42,9 +42,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
@@ -133,7 +135,7 @@ fun ScanResultScreen(
 @Composable
 fun ScanResultHeader() {
     Text(
-        text = "Scan Result",
+        text = stringResource(R.string.scan_result_title),
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -224,7 +226,7 @@ fun BookTitleAndAuthor(
             exit = fadeOut()
         ) {
             Text(
-                text = title ?: "Unknown Title",
+                text = title ?: stringResource(R.string.unknown_title),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -252,7 +254,7 @@ fun BookTitleAndAuthor(
             exit = fadeOut()
         ) {
             Text(
-                text = author ?: "Unknown Author",
+                text = author ?: stringResource(R.string.unknown_author),
                 style = MaterialTheme.typography.bodyLarge.copy(
                     color = Color.Gray
                 ),
@@ -375,7 +377,7 @@ fun ScanResultActions(
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(text = "Edit", style = MaterialTheme.typography.bodyMedium)
+                Text(text = stringResource(R.string.button_edit), style = MaterialTheme.typography.bodyMedium)
             }
 
             Button(
@@ -397,7 +399,7 @@ fun ScanResultActions(
                     modifier = Modifier.size(16.dp)
                 )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text(text = "Add", style = MaterialTheme.typography.bodyMedium)
+                Text(text = stringResource(R.string.button_add), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }
