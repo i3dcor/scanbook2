@@ -11,11 +11,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 25 |
-| **Tiempo total estimado** | ~65-75 horas |
+| **Total features implementadas** | 26 |
+| **Tiempo total estimado** | ~67-77 horas |
 | **Promedio por feature** | ~2.6-3 horas |
-| **Tasa de retrabajo** | Baja (4% - 1 bugfix en 25 tareas) |
-| **Líneas de código aproximadas** | ~4,200-4,800 |
+| **Tasa de retrabajo** | Baja (3.8% - 1 bugfix en 26 tareas) |
+| **Líneas de código aproximadas** | ~4,300-4,900 |
 
 **Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.6-3 horas por feature indica muy buena productividad.
 
@@ -284,6 +284,21 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - Si ya existe portada local (`coverLocalPath != null`), saltea WorkManager al guardar
   - Patrón `key(showPhotoCapture)` para desenlazar/enlazar el ciclo de vida de CameraX correctamente
 
+### 2.10 Compartir exportación (FileProvider + share sheet)
+
+#### Feature 26: Destino Compartir en ExportDataScreen
+- **Descripción:** Añadir opción "Compartir" al toggle de destino de exportación. Escribe el export en `cacheDir/exports/` como fichero temporal y lanza `Intent.ACTION_SEND` con FileProvider. Compatible con los 3 formatos (CSV, JSON, ZIP).
+- **Tiempo estimado:** 1.5-2 horas
+- **Complejidad:** Baja
+- **Archivos afectados:**
+  - `ExportDataScreen.kt` (`shareExport()`, `writeBooksZipContent()` como helper, bifurcación en onClick)
+  - `AndroidManifest.xml` (declaración `<provider>` FileProvider)
+  - `res/xml/file_paths.xml` (nuevo — expone `cacheDir/exports/`)
+- **Notas:**
+  - FileProvider authority: `${applicationId}.fileprovider`
+  - El fichero temporal se reutiliza en cada export (sobrescritura)
+  - La escritura se hace en hilo principal (aceptable para el tamaño actual de colecciones)
+
 ---
 
 ## 3. Resumen por Categorías
@@ -308,13 +323,13 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | Complejidad | Cantidad | Tiempo promedio |
 |-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 11 | 1-2h |
+| Baja | 12 | 1-2h |
 | Media | 10 | 3-4h |
 | Media-Alta | 3 | 4-6h |
 | Alta | 1 | 4-5h |
 
 **Observaciones:**
-- 88% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
+- 88.5% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
 - Solo una tarea de alta complejidad (CameraScreen) → MVP enfocado
 - Mejoras UI de baja complejidad indican refactorización incremental saludable
 - Promedio de 2.7-3 horas por feature es muy bueno para un senior
@@ -503,10 +518,10 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 ### 6.4 Roadmap visual
 
 ```
-Hecho:        ✓Búsqueda/Filtros  ✓Exportación CSV/JSON/ZIP  ✓Portadas locales  ✓Foto cámara
+Hecho:        ✓Búsqueda/Filtros  ✓Exportación CSV/JSON/ZIP  ✓Compartir  ✓Portadas locales  ✓Foto cámara
 Mes 1:        [Tests + CI/CD] [Galería/crop portada]
 Mes 2:        [Auth] [Sync cloud]
-Mes 3:        [Estadísticas] [Compartir] [Wishlist]
+Mes 3:        [Estadísticas] [Wishlist]
 Futuro:       [Prestamos] [OCR] [Recomendaciones]
 ```
 
@@ -631,6 +646,7 @@ El proyecto demuestra:
 | 1.2 | 2026-02-23 | Cerqueiro | Features 22 (portadas locales con WorkManager) y 23 (exportación ZIP); marcar como completados búsqueda/filtros y exportación en tareas futuras; distribución de esfuerzo actualizada; total: 23 features, ~61-70h |
 | 1.3 | 2026-02-23 | Cerqueiro | Corregir secciones omitidas en v1.2: análisis de complejidad (Baja 9→10, Media-Alta 2→3), riesgo APIs externas mitigado, roadmap visual actualizado, fortaleza #6 WorkManager boundary, esfuerzo restante reducido (beta 30-40h→20-28h), próximos pasos actualizados |
 | 1.4 | 2026-02-24 | Cerqueiro | Features 24-25 (PhotoCaptureScreen skeleton + CameraX real integrado en EditBookScreen como overlay); marcar "edición portada con cámara" como completado en Sprint 3-4; nueva categoría en distribución de esfuerzo; total: 25 features, ~65-75h |
+| 1.5 | 2026-02-24 | Cerqueiro | Feature 26 (Compartir exportación: FileProvider + Intent.ACTION_SEND, compatible CSV/JSON/ZIP); actualizar roadmap visual; Baja 11→12; total: 26 features, ~67-77h |
 
 ---
 
