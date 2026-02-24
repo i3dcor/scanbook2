@@ -20,7 +20,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,8 +56,6 @@ fun EditBookScreen(
     onTitleChange: (String) -> Unit,
     onAuthorChange: (String) -> Unit,
     onGenreChange: (String) -> Unit,
-    onPriceChange: (String) -> Unit,
-    onConditionChange: (String) -> Unit,
     onSaveClick: () -> Unit,
     onBackClick: () -> Unit,
     onLocalCoverCaptured: (String) -> Unit,
@@ -155,38 +151,6 @@ fun EditBookScreen(
                 label = "Genre",
                 value = uiState.genre,
                 onValueChange = onGenreChange
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            BookTextField(
-                label = "Price",
-                value = uiState.price,
-                onValueChange = onPriceChange,
-/*                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.AttachMoney,
-                        contentDescription = null,
-                        tint = Color.Gray,
-                        modifier = Modifier.size(18.dp)
-                    )
-                }*/
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "Condition",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.White,
-                    fontWeight = FontWeight.Medium
-                ),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-            )
-            
-            ConditionSelector(
-                selectedCondition = uiState.condition,
-                onConditionSelected = onConditionChange
             )
             
             Spacer(modifier = Modifier.height(32.dp))
@@ -361,7 +325,7 @@ fun BookTextField(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 if (leadingIcon != null) {
                     leadingIcon()
@@ -390,63 +354,6 @@ fun BookTextField(
 }
 
 @Composable
-fun ConditionSelector(
-    selectedCondition: String,
-    onConditionSelected: (String) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        val options = listOf("New", "Good", "Damaged")
-        
-        options.forEach { option ->
-            val isSelected = option == selectedCondition
-            ConditionOption(
-                text = option,
-                isSelected = isSelected,
-                onClick = { onConditionSelected(option) },
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-fun ConditionOption(
-    text: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val backgroundColor = if (isSelected) Color(0xFF2962FF) else Color(0xFF252528)
-    val textColor = if (isSelected) Color.White else Color.Gray
-    val borderColor = if (isSelected) Color(0xFF2962FF) else Color(0xFF3A3A3C)
-
-    Surface(
-        color = backgroundColor,
-        shape = RoundedCornerShape(8.dp),
-        modifier = modifier
-            .height(48.dp)
-            .clickable(onClick = onClick)
-            .border(1.dp, borderColor, RoundedCornerShape(8.dp))
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = textColor,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
-    }
-}
-
-@Composable
 fun SaveButton(
     onClick: () -> Unit
 ) {
@@ -454,7 +361,7 @@ fun SaveButton(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp),
+            .height(40.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF2962FF) // Primary Blue
         ),
@@ -486,8 +393,6 @@ fun EditBookScreenPreview() {
             onTitleChange = {},
             onAuthorChange = {},
             onGenreChange = {},
-            onPriceChange = {},
-            onConditionChange = {},
             onSaveClick = {},
             onBackClick = {},
             onLocalCoverCaptured = {},

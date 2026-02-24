@@ -165,8 +165,6 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 onTitleChange = viewModel::onTitleChange,
                 onAuthorChange = viewModel::onAuthorChange,
                 onGenreChange = viewModel::onGenreChange,
-                onPriceChange = viewModel::onPriceChange,
-                onConditionChange = viewModel::onConditionChange,
                 onSaveClick = {
                     viewModel.onSave { currentScreen = AppScreen.Home }
                 },

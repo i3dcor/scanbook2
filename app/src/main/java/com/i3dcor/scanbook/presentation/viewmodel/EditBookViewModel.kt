@@ -59,14 +59,6 @@ class EditBookViewModel(
         _uiState.update { it.copy(genre = value) }
     }
 
-    fun onPriceChange(value: String) {
-        _uiState.update { it.copy(price = value) }
-    }
-
-    fun onConditionChange(value: String) {
-        _uiState.update { it.copy(condition = value) }
-    }
-
     fun onLocalCoverCaptured(path: String) {
         capturedPhotoPath = path
         _uiState.update { it.copy(coverLocalPath = path) }
