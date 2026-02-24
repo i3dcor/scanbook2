@@ -16,11 +16,16 @@ import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -135,7 +140,7 @@ fun PhotoCaptureScreen(
                         }
                     )
                 },
-                modifier = Modifier.padding(bottom = 48.dp, start = 32.dp, end = 32.dp)
+                modifier = Modifier.padding(bottom = 48.dp, start = 16.dp, end = 16.dp)
             )
         }
     }
@@ -247,29 +252,36 @@ private fun CapturePhotoButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Button(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(60.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF2962FF)
-        ),
-        shape = RoundedCornerShape(30.dp)
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.CameraAlt,
-            contentDescription = null,
-            modifier = Modifier.padding(end = 8.dp),
-            tint = Color.White
-        )
-        Text(
-            text = stringResource(R.string.take_photo),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.White
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .weight(1f)
+                .height(42.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF2962FF)
+            ),
+            contentPadding = PaddingValues(horizontal = 12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.CameraAlt,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = Color.White
             )
-        )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(R.string.take_photo),
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = Color.White
+                )
+            )
+        }
     }
 }
 

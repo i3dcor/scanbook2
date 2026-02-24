@@ -1,12 +1,17 @@
 package com.i3dcor.scanbook.components
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,15 +25,22 @@ fun ScanBarcodeButton(
 ) {
     Button(
         onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3A3A3C)),
-        modifier = modifier
+        modifier = modifier.height(42.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2962FF)), // Azul primario para ser CTA principal
+        contentPadding = PaddingValues(horizontal = 16.dp)
     ) {
         Icon(
             imageVector = Icons.Default.QrCodeScanner,
             contentDescription = "Scan Barcode",
             tint = Color.White,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.size(16.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Scanbook",
+            style = MaterialTheme.typography.bodyMedium.copy(
+                color = Color.White
+            )
         )
     }
 }
