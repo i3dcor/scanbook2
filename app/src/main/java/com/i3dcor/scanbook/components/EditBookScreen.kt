@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -359,22 +361,33 @@ fun BookTextField(
 fun SaveButton(
     onClick: () -> Unit
 ) {
-    Button(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(40.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF2962FF) // Primary Blue
-        ),
-        shape = RoundedCornerShape(8.dp)
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text(
-            text = stringResource(R.string.save_changes),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold
+        Spacer(modifier = Modifier.weight(1f))
+
+        Button(
+            onClick = onClick,
+            modifier = Modifier
+                .weight(1f)
+                .height(42.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF2962FF)
+            ),
+            contentPadding = PaddingValues(horizontal = 12.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Save,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp)
             )
-        )
+            Spacer(modifier = Modifier.width(6.dp))
+            Text(
+                text = stringResource(R.string.save_changes),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
 
