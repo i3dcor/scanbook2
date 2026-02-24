@@ -13,6 +13,7 @@ ScanBook permite a los usuarios:
 - 🔎 Buscar libros por ISBN automáticamente al editar
 - 📥 Descargar portadas en background y verlas sin internet (modo avión)
 - 📦 Exportar colección a CSV, JSON o ZIP autocontenido
+- 📤 Compartir la exportación directamente con otras apps
 
 ## Características Implementadas
 
@@ -30,20 +31,13 @@ ScanBook permite a los usuarios:
 ### ✅ Gestión de Colección (Room Database)
 - Persistencia local con SQLite/Room
 - Lista de libros con miniaturas de portada
-- Estados de conservación: New, Good, Damaged
 - Edición completa de metadatos
 - Eliminación con confirmación
 - Detección de duplicados al escanear
 - **Búsqueda en tiempo real por ISBN, título o autor**
 
 ### ✅ Edición de Libros
-- Formulario completo con campos editables:
-  - ISBN (con búsqueda automática por debounce)
-  - Título
-  - Autor
-  - Género
-  - Precio
-  - Estado de conservación
+- Formulario con campos editables: ISBN, Título, Autor, Género
 - Portada del libro con vista ampliada (click para zoom)
 - Captura de portada directamente con la cámara (overlay, sin perder el formulario)
 - Búsqueda automática al modificar ISBN
@@ -59,7 +53,8 @@ ScanBook permite a los usuarios:
 - **CSV**: texto plano, compatible con Excel y hojas de cálculo
 - **JSON**: respaldo estructurado con metadatos completos
 - **ZIP**: archivo autocontenido con `books.json` + portadas descargadas
-- Integración con SAF (Storage Access Framework) para elegir destino
+- **Destino Guardar**: SAF (Storage Access Framework) para elegir carpeta
+- **Destino Compartir**: share sheet del sistema vía FileProvider
 - Estimación de tamaño antes de exportar
 
 ### ✅ UI Moderna (Jetpack Compose)
@@ -137,7 +132,7 @@ app/src/main/java/com/i3dcor/scanbook/
    - Portada clickeable para vista ampliada
    - Botón "Add Photo": abre cámara como overlay para capturar portada propia
 5. **Guardar**: Persiste en Room, encola descarga de portada en background y vuelve a Home
-6. **Exportar**: Desde Home → menú → Exportar → elige formato (CSV / JSON / ZIP) y destino
+6. **Exportar**: Desde Home → menú → Exportar → elige formato (CSV / JSON / ZIP) y destino (Guardar o Compartir)
 
 ## Screenshots
 
@@ -199,8 +194,10 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Búsqueda automática por ISBN en edición
 - [x] Búsqueda en tiempo real por ISBN, título y autor
 - [x] Exportar colección (CSV, JSON, ZIP autocontenido)
+- [x] Compartir exportación vía share sheet (FileProvider)
 - [x] Portadas locales offline con WorkManager
 - [x] Captura de portada con cámara
+- [x] Simplificar editor (sin precio ni estado de conservación)
 
 ### 🔜 Próximo (alta prioridad)
 - [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
@@ -211,12 +208,14 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] Selección de portada desde galería del dispositivo + crop básico
 - [ ] Permite volver a hacer foto de portada cuando ya existe una
 - [ ] Opción de menú oscuro/claro/según sistema
-- [ ] Botón compartir al exportar
-- [ ] Simplificar editor de libros (retirar estado de conservación y precio)
 
 ### 🔮 Futuro (nice to have)
 - [ ] Manejo de idioma / i18n
 - [ ] Speech-to-Text para entrada manual
+- [ ] Mejorar la velocidad de respuesta de la exportación:
+  - En una coroutine con indicador de carga
+  - Escribir en background, muestra spinner, luego lanza el intent
+  
 
 ### ❌ Descartado
 - Integración de IA (Gemini Vision) para análisis de estado
@@ -239,5 +238,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (25 features implementadas)
+**Status**: Fase 1 - MVP Completado ✅ (26 features implementadas)
 **Última actualización:** Febrero 2026
