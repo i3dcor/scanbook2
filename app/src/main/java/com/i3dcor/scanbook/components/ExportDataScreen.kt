@@ -28,7 +28,6 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material.icons.filled.Upload
 import androidx.compose.runtime.key
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -68,7 +67,6 @@ fun ExportDataScreen(
     onExportClick: () -> Unit = {}
 ) {
     var selectedFormat by remember { mutableStateOf("JSON") }
-    var selectedDestination by remember { mutableStateOf("Guardar") }
     val context = LocalContext.current
 
     // Calcular tamaño estimado en función del formato seleccionado
@@ -154,31 +152,14 @@ fun ExportDataScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             ExportDestinationToggle(
-                selectedDestination = selectedDestination,
-                onDestinationSelected = { selectedDestination = it }
-            )
-            
-            Spacer(modifier = Modifier.weight(1f))
-            
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
-                ExportActionButton(
-                    onClick = {
-                        val extension = when (selectedFormat) {
-                            "CSV" -> "csv"
-                            "ZIP" -> "zip"
-                            else -> "json"
-                        }
-                        if (selectedDestination == "Compartir") {
-                            shareExport(context, books, selectedFormat)
-                        } else {
-                            saveFileLauncher.launch("scanbook_export.$extension")
-                        }
+                onSaveClick = {
+                    val extension = when (selectedFormat) {
+                        "CSV" -> "csv"; "ZIP" -> "zip"; else -> "json"
                     }
-                )
-            }
+                    saveFileLauncher.launch("scanbook_export.$extension")
+                },
+                onShareClick = { shareExport(context, books, selectedFormat) }
+            )
         }
     }
 }
@@ -309,8 +290,8 @@ fun ExportFormatOption(
 
 @Composable
 fun ExportDestinationToggle(
-    selectedDestination: String,
-    onDestinationSelected: (String) -> Unit
+    onSaveClick: () -> Unit,
+    onShareClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -324,16 +305,13 @@ fun ExportDestinationToggle(
         DestinationOption(
             text = "Guardar",
             icon = Icons.Default.Folder,
-            isSelected = selectedDestination == "Guardar",
-            onClick = { onDestinationSelected("Guardar") },
+            onClick = onSaveClick,
             modifier = Modifier.weight(1f)
         )
-        
         DestinationOption(
             text = "Compartir",
             icon = Icons.Default.Share,
-            isSelected = selectedDestination == "Compartir",
-            onClick = { onDestinationSelected("Compartir") },
+            onClick = onShareClick,
             modifier = Modifier.weight(1f)
         )
     }
@@ -343,18 +321,14 @@ fun ExportDestinationToggle(
 fun DestinationOption(
     text: String,
     icon: ImageVector,
-    isSelected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isSelected) Color(0xFF1E2838) else Color.Transparent
-    val contentColor = if (isSelected) Color(0xFF2962FF) else Color.Gray
-
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundColor, RoundedCornerShape(8.dp))
+            .background(Color(0xFF1E2838), RoundedCornerShape(8.dp))
             .clickable(onClick = onClick)
     ) {
         Row(
@@ -364,45 +338,18 @@ fun DestinationOption(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = contentColor,
+                tint = Color(0xFF2962FF),
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = contentColor,
+                    color = Color(0xFF2962FF),
                     fontWeight = FontWeight.Medium
                 )
             )
         }
-    }
-}
-
-@Composable
-fun ExportActionButton(
-    onClick: () -> Unit
-) {
-    Button(
-        onClick = onClick,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF2962FF)
-        ),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier.height(50.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Default.Upload,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp)
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Exportar",
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Bold
-            )
-        )
     }
 }
 
