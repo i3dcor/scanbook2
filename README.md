@@ -45,6 +45,7 @@ ScanBook permite a los usuarios:
   - Precio
   - Estado de conservación
 - Portada del libro con vista ampliada (click para zoom)
+- Captura de portada directamente con la cámara (overlay, sin perder el formulario)
 - Búsqueda automática al modificar ISBN
 
 ### ✅ Portadas locales offline (WorkManager)
@@ -74,6 +75,7 @@ ScanBook permite a los usuarios:
 app/src/main/java/com/i3dcor/scanbook/
 ├── components/               # Componentes UI reutilizables (Compose)
 │   ├── CameraScreen.kt
+│   ├── PhotoCaptureScreen.kt
 │   ├── ScanResultScreen.kt
 │   ├── EditBookScreen.kt
 │   ├── HomeScreen.kt
@@ -133,6 +135,7 @@ app/src/main/java/com/i3dcor/scanbook/
 4. **Editar**: Formulario para modificar/completar datos
    - Búsqueda automática por ISBN con debounce (1s)
    - Portada clickeable para vista ampliada
+   - Botón "Add Photo": abre cámara como overlay para capturar portada propia
 5. **Guardar**: Persiste en Room, encola descarga de portada en background y vuelve a Home
 6. **Exportar**: Desde Home → menú → Exportar → elige formato (CSV / JSON / ZIP) y destino
 
@@ -197,23 +200,34 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Búsqueda en tiempo real por ISBN, título y autor
 - [x] Exportar colección (CSV, JSON, ZIP autocontenido)
 - [x] Portadas locales offline con WorkManager
+- [x] Captura de portada con cámara
 
-### 🚧 En progreso / Próximo
-- [ ] Captura de portada con cámara/galería
-- [ ] Tests unitarios (DownloadCoverWorker, ViewModels)
-- [ ] Autenticación de usuario
+### 🔜 Próximo (alta prioridad)
+- [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
+- [ ] CI/CD básico (GitHub Actions: build + test + lint)
+- [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
 
-### 🔮 Futuro (Nice to have)
-- [ ] Integración de IA (Gemini Vision) para análisis de estado
-- [ ] Estimación de estado de conservación (Malo, Bueno, Como Nuevo)
-- [ ] Sugerencia de precio en EUR (10% por debajo de la media de mercado)
-- [ ] Estadísticas de colección
-- [ ] Lista de deseos (wishlist)
-- [ ] Tracking de préstamos
+### 🚧 Backlog (media prioridad)
+- [ ] Selección de portada desde galería del dispositivo + crop básico
+- [ ] Permite volver a hacer foto de portada cuando ya existe una
+- [ ] Opción de menú oscuro/claro/según sistema
+- [ ] Botón compartir al exportar
+- [ ] Simplificar editor de libros (retirar estado de conservación y precio)
+
+### 🔮 Futuro (nice to have)
+- [ ] Manejo de idioma / i18n
 - [ ] Speech-to-Text para entrada manual
-- [ ] Integración con plataformas de venta (Wallapop, Vinted, etc.)
-- [ ] Autenticación de usuario
-- [ ] Sincronización offline/online
+
+### ❌ Descartado
+- Integración de IA (Gemini Vision) para análisis de estado
+- Estimación automática de estado de conservación
+- Sugerencia de precio de mercado (EUR)
+- Estadísticas de colección
+- Lista de deseos (wishlist)
+- Tracking de préstamos
+- Autenticación de usuario
+- Integración con plataformas de venta (Wallapop, Vinted)
+- Sincronización offline/online con cloud
 
 ## Licencia
 
@@ -225,5 +239,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (23 features implementadas)
+**Status**: Fase 1 - MVP Completado ✅ (25 features implementadas)
 **Última actualización:** Febrero 2026
