@@ -205,19 +205,19 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
 
 ### 🚧 Backlog (media prioridad)
-- [ ] Selección de portada desde galería del dispositivo + crop básico
 - [ ] Permite volver a hacer foto de portada cuando ya existe una
 - [ ] Opción de menú oscuro/claro/según sistema
 
 ### 🔮 Futuro (nice to have)
 - [ ] Manejo de idioma / i18n
-- [ ] Speech-to-Text para entrada manual
+- [ ] Speech-to-Text para entrada manual (icono de micrófono en el campo de texto)
 - [ ] Mejorar la velocidad de respuesta de la exportación:
   - En una coroutine con indicador de carga
   - Escribir en background, muestra spinner, luego lanza el intent
   
 
 ### ❌ Descartado
+- Selección de portada desde galería del dispositivo + crop básico
 - Integración de IA (Gemini Vision) para análisis de estado
 - Estimación automática de estado de conservación
 - Sugerencia de precio de mercado (EUR)
