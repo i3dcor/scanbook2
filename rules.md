@@ -40,7 +40,11 @@ Documento central de reglas que Claude debe consultar **siempre** antes de reali
 
 **Obligación**: Antes de hacer `git commit` y/o `git push`, Claude debe proponer el mensaje de commit al usuario y esperar su aprobación o corrección antes de ejecutarlo.
 
-**Formato**: Conventional commits en español (ej: `feat:`, `fix:`, `refactor:`, `docs:`).
+**Formato**: Seguir estrictamente las reglas de `CONTRIBUTING.md` (sección 2):
+- Conventional commits en español: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
+- Primera línea en imperativo, máximo 72 caracteres, sin punto final
+- Cuerpo opcional explicando el "por qué" si hay más contexto relevante
+- Nombres de rama según convención de `CONTRIBUTING.md` (sección 1): `feature/`, `fix/`, `docs/`, `test/`, `chore/`, `hotfix/`
 
 ---
 
