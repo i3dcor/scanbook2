@@ -63,6 +63,7 @@ ScanBook permite a los usuarios:
 - Navegación fluida entre pantallas
 - Componentes reutilizables
 - Soporte para botón atrás de Android
+- Todos los textos en `res/values/strings.xml` — preparado para múltiples idiomas (i18n)
 
 ## Arquitectura
 
@@ -198,6 +199,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Portadas locales offline con WorkManager
 - [x] Captura de portada con cámara
 - [x] Simplificar editor (sin precio ni estado de conservación)
+- [x] Textos UI en strings.xml — base para i18n (añadir idioma: crear `res/values-{locale}/strings.xml`)
 
 ### 🔜 Próximo (alta prioridad)
 - [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
@@ -209,7 +211,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] Opción de menú oscuro/claro/según sistema
 
 ### 🔮 Futuro (nice to have)
-- [ ] Manejo de idioma / i18n
+- [ ] Añadir idioma inglés (`res/values-en/strings.xml`) — base ya lista
 - [ ] Speech-to-Text para entrada manual (icono de micrófono en el campo de texto)
 - [ ] Mejorar la velocidad de respuesta de la exportación:
   - En una coroutine con indicador de carga
@@ -238,5 +240,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (26 features implementadas)
+**Status**: Fase 1 - MVP Completado ✅ (27 features implementadas)
 **Última actualización:** Febrero 2026

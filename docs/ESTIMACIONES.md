@@ -11,11 +11,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 26 |
-| **Tiempo total estimado** | ~67-77 horas |
+| **Total features implementadas** | 27 |
+| **Tiempo total estimado** | ~69-80 horas |
 | **Promedio por feature** | ~2.6-3 horas |
-| **Tasa de retrabajo** | Baja (3.8% - 1 bugfix en 26 tareas) |
-| **Líneas de código aproximadas** | ~4,300-4,900 |
+| **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
+| **Líneas de código aproximadas** | ~4,400-5,000 |
 
 **Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.6-3 horas por feature indica muy buena productividad.
 
@@ -284,7 +284,14 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - Si ya existe portada local (`coverLocalPath != null`), saltea WorkManager al guardar
   - Patrón `key(showPhotoCapture)` para desenlazar/enlazar el ciclo de vida de CameraX correctamente
 
-### 2.10 Compartir exportación (FileProvider + share sheet)
+### 2.10 Refactors de simplificación (sin feature propia)
+
+- **Retirar precio y condición del editor:** Eliminados campos Price y Condition de `EditBookScreen`. Los valores se preservan en Room (campos internos no expuestos). ~0.5h — 3 archivos (`EditBookScreen.kt`, `EditBookViewModel.kt`, `MainActivity.kt`)
+- **ExportDataScreen: Guardar/Compartir como acciones directas:** Eliminar botón "Exportar" independiente y estado `selectedDestination`. Los botones del toggle activan la exportación directamente. ~0.5h — 1 archivo (`ExportDataScreen.kt`)
+
+---
+
+### 2.11 Compartir exportación (FileProvider + share sheet)
 
 #### Feature 26: Destino Compartir en ExportDataScreen
 - **Descripción:** Añadir opción "Compartir" al toggle de destino de exportación. Escribe el export en `cacheDir/exports/` como fichero temporal y lanza `Intent.ACTION_SEND` con FileProvider. Compatible con los 3 formatos (CSV, JSON, ZIP).
@@ -298,6 +305,20 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - FileProvider authority: `${applicationId}.fileprovider`
   - El fichero temporal se reutiliza en cada export (sobrescritura)
   - La escritura se hace en hilo principal (aceptable para el tamaño actual de colecciones)
+
+### 2.12 Internacionalización base con strings.xml
+
+#### Feature 27: Extracción de textos UI a strings.xml
+- **Descripción:** Extraer todos los textos visibles de la UI a `res/values/strings.xml` (40 strings). Actualizar 7 archivos Compose con `stringResource()`. Preparación para añadir idiomas futuros creando únicamente `res/values-{locale}/strings.xml`.
+- **Tiempo estimado:** 1.5-2 horas
+- **Complejidad:** Baja
+- **Archivos afectados:**
+  - `res/values/strings.xml` (nuevo contenido — 40 strings)
+  - `EditBookScreen.kt`, `ScanResultScreen.kt`, `CameraScreen.kt`, `PhotoCaptureScreen.kt`, `Searcher.kt`, `ExportDataScreen.kt`, `MainActivity.kt`
+- **Notas:**
+  - Strings con formato: `stringResource(R.string.xxx, arg)` para textos con variables
+  - Strings en ViewModel/no-Compose (mensajes de error) permanecen hardcodeados en español (ya correcto)
+  - Añadir un idioma nuevo requiere solo un fichero nuevo sin tocar código Kotlin
 
 ---
 
@@ -323,13 +344,13 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | Complejidad | Cantidad | Tiempo promedio |
 |-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 12 | 1-2h |
+| Baja | 13 | 1-2h |
 | Media | 10 | 3-4h |
 | Media-Alta | 3 | 4-6h |
 | Alta | 1 | 4-5h |
 
 **Observaciones:**
-- 88.5% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
+- 89% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
 - Solo una tarea de alta complejidad (CameraScreen) → MVP enfocado
 - Mejoras UI de baja complejidad indican refactorización incremental saludable
 - Promedio de 2.7-3 horas por feature es muy bueno para un senior
@@ -518,9 +539,9 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 ### 6.4 Roadmap visual
 
 ```
-Hecho:        ✓Búsqueda/Filtros  ✓Exportación CSV/JSON/ZIP  ✓Compartir  ✓Portadas locales  ✓Foto cámara
+Hecho:        ✓Búsqueda/Filtros  ✓Export CSV/JSON/ZIP  ✓Compartir  ✓Portadas  ✓Foto cámara  ✓i18n base
 Mes 1:        [Tests + CI/CD] [Galería/crop portada]
-Mes 2:        [Auth] [Sync cloud]
+Mes 2:        [Idioma EN]
 Mes 3:        [Estadísticas] [Wishlist]
 Futuro:       [Prestamos] [OCR] [Recomendaciones]
 ```
@@ -647,6 +668,7 @@ El proyecto demuestra:
 | 1.3 | 2026-02-23 | Cerqueiro | Corregir secciones omitidas en v1.2: análisis de complejidad (Baja 9→10, Media-Alta 2→3), riesgo APIs externas mitigado, roadmap visual actualizado, fortaleza #6 WorkManager boundary, esfuerzo restante reducido (beta 30-40h→20-28h), próximos pasos actualizados |
 | 1.4 | 2026-02-24 | Cerqueiro | Features 24-25 (PhotoCaptureScreen skeleton + CameraX real integrado en EditBookScreen como overlay); marcar "edición portada con cámara" como completado en Sprint 3-4; nueva categoría en distribución de esfuerzo; total: 25 features, ~65-75h |
 | 1.5 | 2026-02-24 | Cerqueiro | Feature 26 (Compartir exportación: FileProvider + Intent.ACTION_SEND, compatible CSV/JSON/ZIP); actualizar roadmap visual; Baja 11→12; total: 26 features, ~67-77h |
+| 1.6 | 2026-02-24 | Cerqueiro | Feature 27 (strings.xml — 40 strings, 7 archivos Compose, base i18n); 2 refactors: ExportDataScreen simplificado (Guardar/Compartir como acciones directas) y editor sin precio ni condición; sección 2.10 refactors; Baja 12→13; total: 27 features, ~69-80h |
 
 ---
 
