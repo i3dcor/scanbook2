@@ -197,22 +197,27 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Búsqueda en tiempo real por ISBN, título y autor
 - [x] Exportar colección (CSV, JSON, ZIP autocontenido)
 - [x] Portadas locales offline con WorkManager
+- [x] Captura de portada con cámara
 
 ### 🚧 En progreso / Próximo
-- [ ] Captura de portada con cámara/galería
+- [ ] Permite volver a hacer foto de portada cuando ya existe
+- [ ] Implementar botón compartir base de datos al exportar
+- [ ] Opción de menú oscuro/claro/según sistema
+- [ ] Simplificar editor de libros (retirar estado de conservación y precio)
+- [ ] Revisar la seguridad de la app (incluyendo manejo de permisos)
 - [ ] Tests unitarios (DownloadCoverWorker, ViewModels)
-- [ ] Autenticación de usuario
-
 ### 🔮 Futuro (Nice to have)
+- [ ] Manejo de idioma
+- [ ] Speech-to-Text para entrada manual
+### No implementar
 - [ ] Integración de IA (Gemini Vision) para análisis de estado
 - [ ] Estimación de estado de conservación (Malo, Bueno, Como Nuevo)
 - [ ] Sugerencia de precio en EUR (10% por debajo de la media de mercado)
 - [ ] Estadísticas de colección
 - [ ] Lista de deseos (wishlist)
 - [ ] Tracking de préstamos
-- [ ] Speech-to-Text para entrada manual
-- [ ] Integración con plataformas de venta (Wallapop, Vinted, etc.)
 - [ ] Autenticación de usuario
+- [ ] Integración con plataformas de venta (Wallapop, Vinted, etc.)
 - [ ] Sincronización offline/online
 
 ## Licencia
