@@ -30,7 +30,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.i3dcor.scanbook.components.BookCoverThumbnail
@@ -215,9 +217,9 @@ fun HomeScreen(
                 ) {
                     Text(
                         text = if (searchQuery.isNotBlank()) {
-                            "No se encontraron resultados\npara \"$searchQuery\""
+                            stringResource(R.string.search_no_results, searchQuery)
                         } else {
-                            "No hay libros aún.\nEscanea tu primer libro."
+                            stringResource(R.string.empty_library)
                         },
                         color = Color.Gray,
                         textAlign = TextAlign.Center
@@ -254,19 +256,19 @@ fun HomeScreen(
     bookToDelete?.let { book ->
         AlertDialog(
             onDismissRequest = { bookToDelete = null },
-            title = { Text("Eliminar libro") },
-            text = { Text("¿Seguro que quieres eliminar \"${book.title.orEmpty()}\"?") },
+            title = { Text(stringResource(R.string.delete_book)) },
+            text = { Text(stringResource(R.string.delete_book_confirm, book.title.orEmpty())) },
             confirmButton = {
                 TextButton(onClick = {
                     onDeleteBook(book.isbn)
                     bookToDelete = null
                 }) {
-                    Text("Eliminar")
+                    Text(stringResource(R.string.button_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { bookToDelete = null }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.button_cancel))
                 }
             }
         )

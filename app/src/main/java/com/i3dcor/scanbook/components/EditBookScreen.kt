@@ -34,7 +34,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -96,7 +98,7 @@ fun EditBookScreen(
             
             // Form Fields
             BookTextField(
-                label = "ISBN",
+                label = stringResource(R.string.field_isbn),
                 value = uiState.isbn,
                 onValueChange = onIsbnChange,
                 trailingIcon = {
@@ -132,7 +134,7 @@ fun EditBookScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             BookTextField(
-                label = "Title",
+                label = stringResource(R.string.field_title),
                 value = uiState.title,
                 onValueChange = onTitleChange
             )
@@ -140,7 +142,7 @@ fun EditBookScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             BookTextField(
-                label = "Author",
+                label = stringResource(R.string.field_author),
                 value = uiState.author,
                 onValueChange = onAuthorChange
             )
@@ -148,7 +150,7 @@ fun EditBookScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             BookTextField(
-                label = "Genre",
+                label = stringResource(R.string.field_genre),
                 value = uiState.genre,
                 onValueChange = onGenreChange
             )
@@ -177,7 +179,7 @@ fun EditBookScreen(
 @Composable
 fun EditBookHeader() {
     Text(
-        text = "Edit Book",
+        text = stringResource(R.string.edit_book_title),
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
             color = Color.White
@@ -236,7 +238,7 @@ fun BookPhotoSection(
         }
     } else {
         PhotoPlaceholderButton(
-            text = "Front Cover",
+            text = stringResource(R.string.front_cover),
             modifier = Modifier.fillMaxWidth(),
             onClick = onPhotoClick
         )
@@ -282,7 +284,7 @@ fun PhotoPlaceholderButton(
             Spacer(modifier = Modifier.width(12.dp))
             Column {
                 Text(
-                    text = "Add Photo",
+                    text = stringResource(R.string.add_photo),
                     style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
                 )
                 Text(
@@ -368,7 +370,7 @@ fun SaveButton(
         shape = RoundedCornerShape(8.dp)
     ) {
         Text(
-            text = "Save Changes",
+            text = stringResource(R.string.save_changes),
             style = MaterialTheme.typography.titleMedium.copy(
                 fontWeight = FontWeight.Bold
             )

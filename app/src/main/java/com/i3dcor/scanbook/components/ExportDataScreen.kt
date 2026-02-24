@@ -48,6 +48,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.i3dcor.scanbook.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -91,7 +93,7 @@ fun ExportDataScreen(
                     "ZIP" -> writeBooksZipToUri(context, uri, books)
                     else -> writeContentToUri(context, uri, booksToJson(books))
                 }
-                Toast.makeText(context, "Exportación completada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.export_completed, Toast.LENGTH_SHORT).show()
                 onExportClick()
             }
         }
@@ -116,13 +118,13 @@ fun ExportDataScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            SectionTitle(text = "FORMATO DE ARCHIVO")
+            SectionTitle(text = stringResource(R.string.export_format_section))
             
             Spacer(modifier = Modifier.height(8.dp))
 
             ExportFormatOption(
-                title = "CSV (Sin fotos)",
-                description = "Texto ligero, compatible con Excel y hojas de cálculo.",
+                title = stringResource(R.string.export_csv_title),
+                description = stringResource(R.string.export_csv_desc),
                 isSelected = selectedFormat == "CSV",
                 onClick = { selectedFormat = "CSV" }
             )
@@ -130,8 +132,8 @@ fun ExportDataScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             ExportFormatOption(
-                title = "JSON (Con fotos)",
-                description = "Respaldo completo estructurado con imágenes y metadatos.",
+                title = stringResource(R.string.export_json_title),
+                description = stringResource(R.string.export_json_desc),
                 isSelected = selectedFormat == "JSON",
                 onClick = { selectedFormat = "JSON" }
             )
@@ -139,15 +141,15 @@ fun ExportDataScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             ExportFormatOption(
-                title = "ZIP (Autocontenido)",
-                description = "Archivo comprimido con books.json y portadas locales descargadas.",
+                title = stringResource(R.string.export_zip_title),
+                description = stringResource(R.string.export_zip_desc),
                 isSelected = selectedFormat == "ZIP",
                 onClick = { selectedFormat = "ZIP" }
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            SectionTitle(text = "DESTINO")
+            SectionTitle(text = stringResource(R.string.export_destination_section))
             
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -178,13 +180,13 @@ fun ExportHeader(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Close",
+                contentDescription = stringResource(R.string.export_close),
                 tint = Color.White
             )
         }
         
         Text(
-            text = "Exportar Datos",
+            text = stringResource(R.string.export_title),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -212,7 +214,7 @@ fun EstimatedSizeBadge(sizeText: String) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "Tamaño Estimado: $sizeText",
+                text = stringResource(R.string.export_size, sizeText),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color.LightGray
                 )
@@ -303,13 +305,13 @@ fun ExportDestinationToggle(
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         DestinationOption(
-            text = "Guardar",
+            text = stringResource(R.string.export_save),
             icon = Icons.Default.Folder,
             onClick = onSaveClick,
             modifier = Modifier.weight(1f)
         )
         DestinationOption(
-            text = "Compartir",
+            text = stringResource(R.string.export_share),
             icon = Icons.Default.Share,
             onClick = onShareClick,
             modifier = Modifier.weight(1f)
