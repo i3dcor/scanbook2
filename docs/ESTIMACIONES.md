@@ -11,13 +11,13 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 23 |
-| **Tiempo total estimado** | ~61-70 horas |
-| **Promedio por feature** | ~2.7-3 horas |
-| **Tasa de retrabajo** | Baja (4.3% - 1 bugfix en 23 tareas) |
-| **Líneas de código aproximadas** | ~3,900-4,500 |
+| **Total features implementadas** | 25 |
+| **Tiempo total estimado** | ~65-75 horas |
+| **Promedio por feature** | ~2.6-3 horas |
+| **Tasa de retrabajo** | Baja (4% - 1 bugfix en 25 tareas) |
+| **Líneas de código aproximadas** | ~4,200-4,800 |
 
-**Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.7-3 horas por feature indica muy buena productividad.
+**Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.6-3 horas por feature indica muy buena productividad.
 
 ---
 
@@ -259,34 +259,62 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - Estimación de tamaño ZIP: `jsonBytes × 0.4 + portadasLocales × 8192`
   - Solo 1 archivo modificado gracias a la arquitectura modular previa
 
+### 2.9 Captura de portada con cámara (PhotoCaptureScreen)
+
+#### Feature 24: Componente PhotoCaptureScreen (skeleton)
+- **Descripción:** Componente Compose inicial para la pantalla de captura de portada, con placeholder visual y estructura base de permisos de cámara
+- **Tiempo estimado:** 1-1.5 horas
+- **Complejidad:** Baja
+- **Archivos afectados:** `PhotoCaptureScreen.kt` (nuevo)
+- **Notas:** Establece la API pública del componente: `(isbn, onPhotoCaptured, onBackClick)`
+
+#### Feature 25: CameraX real + overlay en EditBookScreen
+- **Descripción:** Preview CameraX con ImageCapture, guardado en `filesDir/covers/{isbn}.jpg`, overlay sin cambios de navegación (BackHandler + estado en ViewModel), descarte al volver atrás
+- **Tiempo estimado:** 3-4 horas
+- **Complejidad:** Media
+- **Archivos afectados:**
+  - `PhotoCaptureScreen.kt` (reemplazo de placeholder por CameraX real)
+  - `EditBookScreen.kt` (overlay con `Box`, `BackHandler`)
+  - `EditBookViewModel.kt` (`onLocalCoverCaptured()`, `discardCapturedPhoto()`)
+  - `EditBookUiState.kt` (añade `coverLocalPath`)
+  - `MainActivity.kt` (pasa los dos nuevos callbacks)
+- **Notas:**
+  - Reutiliza el patrón `ProcessCameraProvider + AndroidView` del `CameraScreen` existente
+  - Overlay composable dentro del `Box` de `EditBookScreen` → el formulario no pierde estado al capturar
+  - Si ya existe portada local (`coverLocalPath != null`), saltea WorkManager al guardar
+  - Patrón `key(showPhotoCapture)` para desenlazar/enlazar el ciclo de vida de CameraX correctamente
+
+---
+
 ## 3. Resumen por Categorías
 
 ### 3.1 Distribución de esfuerzo
 
 | Categoría | Horas | % del total |
 |-----------|-------|-------------|
-| **Infraestructura/Arquitectura** | 7-9h | ~12% |
-| **Capa de Datos** | 8-10h | ~14% |
-| **Pantallas principales (UI)** | 15-18h | ~26% |
-| **Gestión y funcionalidades** | 6-9h | ~12% |
-| **Mejoras UI/Polish** | 9-11h | ~16% |
+| **Infraestructura/Arquitectura** | 7-9h | ~11% |
+| **Capa de Datos** | 8-10h | ~13% |
+| **Pantallas principales (UI)** | 15-18h | ~24% |
+| **Gestión y funcionalidades** | 6-9h | ~11% |
+| **Mejoras UI/Polish** | 9-11h | ~15% |
 | **Background/WorkManager** | 4-6h | ~7% |
-| **Exportación avanzada** | 5-7h | ~9% |
+| **Exportación avanzada** | 5-7h | ~8% |
+| **Captura de portada (CameraX)** | 4-5.5h | ~7% |
 | **Bugfixes/Refinamiento** | 2-3h | ~4% |
-| **TOTAL** | **~61-70h** | **100%** |
+| **TOTAL** | **~65-75h** | **100%** |
 
 ### 3.2 Análisis de complejidad
 
 | Complejidad | Cantidad | Tiempo promedio |
 |-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 10 | 1-2h |
-| Media | 9 | 3-4h |
+| Baja | 11 | 1-2h |
+| Media | 10 | 3-4h |
 | Media-Alta | 3 | 4-6h |
 | Alta | 1 | 4-5h |
 
 **Observaciones:**
-- 87% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
+- 88% de las tareas son de complejidad media o menor → excelente señal de scope bien definido
 - Solo una tarea de alta complejidad (CameraScreen) → MVP enfocado
 - Mejoras UI de baja complejidad indican refactorización incremental saludable
 - Promedio de 2.7-3 horas por feature es muy bueno para un senior
@@ -295,9 +323,9 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor | Benchmark industria |
 |---------|-------|---------------------|
-| Features/hora | 0.33-0.37 | 0.2-0.3 (bueno) |
-| Tiempo promedio feature | 2.7-3h | 4-6h (estándar) |
-| Tasa de defectos | 5.3% | 10-15% (aceptable) |
+| Features/hora | 0.33-0.38 | 0.2-0.3 (bueno) |
+| Tiempo promedio feature | 2.6-3h | 4-6h (estándar) |
+| Tasa de defectos | 4% | 10-15% (aceptable) |
 | Líneas de código/hora | ~65-75 | 50-80 (normal) |
 
 **Conclusión:** Velocidad por encima del promedio de la industria.
@@ -446,10 +474,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 **Objetivo:** Features core para usuarios activos
 
-4. **Edición de portada con cámara** (6-8h)
-   - Integración CameraX para captura
-   - Crop y rotación básica
-   - Guardar en storage local
+4. ~~**Edición de portada con cámara** (6-8h)~~ → **COMPLETADO** — features 24-25 (captura CameraX real, overlay en EditBookScreen, guardado en filesDir)
+   *Pendiente: selección desde galería del dispositivo y crop/rotación básica*
 
 5. **Autenticación de usuario** (6-8h)
    - Firebase Auth o Supabase
@@ -477,9 +503,9 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 ### 6.4 Roadmap visual
 
 ```
-Hecho:        ✓Búsqueda/Filtros  ✓Exportación CSV/JSON/ZIP  ✓Portadas locales
-Mes 1:        [Tests + CI/CD]
-Mes 2:        [Portada cámara] [Auth] [Sync cloud]
+Hecho:        ✓Búsqueda/Filtros  ✓Exportación CSV/JSON/ZIP  ✓Portadas locales  ✓Foto cámara
+Mes 1:        [Tests + CI/CD] [Galería/crop portada]
+Mes 2:        [Auth] [Sync cloud]
 Mes 3:        [Estadísticas] [Compartir] [Wishlist]
 Futuro:       [Prestamos] [OCR] [Recomendaciones]
 ```
@@ -589,7 +615,7 @@ El proyecto demuestra:
 
 ### 9.4 Próximos pasos recomendados
 
-1. **Esta semana:** Escribir tests unitarios para ViewModels (incluido `HomeViewModel.downloadPendingCovers()` y `DownloadCoverWorker`)
+1. **Esta semana:** Escribir tests unitarios para ViewModels (incluido `HomeViewModel.downloadPendingCovers()`, `DownloadCoverWorker` y `EditBookViewModel.onLocalCoverCaptured()`)
 2. ~~**Próximas 2 semanas:** Implementar búsqueda/filtros en Home~~ → **COMPLETADO** (features 20-21)
 3. **Mes 1:** Setup CI/CD + Auth básico
 4. **Mes 2:** Sync cloud + portada con cámara (WorkManager ya integrado)
@@ -604,6 +630,7 @@ El proyecto demuestra:
 | 1.1 | 2026-02-20 | Cerqueiro | Añadir features 20 (búsqueda en tiempo real) y 21 (icono cancelar búsqueda), actualizar contadores: 21 features, ~55-62h |
 | 1.2 | 2026-02-23 | Cerqueiro | Features 22 (portadas locales con WorkManager) y 23 (exportación ZIP); marcar como completados búsqueda/filtros y exportación en tareas futuras; distribución de esfuerzo actualizada; total: 23 features, ~61-70h |
 | 1.3 | 2026-02-23 | Cerqueiro | Corregir secciones omitidas en v1.2: análisis de complejidad (Baja 9→10, Media-Alta 2→3), riesgo APIs externas mitigado, roadmap visual actualizado, fortaleza #6 WorkManager boundary, esfuerzo restante reducido (beta 30-40h→20-28h), próximos pasos actualizados |
+| 1.4 | 2026-02-24 | Cerqueiro | Features 24-25 (PhotoCaptureScreen skeleton + CameraX real integrado en EditBookScreen como overlay); marcar "edición portada con cámara" como completado en Sprint 3-4; nueva categoría en distribución de esfuerzo; total: 25 features, ~65-75h |
 
 ---
 
