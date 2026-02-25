@@ -41,6 +41,8 @@
     <string name="button_delete">Eliminar</string>
     <string name="button_cancel">Cancelar</string>
     <string name="book_cover_description">Portada del libro</string>
+    <string name="remove_photo">Eliminar portada</string>
+    <string name="delete_cover_title">¿Eliminar foto definitivamente?</string>
     <string name="scan_barcode_description">Escanear código de barras</string>
     <string name="scan_barcode">Scanbook</string>
     <string name="menu_options">Menú de opciones</string>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -21,6 +22,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -31,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -61,6 +64,7 @@ fun EditBookScreen(
     onBackClick: () -> Unit,
     onLocalCoverCaptured: (String) -> Unit,
     onDiscardPhoto: () -> Unit,
+    onDeleteCover: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showPhotoCapture by remember { mutableStateOf(false) }
@@ -90,7 +94,8 @@ fun EditBookScreen(
             BookPhotoSection(
                 coverUrl = uiState.coverUrl,
                 coverLocalPath = uiState.coverLocalPath,
-                onPhotoClick = { showPhotoCapture = true }
+                onPhotoClick = { showPhotoCapture = true },
+                onDeletePhotoClick = onDeleteCover
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -185,9 +190,11 @@ fun EditBookHeader() {
 fun BookPhotoSection(
     coverUrl: String? = null,
     coverLocalPath: String? = null,
-    onPhotoClick: () -> Unit = {}
+    onPhotoClick: () -> Unit = {},
+    onDeletePhotoClick: () -> Unit = {}
 ) {
     var showCoverDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     if (coverLocalPath != null || coverUrl != null) {
         Surface(
@@ -216,7 +223,6 @@ fun BookPhotoSection(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showCoverDialog = false }
                 ) {
                     BookCoverThumbnail(
                         coverUrl = coverUrl,
@@ -224,9 +230,58 @@ fun BookPhotoSection(
                         modifier = Modifier
                             .fillMaxWidth(0.9f)
                             .aspectRatio(0.65f)
+                            .clickable { showCoverDialog = false }
                     )
+
+                    // Badge superpuesto en la esquina superior derecha del Dialog
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(x = 8.dp, y = (-8).dp)
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF3A3A3C)) // Fondo oscuro del badge
+                            .border(1.dp, Color(0xFF1C1C1E), CircleShape) // Borde para separación visual
+                            .clickable { showDeleteConfirm = true },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = stringResource(R.string.remove_photo),
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
+        }
+
+        if (showDeleteConfirm) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showDeleteConfirm = false },
+                title = {
+                    Text(
+                        text = stringResource(R.string.delete_cover_title),
+                        style = MaterialTheme.typography.titleMedium.copy(color = Color.White)
+                    )
+                },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(onClick = {
+                        onDeletePhotoClick()
+                        showDeleteConfirm = false
+                        showCoverDialog = false
+                    }) {
+                        Text(stringResource(R.string.button_delete), color = Color(0xFFEF5350))
+                    }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(onClick = { showDeleteConfirm = false }) {
+                        Text(stringResource(R.string.button_cancel), color = Color.White)
+                    }
+                },
+                containerColor = Color(0xFF252528),
+                tonalElevation = 0.dp
+            )
         }
     } else {
         PhotoPlaceholderButton(
@@ -377,7 +432,8 @@ fun EditBookScreenPreview() {
                 author = "Eric Evans",
                 genre = "Computer Science",
                 price = "54.99",
-                condition = "Good"
+                condition = "Good",
+                coverUrl = "https://example.com/cover.jpg" // Añadido para forzar que se vea la foto y poder abrir el dialog en preview
             ),
             onIsbnChange = {},
             onTitleChange = {},
