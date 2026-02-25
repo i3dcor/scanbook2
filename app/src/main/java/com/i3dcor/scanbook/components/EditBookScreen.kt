@@ -64,6 +64,7 @@ fun EditBookScreen(
     onBackClick: () -> Unit,
     onLocalCoverCaptured: (String) -> Unit,
     onDiscardPhoto: () -> Unit,
+    onDeleteCover: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var showPhotoCapture by remember { mutableStateOf(false) }
@@ -94,7 +95,7 @@ fun EditBookScreen(
                 coverUrl = uiState.coverUrl,
                 coverLocalPath = uiState.coverLocalPath,
                 onPhotoClick = { showPhotoCapture = true },
-                onDeletePhotoClick = { /* Funcionalidad de borrar foto pendiente */ }
+                onDeletePhotoClick = onDeleteCover
             )
             
             Spacer(modifier = Modifier.height(24.dp))
@@ -248,7 +249,7 @@ fun BookPhotoSection(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Remove photo",
+                            contentDescription = stringResource(R.string.remove_photo),
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
                         )

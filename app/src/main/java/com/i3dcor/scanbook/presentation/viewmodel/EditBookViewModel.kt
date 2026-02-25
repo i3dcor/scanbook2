@@ -70,6 +70,12 @@ class EditBookViewModel(
         _uiState.update { it.copy(coverLocalPath = null) }
     }
 
+    fun deleteLocalCover() {
+        _uiState.value.coverLocalPath?.let { File(it).delete() }
+        capturedPhotoPath = null
+        _uiState.update { it.copy(coverUrl = null, coverLocalPath = null) }
+    }
+
     fun onSave(onComplete: () -> Unit) {
         val state = _uiState.value
         val scannedIsbn = ScannedIsbn(
