@@ -288,6 +288,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 - **Retirar precio y condición del editor:** Eliminados campos Price y Condition de `EditBookScreen`. Los valores se preservan en Room (campos internos no expuestos). ~0.5h — 3 archivos (`EditBookScreen.kt`, `EditBookViewModel.kt`, `MainActivity.kt`)
 - **ExportDataScreen: Guardar/Compartir como acciones directas:** Eliminar botón "Exportar" independiente y estado `selectedDestination`. Los botones del toggle activan la exportación directamente. ~0.5h — 1 archivo (`ExportDataScreen.kt`)
+- **Unificación de estilo de botones (fase 1):** Homogeneizar altura (42dp), color primario azul (#2962FF), icono + texto en `ScanBarcodeButton`, `SaveButton`, `CameraScreen`, `PhotoCaptureScreen`. ~1h — 5 archivos
+- **ActionButton como componente reutilizable (fase 2):** Extraer `ActionButton.kt` y refactorizar los 5 archivos anteriores + `ScanResultScreen` para usar el componente común. -117 líneas de código duplicado. ~1h — 6 archivos
 
 ---
 
@@ -669,6 +671,7 @@ El proyecto demuestra:
 | 1.4 | 2026-02-24 | Cerqueiro | Features 24-25 (PhotoCaptureScreen skeleton + CameraX real integrado en EditBookScreen como overlay); marcar "edición portada con cámara" como completado en Sprint 3-4; nueva categoría en distribución de esfuerzo; total: 25 features, ~65-75h |
 | 1.5 | 2026-02-24 | Cerqueiro | Feature 26 (Compartir exportación: FileProvider + Intent.ACTION_SEND, compatible CSV/JSON/ZIP); actualizar roadmap visual; Baja 11→12; total: 26 features, ~67-77h |
 | 1.6 | 2026-02-24 | Cerqueiro | Feature 27 (strings.xml — 40 strings, 7 archivos Compose, base i18n); 2 refactors: ExportDataScreen simplificado (Guardar/Compartir como acciones directas) y editor sin precio ni condición; sección 2.10 refactors; Baja 12→13; total: 27 features, ~69-80h |
+| 1.7 | 2026-02-25 | Cerqueiro | 2 refactors de estilo: unificación de botones (42dp, azul, icono+texto) y extracción de ActionButton.kt reutilizable (-117 líneas duplicadas); sección 2.10 ampliada; total: 27 features (sin cambio) |
 
 ---
 
