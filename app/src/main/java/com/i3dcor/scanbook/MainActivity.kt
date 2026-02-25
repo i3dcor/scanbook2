@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,13 +37,13 @@ import androidx.compose.ui.text.style.TextAlign
 import com.i3dcor.scanbook.R
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.i3dcor.scanbook.components.ActionButton
 import com.i3dcor.scanbook.components.BookCoverThumbnail
 import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.EditBookScreen
 import com.i3dcor.scanbook.components.ExportDataScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
-import com.i3dcor.scanbook.components.ScanBarcodeButton
 import com.i3dcor.scanbook.components.ScanResultScreen
 import com.i3dcor.scanbook.data.local.ScanBookDatabase
 import com.i3dcor.scanbook.data.repository.RoomIsbnRepository
@@ -244,8 +246,10 @@ fun HomeScreen(
             }
         }
 
-        ScanBarcodeButton(
+        ActionButton(
+            text = stringResource(R.string.scan_barcode),
             onClick = onScanClick,
+            icon = Icons.Default.QrCodeScanner,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)

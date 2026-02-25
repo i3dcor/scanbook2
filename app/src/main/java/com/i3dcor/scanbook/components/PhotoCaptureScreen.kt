@@ -258,30 +258,12 @@ private fun CapturePhotoButton(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
+        ActionButton(
+            text = stringResource(R.string.take_photo),
+            icon = Icons.Default.CameraAlt,
             onClick = onClick,
-            modifier = Modifier
-                .weight(1f)
-                .height(42.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2962FF)
-            ),
-            contentPadding = PaddingValues(horizontal = 12.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.CameraAlt,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-                tint = Color.White
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = stringResource(R.string.take_photo),
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.White
-                )
-            )
-        }
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 

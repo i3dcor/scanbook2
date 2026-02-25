@@ -64,12 +64,14 @@ ScanBook permite a los usuarios:
 - Componentes reutilizables
 - Soporte para botón atrás de Android
 - Todos los textos en `res/values/strings.xml` — preparado para múltiples idiomas (i18n)
+- Botones de acción unificados (`ActionButton`) — altura 42dp, azul primario, icono + texto
 
 ## Arquitectura
 
 ```
 app/src/main/java/com/i3dcor/scanbook/
 ├── components/               # Componentes UI reutilizables (Compose)
+│   ├── ActionButton.kt
 │   ├── CameraScreen.kt
 │   ├── PhotoCaptureScreen.kt
 │   ├── ScanResultScreen.kt
@@ -200,6 +202,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Captura de portada con cámara
 - [x] Simplificar editor (sin precio ni estado de conservación)
 - [x] Textos UI en strings.xml — base para i18n (añadir idioma: crear `res/values-{locale}/strings.xml`)
+- [x] Unificación de estilo de botones (`ActionButton` reutilizable)
 
 ### 🔜 Próximo (alta prioridad)
 - [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
@@ -207,7 +210,6 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
 
 ### 🚧 Backlog (media prioridad)
-- [ ] Mejora el estilo visual del UI
 ### 🔮 Futuro (nice to have)
 - [ ] Opción de menú oscuro/claro/según sistema
 - [ ] Permite volver a hacer foto de portada cuando ya existe una

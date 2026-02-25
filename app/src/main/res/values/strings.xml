@@ -22,7 +22,7 @@
     <!-- Cámara (escaneo ISBN) -->
     <string name="camera_permission_required">Permiso de cámara requerido</string>
     <string name="align_barcode">Alinea el código de barras en el marco para escanear</string>
-    <string name="enter_isbn_manually">Introducir ISBN manualmente</string>
+    <string name="enter_isbn_manually">ISBN manual</string>
     <string name="back">Atrás</string>
     <string name="flash_on">Encender flash</string>
     <string name="flash_off">Apagar flash</string>
@@ -42,6 +42,7 @@
     <string name="button_cancel">Cancelar</string>
     <string name="book_cover_description">Portada del libro</string>
     <string name="scan_barcode_description">Escanear código de barras</string>
+    <string name="scan_barcode">Scanbook</string>
     <string name="menu_options">Menú de opciones</string>
     <string name="clear_search">Borrar búsqueda</string>
     <string name="menu_export">Exportar</string>

@@ -4,12 +4,10 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,14 +22,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Tag
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +43,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.i3dcor.scanbook.R
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.presentation.state.ScanResultUiState
@@ -360,47 +354,20 @@ fun ScanResultActions(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            OutlinedButton(
+            ActionButton(
+                text = stringResource(R.string.button_edit),
+                icon = Icons.Default.Edit,
                 onClick = onEditClick,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(42.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = Color.White
-                ),
-                border = BorderStroke(1.dp, Color.Gray),
-                contentPadding = PaddingValues(horizontal = 12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = stringResource(R.string.button_edit), style = MaterialTheme.typography.bodyMedium)
-            }
+                modifier = Modifier.weight(1f)
+            )
 
-            Button(
+            ActionButton(
+                text = stringResource(R.string.button_add),
+                icon = Icons.Default.Add,
                 onClick = onAddClick,
                 enabled = !alreadyExists,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(42.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2962FF),
-                    disabledContainerColor = Color(0xFF3A3A3C),
-                    disabledContentColor = Color.Gray
-                ),
-                contentPadding = PaddingValues(horizontal = 12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(text = stringResource(R.string.button_add), style = MaterialTheme.typography.bodyMedium)
-            }
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }

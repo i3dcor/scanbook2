@@ -390,30 +390,12 @@ fun CameraScreen(
             ) {
                 Spacer(modifier = Modifier.weight(1f))
 
-                Button(
+                ActionButton(
+                    text = stringResource(R.string.enter_isbn_manually),
+                    icon = Icons.Default.Keyboard,
                     onClick = onManualInputClick,
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(42.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White
-                    ),
-                    contentPadding = PaddingValues(horizontal = 12.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Keyboard,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = Color.Black
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.enter_isbn_manually),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.Black
-                        )
-                    )
-                }
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
     }
