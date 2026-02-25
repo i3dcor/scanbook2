@@ -194,6 +194,7 @@ fun BookPhotoSection(
     onDeletePhotoClick: () -> Unit = {}
 ) {
     var showCoverDialog by remember { mutableStateOf(false) }
+    var showDeleteConfirm by remember { mutableStateOf(false) }
 
     if (coverLocalPath != null || coverUrl != null) {
         Surface(
@@ -241,10 +242,7 @@ fun BookPhotoSection(
                             .clip(CircleShape)
                             .background(Color(0xFF3A3A3C)) // Fondo oscuro del badge
                             .border(1.dp, Color(0xFF1C1C1E), CircleShape) // Borde para separación visual
-                            .clickable { 
-                                onDeletePhotoClick()
-                                showCoverDialog = false 
-                            },
+                            .clickable { showDeleteConfirm = true },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -256,6 +254,34 @@ fun BookPhotoSection(
                     }
                 }
             }
+        }
+
+        if (showDeleteConfirm) {
+            androidx.compose.material3.AlertDialog(
+                onDismissRequest = { showDeleteConfirm = false },
+                title = {
+                    Text(
+                        text = stringResource(R.string.delete_cover_title),
+                        style = MaterialTheme.typography.titleMedium.copy(color = Color.White)
+                    )
+                },
+                confirmButton = {
+                    androidx.compose.material3.TextButton(onClick = {
+                        onDeletePhotoClick()
+                        showDeleteConfirm = false
+                        showCoverDialog = false
+                    }) {
+                        Text(stringResource(R.string.button_delete), color = Color(0xFFEF5350))
+                    }
+                },
+                dismissButton = {
+                    androidx.compose.material3.TextButton(onClick = { showDeleteConfirm = false }) {
+                        Text(stringResource(R.string.button_cancel), color = Color.White)
+                    }
+                },
+                containerColor = Color(0xFF252528),
+                tonalElevation = 0.dp
+            )
         }
     } else {
         PhotoPlaceholderButton(
