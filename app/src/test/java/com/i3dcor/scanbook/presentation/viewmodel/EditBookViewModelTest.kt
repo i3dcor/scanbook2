@@ -286,6 +286,47 @@ class EditBookViewModelTest {
         assertNull(vm.uiState.value.coverLocalPath)
     }
 
+    @Test
+    fun `onLocalCoverCaptured replaces previous captured path`() {
+        val vm = viewModel()
+        vm.onLocalCoverCaptured("/data/covers/first.jpg")
+        vm.onLocalCoverCaptured("/data/covers/second.jpg")
+        assertEquals("/data/covers/second.jpg", vm.uiState.value.coverLocalPath)
+    }
+
+    @Test
+    fun `discardCapturedPhoto deletes the physical file`() {
+        val tempFile = java.io.File.createTempFile("cover_test", ".jpg")
+        assertTrue(tempFile.exists())
+
+        val vm = viewModel()
+        vm.onLocalCoverCaptured(tempFile.absolutePath)
+        vm.discardCapturedPhoto()
+
+        assertFalse(tempFile.exists())
+    }
+
+    @Test
+    fun `discardCapturedPhoto without prior capture does not throw`() {
+        val vm = viewModel()
+        vm.discardCapturedPhoto()
+        assertNull(vm.uiState.value.coverLocalPath)
+    }
+
+    @Test
+    fun `discardCapturedPhoto does not clear remote coverUrl`() {
+        val book = ScannedIsbn(
+            isbn = "9780140328721",
+            coverUrl = "https://example.com/cover.jpg"
+        )
+        val vm = viewModel(book)
+        vm.onLocalCoverCaptured("/data/covers/local.jpg")
+        vm.discardCapturedPhoto()
+
+        assertEquals("https://example.com/cover.jpg", vm.uiState.value.coverUrl)
+        assertNull(vm.uiState.value.coverLocalPath)
+    }
+
     // ============ DELETE COVER ============
 
     @Test
