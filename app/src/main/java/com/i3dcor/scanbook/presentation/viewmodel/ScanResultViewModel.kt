@@ -10,6 +10,7 @@ import com.i3dcor.scanbook.domain.model.BookNotFoundException
 import com.i3dcor.scanbook.domain.repository.BookLookupRepository
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import com.i3dcor.scanbook.presentation.state.ScanResultUiState
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +34,8 @@ class ScanResultViewModel(
             GoogleBooksRepository()
         )
     ),
-    private val isbnRepository: IsbnRepository = InMemoryIsbnRepository.instance
+    private val isbnRepository: IsbnRepository = InMemoryIsbnRepository.instance,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
     
     private val _uiState = MutableStateFlow(ScanResultUiState.initial(isbn))
@@ -50,7 +52,7 @@ class ScanResultViewModel(
      */
     private fun checkLocalThenLookup() {
         viewModelScope.launch {
-            val existingBook = withContext(Dispatchers.IO) {
+            val existingBook = withContext(ioDispatcher) {
                 isbnRepository.getByIsbn(isbn)
             }
             

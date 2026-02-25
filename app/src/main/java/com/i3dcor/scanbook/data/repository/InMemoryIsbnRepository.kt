@@ -10,7 +10,7 @@ import com.i3dcor.scanbook.domain.repository.IsbnRepository
  * Singleton para que los datos persistan entre navegaciones.
  * Thread-safe mediante sincronización.
  */
-class InMemoryIsbnRepository private constructor() : IsbnRepository {
+class InMemoryIsbnRepository internal constructor() : IsbnRepository {
     
     companion object {
         val instance: InMemoryIsbnRepository by lazy { InMemoryIsbnRepository() }
