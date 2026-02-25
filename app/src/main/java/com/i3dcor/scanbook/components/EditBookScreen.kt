@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,8 +22,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
@@ -110,13 +107,6 @@ fun EditBookScreen(
                             color = Color(0xFF448AFF),
                             strokeWidth = 2.dp
                         )
-                    } else {
-                        // Placeholder for barcode icon
-/*                        Box(
-                            modifier = Modifier
-                                .size(24.dp)
-                                .background(Color.Gray, RoundedCornerShape(2.dp))
-                        )*/
                     }
                 }
             )
@@ -367,27 +357,12 @@ fun SaveButton(
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
-        Button(
+        ActionButton(
+            text = stringResource(R.string.save_changes),
+            icon = Icons.Default.Save,
             onClick = onClick,
-            modifier = Modifier
-                .weight(1f)
-                .height(42.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF2962FF)
-            ),
-            contentPadding = PaddingValues(horizontal = 12.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Save,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(
-                text = stringResource(R.string.save_changes),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
