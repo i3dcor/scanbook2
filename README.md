@@ -206,19 +206,23 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 
 ### 🔜 Próximo (alta prioridad)
 - [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
-- [ ] CI/CD básico (GitHub Actions: build + test + lint)
 - [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
 
 ### 🚧 Backlog (media prioridad)
+
 ### 🔮 Futuro (nice to have)
 - [ ] Opción de menú oscuro/claro/según sistema
 - [ ] Permite volver a hacer foto de portada cuando ya existe una
 - [ ] Añadir idioma inglés (`res/values-en/strings.xml`) — base ya lista
 - [ ] Speech-to-Text para entrada manual (icono de micrófono en el campo de texto)
+
+### Refactorizar a futuro (deuda técnica)  
+- [ ] BookField pasar a componentes reutilizables y mejorar aspecto
+- [ ] showCoverDialog pasar a componentes reutilizables
+- [ ] CI/CD básico (GitHub Actions: build + test + lint)
 - [ ] Mejorar la velocidad de respuesta de la exportación:
-  - En una coroutine con indicador de carga
-  - Escribir en background, muestra spinner, luego lanza el intent
-  
+    - En una coroutine con indicador de carga
+    - Escribir en background, muestra spinner, luego lanza el intent
 
 ### ❌ Descartado
 - Selección de portada desde galería del dispositivo + crop básico
