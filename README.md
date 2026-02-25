@@ -40,6 +40,7 @@ ScanBook permite a los usuarios:
 - Formulario con campos editables: ISBN, Título, Autor, Género
 - Portada del libro con vista ampliada (click para zoom)
 - Captura de portada directamente con la cámara (overlay, sin perder el formulario)
+- Eliminación de portada con diálogo de confirmación ("¿Eliminar foto definitivamente?")
 - Búsqueda automática al modificar ISBN
 
 ### ✅ Portadas locales offline (WorkManager)
@@ -203,6 +204,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Simplificar editor (sin precio ni estado de conservación)
 - [x] Textos UI en strings.xml — base para i18n (añadir idioma: crear `res/values-{locale}/strings.xml`)
 - [x] Unificación de estilo de botones (`ActionButton` reutilizable)
+- [x] Eliminar portada del libro con confirmación
 
 ### 🔜 Próximo (alta prioridad)
 - [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
@@ -246,5 +248,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (27 features implementadas)
+**Status**: Fase 1 - MVP Completado ✅ (28 features implementadas)
 **Última actualización:** Febrero 2026

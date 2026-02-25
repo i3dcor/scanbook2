@@ -11,8 +11,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 27 |
-| **Tiempo total estimado** | ~69-80 horas |
+| **Total features implementadas** | 28 |
+| **Tiempo total estimado** | ~70-81 horas |
 | **Promedio por feature** | ~2.6-3 horas |
 | **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
 | **Líneas de código aproximadas** | ~4,400-5,000 |
@@ -322,6 +322,21 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - Strings en ViewModel/no-Compose (mensajes de error) permanecen hardcodeados en español (ya correcto)
   - Añadir un idioma nuevo requiere solo un fichero nuevo sin tocar código Kotlin
 
+### 2.13 Borrado de portada con confirmación
+
+#### Feature 28: Eliminar portada desde EditBookScreen
+- **Descripción:** Badge × sobre la portada en el diálogo de zoom abre un `AlertDialog` de confirmación ("¿Eliminar foto definitivamente?"). Al confirmar: elimina el archivo físico de `filesDir/covers/`, limpia `coverUrl` y `coverLocalPath` del UiState, y vuelve al estado "sin portada" (muestra el botón "Añadir foto").
+- **Tiempo estimado:** 0.5-1 hora
+- **Complejidad:** Baja
+- **Archivos afectados:**
+  - `EditBookViewModel.kt` (`deleteLocalCover()`)
+  - `EditBookScreen.kt` (estado `showDeleteConfirm`, `AlertDialog`, callback `onDeleteCover`)
+  - `MainActivity.kt` (pasa `viewModel::deleteLocalCover`)
+  - `strings.xml` (añade `remove_photo`, `delete_cover_title`)
+- **Notas:**
+  - Flujo para reemplazar portada: borrar → aparece botón "Añadir foto" → capturar nueva
+  - El diálogo usa colores del tema oscuro (`containerColor = 0xFF252528`, botón Eliminar en rojo)
+
 ---
 
 ## 3. Resumen por Categorías
@@ -346,7 +361,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | Complejidad | Cantidad | Tiempo promedio |
 |-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 13 | 1-2h |
+| Baja | 14 | 1-2h |
 | Media | 10 | 3-4h |
 | Media-Alta | 3 | 4-6h |
 | Alta | 1 | 4-5h |
@@ -672,6 +687,7 @@ El proyecto demuestra:
 | 1.5 | 2026-02-24 | Cerqueiro | Feature 26 (Compartir exportación: FileProvider + Intent.ACTION_SEND, compatible CSV/JSON/ZIP); actualizar roadmap visual; Baja 11→12; total: 26 features, ~67-77h |
 | 1.6 | 2026-02-24 | Cerqueiro | Feature 27 (strings.xml — 40 strings, 7 archivos Compose, base i18n); 2 refactors: ExportDataScreen simplificado (Guardar/Compartir como acciones directas) y editor sin precio ni condición; sección 2.10 refactors; Baja 12→13; total: 27 features, ~69-80h |
 | 1.7 | 2026-02-25 | Cerqueiro | 2 refactors de estilo: unificación de botones (42dp, azul, icono+texto) y extracción de ActionButton.kt reutilizable (-117 líneas duplicadas); sección 2.10 ampliada; total: 27 features (sin cambio) |
+| 1.8 | 2026-02-25 | Cerqueiro | Feature 28: borrado de portada con confirmación (AlertDialog "¿Eliminar foto definitivamente?", deleteLocalCover en ViewModel, 4 archivos); Baja 13→14; total: 28 features, ~70-81h |
 
 ---
 
