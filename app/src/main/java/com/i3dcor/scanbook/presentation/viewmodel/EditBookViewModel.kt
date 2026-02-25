@@ -12,6 +12,7 @@ import com.i3dcor.scanbook.domain.repository.BookLookupRepository
 import com.i3dcor.scanbook.domain.repository.CoverDownloadScheduler
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,7 +34,8 @@ class EditBookViewModel(
             GoogleBooksRepository()
         )
     ),
-    private val coverScheduler: CoverDownloadScheduler? = null
+    private val coverScheduler: CoverDownloadScheduler? = null,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(mapToUiState(initialBook))
@@ -88,7 +90,7 @@ class EditBookViewModel(
             coverUrl = state.coverUrl,
             coverLocalPath = state.coverLocalPath
         )
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             repository.insert(scannedIsbn)
             capturedPhotoPath = null
             if (scannedIsbn.coverLocalPath == null) {

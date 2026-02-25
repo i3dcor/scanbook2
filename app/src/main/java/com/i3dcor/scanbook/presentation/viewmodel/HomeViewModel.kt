@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.domain.repository.CoverDownloadScheduler
 import com.i3dcor.scanbook.domain.repository.IsbnRepository
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,7 +21,8 @@ import kotlinx.coroutines.launch
  */
 class HomeViewModel(
     private val repository: IsbnRepository,
-    private val coverScheduler: CoverDownloadScheduler? = null
+    private val coverScheduler: CoverDownloadScheduler? = null,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ViewModel() {
 
     private val _books = MutableStateFlow<List<ScannedIsbn>>(emptyList())
@@ -62,7 +64,7 @@ class HomeViewModel(
      * Llamar al volver a Home para reflejar cambios (ej: tras guardar un libro).
      */
     fun refresh() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val result = repository.getAll()
             _books.value = result
         }
@@ -72,7 +74,7 @@ class HomeViewModel(
      * Guarda un libro en la base de datos y refresca la lista.
      */
     fun addBook(book: ScannedIsbn) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             repository.insert(book)
             val result = repository.getAll()
             _books.value = result
@@ -85,7 +87,7 @@ class HomeViewModel(
      */
     fun downloadPendingCovers() {
         val scheduler = coverScheduler ?: return
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             repository.getAll()
                 .filter { it.coverUrl != null && it.coverLocalPath == null }
                 .forEach { book -> scheduler.scheduleCoverDownload(book.isbn, book.coverUrl!!) }
@@ -96,7 +98,7 @@ class HomeViewModel(
      * Elimina un libro por su ISBN y refresca la lista.
      */
     fun deleteBook(isbn: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             repository.delete(isbn)
             val result = repository.getAll()
             _books.value = result

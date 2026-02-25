@@ -1,8 +1,10 @@
 package com.i3dcor.scanbook.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.i3dcor.scanbook.domain.model.BookNotFoundException
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.domain.repository.BookLookupRepository
+import com.i3dcor.scanbook.domain.repository.IsbnRepository
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -20,17 +22,22 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScanResultViewModelTest {
 
-    private lateinit var repository: BookLookupRepository
+    private lateinit var lookupRepository: BookLookupRepository
+    private lateinit var isbnRepository: IsbnRepository
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        repository = mockk()
+        lookupRepository = mockk()
+        isbnRepository = mockk()
+        coEvery { isbnRepository.getByIsbn(any()) } returns null
     }
 
     @After
@@ -38,31 +45,29 @@ class ScanResultViewModelTest {
         Dispatchers.resetMain()
     }
 
+    private fun viewModel(isbn: String) =
+        ScanResultViewModel(isbn, lookupRepository, isbnRepository, testDispatcher)
+
     // ============ INITIAL STATE ============
 
     @Test
     fun `initial state has correct isbn and isLoading true`() = runTest {
-        // Given
         val isbn = "9780140328721"
-        coEvery { repository.lookupByIsbn(isbn) } returns Result.success(
-            ScannedIsbn(isbn = isbn)
-        )
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.success(ScannedIsbn(isbn = isbn))
 
-        // When
-        val viewModel = ScanResultViewModel(isbn, repository)
+        val vm = viewModel(isbn)
 
-        // Then - check initial state before coroutine completes
-        val initialState = viewModel.uiState.value
+        val initialState = vm.uiState.value
         assertEquals(isbn, initialState.scannedIsbn.isbn)
         assertTrue(initialState.isLoading)
         assertNull(initialState.error)
+        assertFalse(initialState.alreadyExists)
     }
 
     // ============ SUCCESS CASES ============
 
     @Test
     fun `lookupByIsbn success updates state with book data`() = runTest {
-        // Given
         val isbn = "9780140328721"
         val book = ScannedIsbn(
             isbn = isbn,
@@ -71,24 +76,20 @@ class ScanResultViewModelTest {
             genre = "Fiction",
             coverUrl = "https://covers.openlibrary.org/b/isbn/9780140328721-L.jpg"
         )
-        coEvery { repository.lookupByIsbn(isbn) } returns Result.success(book)
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.success(book)
 
-        // When
-        val viewModel = ScanResultViewModel(isbn, repository)
+        val vm = viewModel(isbn)
 
-        // Then
-        viewModel.uiState.test {
-            // Initial state
+        vm.uiState.test {
             val initial = awaitItem()
             assertTrue(initial.isLoading)
 
-            // Advance dispatcher to execute coroutine
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // Final state after lookup
             val final = awaitItem()
             assertFalse(final.isLoading)
             assertNull(final.error)
+            assertFalse(final.alreadyExists)
             assertEquals("Fantastic Mr. Fox", final.scannedIsbn.title)
             assertEquals("Roald Dahl", final.scannedIsbn.author)
             assertEquals("Fiction", final.scannedIsbn.genre)
@@ -97,117 +98,142 @@ class ScanResultViewModelTest {
         }
     }
 
-    // ============ FAILURE CASES ============
+    // ============ ALREADY EXISTS ============
 
     @Test
-    fun `lookupByIsbn failure sets error message`() = runTest {
-        // Given
+    fun `book already in local repo sets alreadyExists true without calling lookup`() = runTest {
         val isbn = "9780140328721"
-        coEvery { repository.lookupByIsbn(isbn) } returns Result.failure(IOException("Network error"))
+        val existing = ScannedIsbn(isbn = isbn, title = "Libro guardado")
+        coEvery { isbnRepository.getByIsbn(isbn) } returns existing
 
-        // When
-        val viewModel = ScanResultViewModel(isbn, repository)
+        val vm = viewModel(isbn)
 
-        // Then
-        viewModel.uiState.test {
-            // Initial state
+        vm.uiState.test {
             val initial = awaitItem()
             assertTrue(initial.isLoading)
 
-            // Advance dispatcher
             testDispatcher.scheduler.advanceUntilIdle()
 
-            // Final state with error
             val final = awaitItem()
             assertFalse(final.isLoading)
-            assertEquals("Could not fetch book data", final.error)
-            // ISBN should still be present
-            assertEquals(isbn, final.scannedIsbn.isbn)
+            assertTrue(final.alreadyExists)
+            assertNull(final.error)
+            assertEquals("Libro guardado", final.scannedIsbn.title)
 
             cancelAndIgnoreRemainingEvents()
         }
+
+        coVerify(exactly = 0) { lookupRepository.lookupByIsbn(any()) }
+    }
+
+    // ============ ERROR MESSAGES ============
+
+    @Test
+    fun `BookNotFoundException maps to libro no encontrado`() = runTest {
+        val isbn = "9780140328721"
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.failure(BookNotFoundException(isbn))
+
+        val vm = viewModel(isbn)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Libro no encontrado", vm.uiState.value.error)
+    }
+
+    @Test
+    fun `UnknownHostException maps to sin conexion`() = runTest {
+        val isbn = "9780140328721"
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.failure(UnknownHostException())
+
+        val vm = viewModel(isbn)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Sin conexión a Internet", vm.uiState.value.error)
+    }
+
+    @Test
+    fun `SocketTimeoutException maps to tiempo de espera agotado`() = runTest {
+        val isbn = "9780140328721"
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.failure(SocketTimeoutException())
+
+        val vm = viewModel(isbn)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Tiempo de espera agotado", vm.uiState.value.error)
+    }
+
+    @Test
+    fun `generic IOException maps to error al buscar`() = runTest {
+        val isbn = "9780140328721"
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.failure(IOException("Network error"))
+
+        val vm = viewModel(isbn)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        assertEquals("Error al buscar el libro", vm.uiState.value.error)
+        assertEquals(isbn, vm.uiState.value.scannedIsbn.isbn)
     }
 
     // ============ REPOSITORY INTERACTION ============
 
     @Test
-    fun `init calls repository with isbn`() = runTest {
-        // Given
+    fun `init calls lookupRepository with isbn when book not in local repo`() = runTest {
         val isbn = "9780140328721"
-        coEvery { repository.lookupByIsbn(isbn) } returns Result.success(
-            ScannedIsbn(isbn = isbn)
-        )
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.success(ScannedIsbn(isbn = isbn))
 
-        // When
-        ScanResultViewModel(isbn, repository)
+        viewModel(isbn)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Then
-        coVerify(exactly = 1) { repository.lookupByIsbn(isbn) }
+        coVerify(exactly = 1) { lookupRepository.lookupByIsbn(isbn) }
     }
 
     // ============ RETRY ============
 
     @Test
-    fun `retry resets loading state and calls repository again`() = runTest {
-        // Given
+    fun `retry resets loading state and calls lookupRepository again`() = runTest {
         val isbn = "9780140328721"
-        coEvery { repository.lookupByIsbn(isbn) } returns Result.failure(IOException("Error"))
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.failure(IOException("Error"))
 
-        val viewModel = ScanResultViewModel(isbn, repository)
+        val vm = viewModel(isbn)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Verify initial failure
-        assertFalse(viewModel.uiState.value.isLoading)
-        assertEquals("Could not fetch book data", viewModel.uiState.value.error)
+        assertFalse(vm.uiState.value.isLoading)
+        assertEquals("Error al buscar el libro", vm.uiState.value.error)
 
-        // Now setup success for retry
         val book = ScannedIsbn(isbn = isbn, title = "Success Book")
-        coEvery { repository.lookupByIsbn(isbn) } returns Result.success(book)
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returns Result.success(book)
 
-        // When
-        viewModel.retry()
+        vm.retry()
 
-        // Then - should be loading again
-        assertTrue(viewModel.uiState.value.isLoading)
-        assertNull(viewModel.uiState.value.error)
+        assertTrue(vm.uiState.value.isLoading)
+        assertNull(vm.uiState.value.error)
 
-        // Advance to complete retry
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Verify success after retry
-        assertFalse(viewModel.uiState.value.isLoading)
-        assertEquals("Success Book", viewModel.uiState.value.scannedIsbn.title)
-        assertNull(viewModel.uiState.value.error)
-
-        // Verify repository was called twice
-        coVerify(exactly = 2) { repository.lookupByIsbn(isbn) }
+        assertFalse(vm.uiState.value.isLoading)
+        assertEquals("Success Book", vm.uiState.value.scannedIsbn.title)
+        assertNull(vm.uiState.value.error)
+        coVerify(exactly = 2) { lookupRepository.lookupByIsbn(isbn) }
     }
 
     @Test
-    fun `retry after success calls repository again`() = runTest {
-        // Given
+    fun `retry after success updates to new data`() = runTest {
         val isbn = "9780140328721"
         val book1 = ScannedIsbn(isbn = isbn, title = "First Title")
         val book2 = ScannedIsbn(isbn = isbn, title = "Updated Title")
 
-        coEvery { repository.lookupByIsbn(isbn) } returnsMany listOf(
+        coEvery { lookupRepository.lookupByIsbn(isbn) } returnsMany listOf(
             Result.success(book1),
             Result.success(book2)
         )
 
-        val viewModel = ScanResultViewModel(isbn, repository)
+        val vm = viewModel(isbn)
+        testDispatcher.scheduler.advanceUntilIdle()
+        assertEquals("First Title", vm.uiState.value.scannedIsbn.title)
+
+        vm.retry()
         testDispatcher.scheduler.advanceUntilIdle()
 
-        // Verify first result
-        assertEquals("First Title", viewModel.uiState.value.scannedIsbn.title)
-
-        // When - retry
-        viewModel.retry()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // Then - should have updated data
-        assertEquals("Updated Title", viewModel.uiState.value.scannedIsbn.title)
-        coVerify(exactly = 2) { repository.lookupByIsbn(isbn) }
+        assertEquals("Updated Title", vm.uiState.value.scannedIsbn.title)
+        coVerify(exactly = 2) { lookupRepository.lookupByIsbn(isbn) }
     }
 }
