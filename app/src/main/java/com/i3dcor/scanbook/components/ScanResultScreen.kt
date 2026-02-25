@@ -358,7 +358,6 @@ fun ScanResultActions(
                 text = stringResource(R.string.button_edit),
                 icon = Icons.Default.Edit,
                 onClick = onEditClick,
-                containerColor = Color(0xFF3A3A3C), // Botón secundario relleno (gris oscuro)
                 modifier = Modifier.weight(1f)
             )
 

@@ -394,8 +394,6 @@ fun CameraScreen(
                     text = stringResource(R.string.enter_isbn_manually),
                     icon = Icons.Default.Keyboard,
                     onClick = onManualInputClick,
-                    containerColor = Color.White,
-                    contentColor = Color.Black,
                     modifier = Modifier.weight(1f)
                 )
             }

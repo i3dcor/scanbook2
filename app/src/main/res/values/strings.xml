@@ -42,6 +42,7 @@
     <string name="button_cancel">Cancelar</string>
     <string name="book_cover_description">Portada del libro</string>
     <string name="scan_barcode_description">Escanear código de barras</string>
+    <string name="scan_barcode">Scanbook</string>
     <string name="menu_options">Menú de opciones</string>
     <string name="clear_search">Borrar búsqueda</string>
     <string name="menu_export">Exportar</string>

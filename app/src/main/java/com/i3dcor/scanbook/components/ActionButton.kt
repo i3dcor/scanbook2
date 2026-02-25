@@ -35,6 +35,7 @@ fun ActionButton(
         modifier = modifier.height(42.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
+            //containerColor = Color(0xFF3A3A3C), // TODO Valorar estética de color  relleno (gris oscuro)
             contentColor = contentColor,
             disabledContainerColor = Color(0xFF3A3A3C),
             disabledContentColor = Color.Gray
