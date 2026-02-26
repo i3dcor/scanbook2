@@ -207,9 +207,10 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Eliminar portada del libro con confirmación
 - [x] Tests unitarios — 54 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-09: minificación y shrink resources activados en release build
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-10: backup_rules.xml y data_extraction_rules.xml excluyen BD y portadas de backups ADB/nube
 
 ### 🔜 Próximo (alta prioridad)
-- [ ] Auditoría OWASP Top 10 — correcciones pendientes: HAL-01 (path traversal ISBN), HAL-02 (checksum ISBN-13), HAL-03 (validación URL portada), HAL-04 (network security config), HAL-05 (HTTP→HTTPS), HAL-06 (writeTimeout), HAL-07 (logs en DEBUG), HAL-08 (limpiar caché share), HAL-10 (backup rules), HAL-11 (SQLCipher, en evaluación), HAL-12 (File.delete silencioso)
+- [ ] Auditoría OWASP Top 10 — correcciones pendientes: HAL-01 (path traversal ISBN), HAL-02 (checksum ISBN-13), HAL-03 (validación URL portada), HAL-04 (network security config), HAL-05 (HTTP→HTTPS), HAL-06 (writeTimeout), HAL-07 (logs en DEBUG), HAL-08 (limpiar caché share), HAL-11 (SQLCipher, en evaluación), HAL-12 (File.delete silencioso)
 
 ### 🚧 Backlog (media prioridad)
 
