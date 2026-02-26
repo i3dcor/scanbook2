@@ -205,9 +205,9 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Textos UI en strings.xml — base para i18n (añadir idioma: crear `res/values-{locale}/strings.xml`)
 - [x] Unificación de estilo de botones (`ActionButton` reutilizable)
 - [x] Eliminar portada del libro con confirmación
+- [x] Tests unitarios — 54 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
 
 ### 🔜 Próximo (alta prioridad)
-- [ ] Tests unitarios (ViewModels, DownloadCoverWorker, EditBookViewModel.onLocalCoverCaptured)
 - [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
 
 ### 🚧 Backlog (media prioridad)
