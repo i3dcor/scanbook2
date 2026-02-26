@@ -206,9 +206,10 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Unificación de estilo de botones (`ActionButton` reutilizable)
 - [x] Eliminar portada del libro con confirmación
 - [x] Tests unitarios — 54 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-09: minificación y shrink resources activados en release build
 
 ### 🔜 Próximo (alta prioridad)
-- [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
+- [ ] Auditoría OWASP Top 10 — correcciones pendientes: HAL-01 (path traversal ISBN), HAL-02 (checksum ISBN-13), HAL-03 (validación URL portada), HAL-04 (network security config), HAL-05 (HTTP→HTTPS), HAL-06 (writeTimeout), HAL-07 (logs en DEBUG), HAL-08 (limpiar caché share), HAL-10 (backup rules), HAL-11 (SQLCipher, en evaluación), HAL-12 (File.delete silencioso)
 
 ### 🚧 Backlog (media prioridad)
 
@@ -248,5 +249,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (28 features implementadas)
+**Status**: Fase 1 - MVP Completado ✅ (28 features implementadas) | Fase 2 - Seguridad OWASP en curso 🔒
 **Última actualización:** Febrero 2026
