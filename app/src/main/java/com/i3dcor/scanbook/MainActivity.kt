@@ -3,6 +3,7 @@ package com.i3dcor.scanbook
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import com.i3dcor.scanbook.BuildConfig
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
@@ -132,7 +133,7 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 onBackClick = { currentScreen = AppScreen.Home },
                 onManualInputClick = { currentScreen = AppScreen.EditBook(book = null, from = AppScreen.Camera) },
                 onIsbnDetected = { isbn ->
-                    Log.d("ScanBook", "ISBN detected: $isbn")
+                    if (BuildConfig.DEBUG) Log.d("ScanBook", "ISBN detected: $isbn")
                     currentScreen = AppScreen.ScanResult(isbn)
                 },
                 modifier = modifier

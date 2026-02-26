@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import com.i3dcor.scanbook.BuildConfig
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -135,7 +136,7 @@ fun PhotoCaptureScreen(
                                 onPhotoCaptured(file.absolutePath)
                             }
                             override fun onError(exc: ImageCaptureException) {
-                                Log.e("PhotoCapture", "Capture failed: ${exc.message}")
+                                if (BuildConfig.DEBUG) Log.e("PhotoCapture", "Capture failed: ${exc.message}")
                             }
                         }
                     )
@@ -194,7 +195,7 @@ private fun CameraPreviewWithCapture(
                     camera?.cameraControl?.enableTorch(isFlashOn)
                     onImageCaptureReady(imageCaptureUseCase)
                 } catch (e: Exception) {
-                    Log.e("PhotoCapture", "Camera binding failed", e)
+                    if (BuildConfig.DEBUG) Log.e("PhotoCapture", "Camera binding failed", e)
                 }
             }, ContextCompat.getMainExecutor(context))
         }
