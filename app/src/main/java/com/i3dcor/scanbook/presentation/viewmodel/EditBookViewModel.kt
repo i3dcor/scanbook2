@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import android.util.Log
+import com.i3dcor.scanbook.BuildConfig
 import java.io.File
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -67,13 +69,19 @@ class EditBookViewModel(
     }
 
     fun discardCapturedPhoto() {
-        capturedPhotoPath?.let { File(it).delete() }
+        capturedPhotoPath?.let {
+            val deleted = File(it).delete()
+            if (!deleted && BuildConfig.DEBUG) Log.w(TAG, "No se pudo eliminar foto temporal: $it")
+        }
         capturedPhotoPath = null
         _uiState.update { it.copy(coverLocalPath = null) }
     }
 
     fun deleteLocalCover() {
-        _uiState.value.coverLocalPath?.let { File(it).delete() }
+        _uiState.value.coverLocalPath?.let {
+            val deleted = File(it).delete()
+            if (!deleted && BuildConfig.DEBUG) Log.w(TAG, "No se pudo eliminar portada local: $it")
+        }
         capturedPhotoPath = null
         _uiState.update { it.copy(coverUrl = null, coverLocalPath = null) }
     }
@@ -160,6 +168,10 @@ class EditBookViewModel(
             is SocketTimeoutException -> "Tiempo de espera agotado"
             else -> "Error al buscar el libro"
         }
+    }
+
+    private companion object {
+        const val TAG = "EditBookViewModel"
     }
 
     private fun mapToUiState(book: ScannedIsbn?): EditBookUiState {

@@ -45,7 +45,9 @@ class GoogleBooksRepository(
             title = volumeInfo.title,
             author = volumeInfo.authors?.joinToString(", "),
             genre = volumeInfo.categories?.firstOrNull(),
-            coverUrl = volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")
+            coverUrl = volumeInfo.imageLinks?.thumbnail?.let { url ->
+                if (url.startsWith("http://")) url.replaceFirst("http://", "https://") else url
+            }
         )
     }
 }
