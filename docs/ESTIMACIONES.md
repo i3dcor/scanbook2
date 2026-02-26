@@ -12,7 +12,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | Métrica | Valor |
 |---------|-------|
 | **Total features implementadas** | 28 |
-| **Tiempo total estimado** | ~70-81 horas |
+| **Tiempo total estimado** | ~74-87 horas |
 | **Promedio por feature** | ~2.6-3 horas |
 | **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
 | **Líneas de código aproximadas** | ~4,400-5,000 |
@@ -337,6 +337,28 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - Flujo para reemplazar portada: borrar → aparece botón "Añadir foto" → capturar nueva
   - El diálogo usa colores del tema oscuro (`containerColor = 0xFF252528`, botón Eliminar en rojo)
 
+### 2.14 Tests unitarios (ViewModels + DownloadCoverWorker)
+
+#### Tests — 54 tests, 0 failures
+- **Descripción:** Cobertura unitaria completa de los 3 ViewModels y el Worker de descarga de portadas. Incluye refactoring de testabilidad: inyección de `ioDispatcher` en ViewModels y extracción de `DownloadCoverService`/`CoverImageProcessor` del Worker.
+- **Tiempo estimado:** 4-6 horas
+- **Complejidad:** Media
+- **Archivos afectados:**
+  - `EditBookViewModelTest.kt` (nuevo — 25 tests: estado inicial, cambios de campo, debounce lookup, fotocaptura, borrado, onSave)
+  - `HomeViewModelTest.kt` (nuevo — 12 tests: carga, búsqueda filtrada, addBook, deleteBook, downloadPendingCovers)
+  - `ScanResultViewModelTest.kt` (reescrito — 10 tests: añade alreadyExists, mensajes de error en español)
+  - `DownloadCoverWorkerTest.kt` (nuevo — 7 tests: success, retry, pathUpdater)
+  - `CoverImageProcessor.kt` (nuevo — interfaz)
+  - `DefaultCoverImageProcessor.kt` (nuevo — implementación Bitmap)
+  - `DownloadCoverService.kt` (nuevo — lógica extraída del Worker, testable en JVM)
+  - `DownloadCoverWorker.kt` (refactorizado — orquestador delgado)
+  - `HomeViewModel.kt`, `EditBookViewModel.kt`, `ScanResultViewModel.kt` (añade `ioDispatcher` injectable)
+  - `InMemoryIsbnRepository.kt` (`private constructor` → `internal`)
+- **Notas:**
+  - Tests JVM puros (sin Robolectric ni emulador) gracias al patrón de inyección de dispatcher
+  - `DownloadCoverService` elimina dependencia directa de WorkManager/Android en los tests del Worker
+  - `ExampleInstrumentedTest.kt` eliminado (plantilla sin uso)
+
 ---
 
 ## 3. Resumen por Categorías
@@ -480,7 +502,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Factor | Impacto | Mitigación |
 |--------|---------|------------|
-| **Cobertura de tests baja** | Alto | Priorizar tests antes de nuevas features |
+| **Cobertura de tests baja** | Medio | ViewModels + DownloadCoverWorker ya cubiertos (54 tests); pendiente UI y repositorios Room |
 | **Sin design system formal** | Medio | Documentar componentes existentes |
 | **Dependencia de APIs externas** | Bajo | Portadas descargadas localmente (feature 22); ya no se depende de internet para mostrar imágenes |
 | **Sin CI/CD** | Medio | Setup GitHub Actions (6-8h) |
@@ -588,7 +610,7 @@ Futuro:       [Prestamos] [OCR] [Recomendaciones]
 
 ### 7.3 Áreas de mejora
 
-1. **Falta de tests:** Solo tests unitarios básicos en repositorios de red
+1. **Tests parciales:** ViewModels y Worker cubiertos (54 tests); pendiente tests de UI (Compose) y RoomIsbnRepository
 2. **Sin instrumentación:** No hay analytics, crash reporting configurado
 3. **Documentación inline:** Mínima, solo en componentes públicos
 4. **Sin feature flags:** Cualquier cambio requiere nuevo release
@@ -668,10 +690,10 @@ El proyecto demuestra:
 
 ### 9.4 Próximos pasos recomendados
 
-1. **Esta semana:** Escribir tests unitarios para ViewModels (incluido `HomeViewModel.downloadPendingCovers()`, `DownloadCoverWorker` y `EditBookViewModel.onLocalCoverCaptured()`)
+1. ~~**Esta semana:** Escribir tests unitarios para ViewModels~~ → **COMPLETADO** (54 tests: EditBookViewModel, HomeViewModel, ScanResultViewModel, DownloadCoverWorker)
 2. ~~**Próximas 2 semanas:** Implementar búsqueda/filtros en Home~~ → **COMPLETADO** (features 20-21)
 3. **Mes 1:** Setup CI/CD + Auth básico
-4. **Mes 2:** Sync cloud + portada con cámara (WorkManager ya integrado)
+4. **Mes 2:** Sync cloud
 
 ---
 
@@ -688,6 +710,7 @@ El proyecto demuestra:
 | 1.6 | 2026-02-24 | Cerqueiro | Feature 27 (strings.xml — 40 strings, 7 archivos Compose, base i18n); 2 refactors: ExportDataScreen simplificado (Guardar/Compartir como acciones directas) y editor sin precio ni condición; sección 2.10 refactors; Baja 12→13; total: 27 features, ~69-80h |
 | 1.7 | 2026-02-25 | Cerqueiro | 2 refactors de estilo: unificación de botones (42dp, azul, icono+texto) y extracción de ActionButton.kt reutilizable (-117 líneas duplicadas); sección 2.10 ampliada; total: 27 features (sin cambio) |
 | 1.8 | 2026-02-25 | Cerqueiro | Feature 28: borrado de portada con confirmación (AlertDialog "¿Eliminar foto definitivamente?", deleteLocalCover en ViewModel, 4 archivos); Baja 13→14; total: 28 features, ~70-81h |
+| 1.9 | 2026-02-26 | Cerqueiro | Sección 2.14: tests unitarios (54 tests, 0 failures); refactor ioDispatcher en 3 ViewModels; extracción CoverImageProcessor+DownloadCoverService del Worker; riesgo "cobertura baja" mitigado; próximos pasos actualizados; total: 28 features, ~74-87h |
 
 ---
 
