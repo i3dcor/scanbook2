@@ -713,6 +713,7 @@ El proyecto demuestra:
 | 1.9 | 2026-02-26 | Cerqueiro | Sección 2.14: tests unitarios (54 tests, 0 failures); refactor ioDispatcher en 3 ViewModels; extracción CoverImageProcessor+DownloadCoverService del Worker; riesgo "cobertura baja" mitigado; próximos pasos actualizados; total: 28 features, ~74-87h |
 | 2.0 | 2026-02-26 | Cerqueiro | Inicio Fase 2 — Auditoría OWASP Mobile Top 10: 4 críticos, 4 altos, 4 medios, 2 bajos identificados. Sprint 1: HAL-09 completado (isMinifyEnabled=true, isShrinkResources=true, reglas ProGuard para Room y DTOs). Pendientes HAL-01..08, HAL-10..12 en rama chore/auditoria-owasp-top10. HAL-11 (SQLCipher) en evaluación de impacto sobre migraciones Room. |
 | 2.1 | 2026-02-26 | Cerqueiro | HAL-10 completado: backup_rules.xml (API 23-30) y data_extraction_rules.xml (API 31+) excluyen scanbook_database, -shm, -wal y covers/ de backups ADB, Google One y transferencias entre dispositivos. |
+| 2.2 | 2026-02-26 | Cerqueiro | HAL-07 completado: guard if (BuildConfig.DEBUG) en 5 puntos de logging de MainActivity, CameraScreen y PhotoCaptureScreen; ISBNs y trazas de error ya no son visibles con adb logcat en release. |
 
 ---
 
