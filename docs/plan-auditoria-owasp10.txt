@@ -1,0 +1,511 @@
+╭──────────────────────────────────────────────────────────────────────────────╮
+│ Plan to implement                                                            │
+│                                                                              │
+│ Auditoría de Seguridad OWASP Mobile Top 10 — ScanBook2                       │
+│                                                                              │
+│ Resumen ejecutivo                                                            │
+│                                                                              │
+│ Auditoría realizada sobre el commit 25a2090 (rama test/unitarios).           │
+│ App Android (Kotlin + Jetpack Compose, MVVM) que escanea ISBN, consulta      │
+│ Google Books API, descarga portadas y exporta datos.                         │
+│ Alcance: código fuente completo, configuración build, manifesto, reglas de   │
+│ backup y recursos.                                                           │
+│                                                                              │
+│ Hallazgos totales: 4 Críticos · 4 Altos · 4 Medios · 2 Bajos                 │
+│                                                                              │
+│ ┌───────────┬─────┬───────────────────────────────────────────┐              │
+│ │ Severidad │ Nº  │            Acción recomendada             │              │
+│ ├───────────┼─────┼───────────────────────────────────────────┤              │
+│ │ Crítico   │ 4   │ Corregir antes del primer release público │              │
+│ ├───────────┼─────┼───────────────────────────────────────────┤              │
+│ │ Alto      │ 4   │ Corregir en el siguiente sprint           │              │
+│ ├───────────┼─────┼───────────────────────────────────────────┤              │
+│ │ Medio     │ 4   │ Planificar en backlog                     │              │
+│ ├───────────┼─────┼───────────────────────────────────────────┤              │
+│ │ Bajo      │ 2   │ Mejora conveniente                        │              │
+│ └───────────┴─────┴───────────────────────────────────────────┘              │
+│                                                                              │
+│ Aspectos positivos confirmados:                                              │
+│ - Sin credenciales/API keys hardcodeadas en el código                        │
+│ - Room usa consultas parametrizadas (sin riesgo de SQL injection)            │
+│ - FileProvider con android:exported="false" correcto                         │
+│ - Permisos mínimos: solo CAMERA e INTERNET en runtime                        │
+│ - Serialización JSON/CSV no concatena strings sin escapar                    │
+│                                                                              │
+│ ---                                                                          │
+│ Análisis por categoría OWASP Mobile Top 10 (2024)                            │
+│                                                                              │
+│ ---                                                                          │
+│ M1 — Improper Credential Usage                                               │
+│                                                                              │
+│ Riesgo: credenciales hardcodeadas o mal almacenadas accesibles en el APK o   │
+│ en logs.                                                                     │
+│                                                                              │
+│ Estado en ScanBook2: ✅ Sin API keys ni secretos hardcodeados.               │
+│ No hay llamadas a servicios autenticados (Google Books API es pública sin    │
+│ key).                                                                        │
+│ RetrofitClient.kt no gestiona tokens.                                        │
+│                                                                              │
+│ Nivel de riesgo: BAJO — sin hallazgos activos.                               │
+│                                                                              │
+│ ---                                                                          │
+│ M2 — Inadequate Supply Chain Security                                        │
+│                                                                              │
+│ Riesgo: dependencias con vulnerabilidades conocidas o sin verificar.         │
+│                                                                              │
+│ Hallazgos:                                                                   │
+│ - Las versiones declaradas en build.gradle.kts son fijas (no rangos), lo     │
+│ cual es correcto.                                                            │
+│ - No hay herramienta de escaneo de dependencias configurada (OWASP           │
+│ Dependency-Check, Gradle Versions Plugin).                                   │
+│                                                                              │
+│ Nivel de riesgo: BAJO — sin CVEs detectados en este análisis estático, pero  │
+│ sin guardia activa.                                                          │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ // build.gradle.kts — añadir plugin                                          │
+│ plugins {                                                                    │
+│     id("org.owasp.dependencycheck") version "9.0.9"                          │
+│ }                                                                            │
+│ dependencyCheck { failBuildOnCVSS = 7.0f }                                   │
+│                                                                              │
+│ ---                                                                          │
+│ M3 — Insecure Authentication / Authorization                                 │
+│                                                                              │
+│ Riesgo: la app no verifica la identidad del usuario ni protege recursos      │
+│ locales.                                                                     │
+│                                                                              │
+│ Estado en ScanBook2: App monousuario sin login. No aplica autenticación de   │
+│ usuario.                                                                     │
+│ El riesgo aquí recae en el acceso físico al dispositivo y en el backup ADB   │
+│ (ver M8/M9).                                                                 │
+│                                                                              │
+│ Nivel de riesgo: BAJO — aceptable para app personal sin datos de terceros.   │
+│                                                                              │
+│ ---                                                                          │
+│ M4 — Insufficient Input / Output Validation                                  │
+│                                                                              │
+│ Riesgo: datos no validados que provocan path traversal, SSRF o               │
+│ comportamiento inesperado.                                                   │
+│                                                                              │
+│ HAL-01 — Path traversal por ISBN no saneado (ALTO)                           │
+│                                                                              │
+│ Archivo: data/worker/DownloadCoverService.kt:17 y                            │
+│ DefaultCoverImageProcessor.kt:13                                             │
+│                                                                              │
+│ // VULNERABLE:                                                               │
+│ val file = File(coversDir, "$isbn.jpg")           // isbn podría ser         │
+│ "../../../etc/file"                                                          │
+│                                                                              │
+│ Si isbn contiene ../ (ej: llegado de un QR malicioso) el archivo se          │
+│ escribiría fuera de filesDir/covers/.                                        │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ // Sanitizar ISBN antes de usarlo como nombre de archivo                     │
+│ val safeName = isbn.replace(Regex("[^A-Za-z0-9_-]"), "_") + ".jpg"           │
+│ val file = File(coversDir, safeName)                                         │
+│ // Verificar que el archivo resultante esté dentro del directorio esperado   │
+│ require(file.canonicalPath.startsWith(coversDir.canonicalPath)) {            │
+│     "Path traversal detectado para ISBN: $isbn"                              │
+│ }                                                                            │
+│                                                                              │
+│ HAL-02 — Validación de ISBN insuficiente (MEDIO)                             │
+│                                                                              │
+│ Archivo: domain/model/ScannedIsbn.kt,                                        │
+│ presentation/viewmodel/EditBookViewModel.kt                                  │
+│                                                                              │
+│ El ISBN se acepta sin verificar el dígito de control (checksum Luhn para     │
+│ ISBN-13).                                                                    │
+│ Un QR malicioso puede inyectar strings arbitrarios que llegan a la BD y al   │
+│ nombre de archivo.                                                           │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ fun isValidIsbn13(isbn: String): Boolean {                                   │
+│     if (isbn.length != 13 || !isbn.all { it.isDigit() }) return false        │
+│     val sum = isbn.dropLast(1).mapIndexed { i, c ->                          │
+│         c.digitToInt() * if (i % 2 == 0) 1 else 3                            │
+│     }.sum()                                                                  │
+│     return (10 - sum % 10) % 10 == isbn.last().digitToInt()                  │
+│ }                                                                            │
+│                                                                              │
+│ HAL-03 — URL de portada sin validación (CRÍTICO)                             │
+│                                                                              │
+│ Archivo: data/worker/DefaultCoverImageProcessor.kt:13                        │
+│                                                                              │
+│ // VULNERABLE — abre cualquier URL sin restricciones:                        │
+│ val bitmap = URL(url).openStream().use { BitmapFactory.decodeStream(it) }    │
+│                                                                              │
+│ Riesgos:                                                                     │
+│ - SSRF interno: si el dispositivo está en red corporativa, una URL           │
+│ http://192.168.1.1/admin se descargaría                                      │
+│ - Sin límite de tamaño: una respuesta de varios GB agota memoria/disco       │
+│ - Sin forzar HTTPS: acepta URLs http:// y file://                            │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ fun downloadScaleAndSave(url: String, destFile: File) {                      │
+│     require(url.startsWith("https://")) { "Solo se permiten URLs HTTPS" }    │
+│     val connection = URL(url).openConnection() as HttpsURLConnection         │
+│     connection.connectTimeout = 10_000                                       │
+│     connection.readTimeout   = 10_000                                        │
+│     connection.inputStream.use { stream ->                                   │
+│         val limited = LimitedInputStream(stream, maxBytes = 5 * 1024 *       │
+│ 1024L) // 5 MB                                                               │
+│         val bitmap = BitmapFactory.decodeStream(limited)                     │
+│             ?: throw IOException("No se pudo decodificar imagen")            │
+│         // ... scale & save                                                  │
+│     }                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ ---                                                                          │
+│ M5 — Insecure Communication                                                  │
+│                                                                              │
+│ Riesgo: datos en tránsito expuestos por uso de HTTP o falta de verificación  │
+│ de certificados.                                                             │
+│                                                                              │
+│ HAL-04 — Sin certificate pinning en Google Books API (CRÍTICO)               │
+│                                                                              │
+│ Archivo: data/remote/RetrofitClient.kt                                       │
+│                                                                              │
+│ // ACTUAL — OkHttpClient sin pinning:                                        │
+│ OkHttpClient.Builder()                                                       │
+│     .connectTimeout(10, TimeUnit.SECONDS)                                    │
+│     .readTimeout(10, TimeUnit.SECONDS)                                       │
+│     .build()                                                                 │
+│                                                                              │
+│ Un atacante en la misma red (MITM) puede interceptar las respuestas de       │
+│ Google Books, inyectar datos falsos (ISBNs, títulos, URLs de portadas        │
+│ maliciosas).                                                                 │
+│                                                                              │
+│ Mitigación — opción A (CertificatePinner):                                   │
+│ val pinner = CertificatePinner.Builder()                                     │
+│     .add("www.googleapis.com",                                               │
+│ "sha256/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=")                              │
+│     .build()                                                                 │
+│ OkHttpClient.Builder()                                                       │
+│     .certificatePinner(pinner)                                               │
+│     // ...                                                                   │
+│     .build()                                                                 │
+│                                                                              │
+│ Mitigación — opción B (Network Security Config, más mantenible):             │
+│ <!-- res/xml/network_security_config.xml -->                                 │
+│ <network-security-config>                                                    │
+│     <domain-config cleartextTrafficPermitted="false">                        │
+│         <domain includeSubdomains="true">googleapis.com</domain>             │
+│         <pin-set expiration="2026-12-31">                                    │
+│             <pin                                                             │
+│ digest="SHA-256">xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=</pin>                 │
+│             <pin                                                             │
+│ digest="SHA-256">yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy=</pin> <!-- backup --> │
+│         </pin-set>                                                           │
+│     </domain-config>                                                         │
+│ </network-security-config>                                                   │
+│                                                                              │
+│ <!-- AndroidManifest.xml -->                                                 │
+│ <application android:networkSecurityConfig="@xml/network_security_config"    │
+│ ...>                                                                         │
+│                                                                              │
+│ HAL-05 — HTTP→HTTPS reescritura frágil en GoogleBooksRepository (MEDIO)      │
+│                                                                              │
+│ Archivo: data/remote/GoogleBooksRepository.kt                                │
+│                                                                              │
+│ // FRÁGIL — solo reemplaza la primera ocurrencia:                            │
+│ coverUrl = volumeInfo.imageLinks?.thumbnail?.replace("http://", "https://")  │
+│                                                                              │
+│ Si la URL ya es https:// o contiene http:// en el path, el replace puede     │
+│ romper la URL.                                                               │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ coverUrl = volumeInfo.imageLinks?.thumbnail?.let { url ->                    │
+│     if (url.startsWith("http://")) url.replaceFirst("http://", "https://")   │
+│ else url                                                                     │
+│ }                                                                            │
+│                                                                              │
+│ HAL-06 — Sin writeTimeout en OkHttp (BAJO)                                   │
+│                                                                              │
+│ Archivo: data/remote/RetrofitClient.kt                                       │
+│                                                                              │
+│ Solo connectTimeout y readTimeout. Sin writeTimeout, una conexión lenta al   │
+│ subir datos podría bloquearse indefinidamente.                               │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ .writeTimeout(15, TimeUnit.SECONDS)                                          │
+│                                                                              │
+│ ---                                                                          │
+│ M6 — Inadequate Privacy Controls                                             │
+│                                                                              │
+│ Riesgo: datos personales del usuario expuestos en logs, cache o canales no   │
+│ seguros.                                                                     │
+│                                                                              │
+│ HAL-07 — Logging sin control de DEBUG (ALTO)                                 │
+│                                                                              │
+│ Archivos:                                                                    │
+│ - MainActivity.kt:135 → Log.d("ScanBook", "ISBN detected: $isbn")            │
+│ - CameraScreen.kt:180,199 → Log.e(TAG, "Use case binding failed", exc)       │
+│ - PhotoCaptureScreen.kt:138,197 → Log.e("PhotoCapture", "Capture failed:     │
+│ ...")                                                                        │
+│                                                                              │
+│ Los logs Log.d y Log.e sin BuildConfig.DEBUG gate son visibles en producción │
+│  con adb logcat sin permisos de root (hasta Android 11 sobre USB, siempre en │
+│  dispositivos rooteados).                                                    │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ // Patrón correcto:                                                          │
+│ if (BuildConfig.DEBUG) Log.d("ScanBook", "ISBN detected: $isbn")             │
+│                                                                              │
+│ // O usar Timber con árbol de debug:                                         │
+│ // En Application.onCreate():                                                │
+│ if (BuildConfig.DEBUG) Timber.plant(Timber.DebugTree())                      │
+│ // En código:                                                                │
+│ Timber.d("ISBN detected: %s", isbn)                                          │
+│                                                                              │
+│ HAL-08 — Caché FileProvider no limpiada (MEDIO)                              │
+│                                                                              │
+│ Archivo: components/ExportDataScreen.kt                                      │
+│                                                                              │
+│ Los archivos ZIP/CSV generados en cacheDir para compartir no se eliminan     │
+│ tras el share.                                                               │
+│ Acumulan datos del usuario en almacenamiento externo accesible por otras     │
+│ apps (antes de Android 10).                                                  │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ // Limpiar tras el intent de share:                                          │
+│ LaunchedEffect(shareUri) {                                                   │
+│     if (shareUri != null) {                                                  │
+│         context.cacheDir.listFiles()?.forEach { it.delete() }                │
+│     }                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ ---                                                                          │
+│ M7 — Insufficient Binary Protections                                         │
+│                                                                              │
+│ Riesgo: APK fácilmente reversible o manipulable.                             │
+│                                                                              │
+│ HAL-09 — Minificación/ofuscación desactivada en release (CRÍTICO)            │
+│                                                                              │
+│ Archivo: app/build.gradle.kts                                                │
+│                                                                              │
+│ buildTypes {                                                                 │
+│     release {                                                                │
+│         isMinifyEnabled = false    // ← VULNERABLE                           │
+│         isShrinkResources = false                                            │
+│     }                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ Con isMinifyEnabled = false, el APK de release contiene todos los nombres de │
+│  clases, métodos y campos en texto claro. Facilita la ingeniería inversa     │
+│ completa de la app.                                                          │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ buildTypes {                                                                 │
+│     release {                                                                │
+│         isMinifyEnabled   = true                                             │
+│         isShrinkResources = true                                             │
+│         proguardFiles(                                                       │
+│             getDefaultProguardFile("proguard-android-optimize.txt"),         │
+│             "proguard-rules.pro"                                             │
+│         )                                                                    │
+│     }                                                                        │
+│ }                                                                            │
+│                                                                              │
+│ # proguard-rules.pro — conservar modelos Room y Retrofit:                    │
+│ -keep class com.i3dcor.scanbook.data.local.entity.** { *; }                  │
+│ -keep class com.i3dcor.scanbook.data.remote.model.** { *; }                  │
+│ -keepattributes Signature                                                    │
+│                                                                              │
+│ ---                                                                          │
+│ M8 — Security Misconfiguration                                               │
+│                                                                              │
+│ Riesgo: configuraciones por defecto inseguras en el manifiesto o en el       │
+│ sistema de build.                                                            │
+│                                                                              │
+│ HAL-10 — android:allowBackup="true" con reglas vacías (CRÍTICO)              │
+│                                                                              │
+│ Archivos: app/src/main/AndroidManifest.xml, res/xml/backup_rules.xml,        │
+│ res/xml/data_extraction_rules.xml                                            │
+│                                                                              │
+│ <!-- AndroidManifest.xml -->                                                 │
+│ <application android:allowBackup="true" ...>                                 │
+│                                                                              │
+│ <!-- backup_rules.xml — VACÍO, sin exclusiones -->                           │
+│ <full-backup-content />                                                      │
+│                                                                              │
+│ <!-- data_extraction_rules.xml — VACÍO, sin exclusiones -->                  │
+│ <data-extraction-rules />                                                    │
+│                                                                              │
+│ La base de datos Room (scanbook_database) se incluye en los backups ADB y en │
+│  los backups de nube (Google One). Un atacante con acceso físico puede       │
+│ extraer toda la biblioteca del usuario con adb backup.                       │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ <!-- backup_rules.xml (API < 31) -->                                         │
+│ <full-backup-content>                                                        │
+│     <exclude domain="database" path="scanbook_database" />                   │
+│     <exclude domain="database" path="scanbook_database-shm" />               │
+│     <exclude domain="database" path="scanbook_database-wal" />               │
+│     <exclude domain="file" path="covers/" />                                 │
+│ </full-backup-content>                                                       │
+│                                                                              │
+│ <!-- data_extraction_rules.xml (API >= 31) -->                               │
+│ <data-extraction-rules>                                                      │
+│     <cloud-backup>                                                           │
+│         <exclude domain="database" path="scanbook_database" />               │
+│         <exclude domain="file" path="covers/" />                             │
+│     </cloud-backup>                                                          │
+│     <device-transfer>                                                        │
+│         <exclude domain="database" path="scanbook_database" />               │
+│     </device-transfer>                                                       │
+│ </data-extraction-rules>                                                     │
+│                                                                              │
+│ ---                                                                          │
+│ M9 — Insecure Data Storage                                                   │
+│                                                                              │
+│ Riesgo: datos sensibles almacenados sin cifrado en disco.                    │
+│                                                                              │
+│ HAL-11 — Base de datos Room sin cifrado (ALTO)                               │
+│                                                                              │
+│ Archivo: data/local/ScanBookDatabase.kt                                      │
+│                                                                              │
+│ Room.databaseBuilder(context, ScanBookDatabase::class.java,                  │
+│ "scanbook_database").build()                                                 │
+│                                                                              │
+│ La BD SQLite está en texto claro en                                          │
+│ data/data/com.i3dcor.scanbook/databases/. Accesible en dispositivos          │
+│ rooteados o mediante backup ADB (ver HAL-10).                                │
+│                                                                              │
+│ Mitigación — SQLCipher:                                                      │
+│ // build.gradle.kts                                                          │
+│ implementation("net.zetetic:android-database-sqlcipher:4.5.4")               │
+│ implementation("androidx.sqlite:sqlite-ktx:2.4.0")                           │
+│                                                                              │
+│ // ScanBookDatabase.kt                                                       │
+│ val factory =                                                                │
+│ SupportFactory(SQLiteDatabase.getBytes("passphrase".toCharArray()))          │
+│ Room.databaseBuilder(context, ScanBookDatabase::class.java,                  │
+│ "scanbook_database")                                                         │
+│     .openHelperFactory(factory)                                              │
+│     .build()                                                                 │
+│                                                                              │
+│ Nota: la passphrase debe derivarse de AndroidKeyStore, no hardcodearse.      │
+│                                                                              │
+│ HAL-12 — File.delete() silencioso (ALTO)                                     │
+│                                                                              │
+│ Archivos: presentation/viewmodel/EditBookViewModel.kt (discardCapturedPhoto, │
+│  deleteLocalCover)                                                           │
+│                                                                              │
+│ File(it).delete()  // retorno ignorado — el archivo podría no borrarse       │
+│                                                                              │
+│ Si el archivo no se elimina (permisos, path incorrecto), el ViewModel asume  │
+│ que fue borrado, dejando datos del usuario en disco sin referencia.          │
+│                                                                              │
+│ Mitigación:                                                                  │
+│ val deleted = File(it).delete()                                              │
+│ if (!deleted) Log.w(TAG, "No se pudo eliminar portada: $it")                 │
+│ // o lanzar evento de error al UI state                                      │
+│                                                                              │
+│ ---                                                                          │
+│ M10 — Insufficient Cryptography                                              │
+│                                                                              │
+│ Riesgo: uso de algoritmos o implementaciones criptográficas débiles.         │
+│                                                                              │
+│ Estado en ScanBook2: La app no implementa criptografía propia.               │
+│ La compresión JPEG de portadas (Q60) no es cifrado — es compresión con       │
+│ pérdida, aceptable.                                                          │
+│ No hay tokens, passwords ni datos cifrados que gestione la app directamente. │
+│                                                                              │
+│ Nivel de riesgo: BAJO — sin hallazgos activos. Aplica solo si se implementa  │
+│ la passphrase de SQLCipher (HAL-11).                                         │
+│                                                                              │
+│ ---                                                                          │
+│ Tabla priorizada de hallazgos                                                │
+│                                                                              │
+│ ┌──────┬─────────┬─────────┬────────────────────────────────────┬────────┐   │
+│ │      │ Categor │ Severid │                                    │ Esfuer │   │
+│ │  ID  │   ía    │   ad    │             Archivo(s)             │   zo   │   │
+│ │      │  OWASP  │         │                                    │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M4      │ CRÍTICO │ data/worker/DefaultCoverImageProce │ M      │   │
+│ │ 03   │         │         │ ssor.kt:13                         │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M5      │ CRÍTICO │ data/remote/RetrofitClient.kt      │ M      │   │
+│ │ 04   │         │         │                                    │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M7      │ CRÍTICO │ app/build.gradle.kts               │ S      │   │
+│ │ 09   │         │         │                                    │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │         │         │ AndroidManifest.xml,               │        │   │
+│ │ 10   │ M8      │ CRÍTICO │ backup_rules.xml,                  │ S      │   │
+│ │      │         │         │ data_extraction_rules.xml          │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M4      │ ALTO    │ data/worker/DownloadCoverService.k │ S      │   │
+│ │ 01   │         │         │ t:17                               │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │         │         │ MainActivity.kt:135,               │        │   │
+│ │ 07   │ M6      │ ALTO    │ CameraScreen.kt,                   │ S      │   │
+│ │      │         │         │ PhotoCaptureScreen.kt              │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M9      │ ALTO    │ data/local/ScanBookDatabase.kt     │ L      │   │
+│ │ 11   │         │         │                                    │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M9      │ ALTO    │ presentation/viewmodel/EditBookVie │ XS     │   │
+│ │ 12   │         │         │ wModel.kt                          │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M4      │ MEDIO   │ domain/model/ScannedIsbn.kt,       │ M      │   │
+│ │ 02   │         │         │ EditBookViewModel                  │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M5      │ MEDIO   │ data/remote/GoogleBooksRepository. │ XS     │   │
+│ │ 05   │         │         │ kt                                 │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M6      │ MEDIO   │ components/ExportDataScreen.kt     │ S      │   │
+│ │ 08   │         │         │                                    │        │   │
+│ ├──────┼─────────┼─────────┼────────────────────────────────────┼────────┤   │
+│ │ HAL- │ M5      │ BAJO    │ data/remote/RetrofitClient.kt      │ XS     │   │
+│ │ 06   │         │         │                                    │        │   │
+│ └──────┴─────────┴─────────┴────────────────────────────────────┴────────┘   │
+│                                                                              │
+│ Esfuerzo: XS < 1h · S 1-2h · M 2-4h · L > 4h                                 │
+│                                                                              │
+│ ---                                                                          │
+│ Checklist accionable (orden de implementación sugerido)                      │
+│                                                                              │
+│ Sprint 1 — Críticos y rápidos (≈ 4h)                                         │
+│                                                                              │
+│ - HAL-09 build.gradle.kts: activar isMinifyEnabled = true +                  │
+│ proguard-rules.pro                                                           │
+│ - HAL-10 backup_rules.xml + data_extraction_rules.xml: excluir BD y covers   │
+│ - HAL-07 Añadir if (BuildConfig.DEBUG) en los 3 archivos con logs sensibles  │
+│ - HAL-12 Verificar retorno de File.delete() y logar si falla                 │
+│ - HAL-05 Corregir replace HTTP→HTTPS con replaceFirst                        │
+│ - HAL-06 Añadir writeTimeout en OkHttpClient                                 │
+│                                                                              │
+│ Sprint 2 — Críticos de mayor esfuerzo (≈ 4-6h)                               │
+│                                                                              │
+│ - HAL-03 Añadir validación de scheme + límite de tamaño en                   │
+│ DefaultCoverImageProcessor                                                   │
+│ - HAL-04 Configurar Network Security Config con certificate pinning para     │
+│ googleapis.com                                                               │
+│ - HAL-01 Sanitizar ISBN antes de usarlo como nombre de archivo + verificar   │
+│ canonicalPath                                                                │
+│                                                                              │
+│ Sprint 3 — Altos/Medios planificables (≈ 6-8h)                               │
+│                                                                              │
+│ - HAL-02 Implementar validación de checksum ISBN-13 en ScanResultViewModel   │
+│ - HAL-08 Limpiar caché FileProvider tras operaciones de compartir            │
+│ - HAL-11 Evaluar SQLCipher (rompe Room migrations existentes — requiere      │
+│ planificación)                                                               │
+│                                                                              │
+│ ---                                                                          │
+│ Verificación post-implementación                                             │
+│                                                                              │
+│ 1. Build release sin warnings de ProGuard: ./gradlew assembleRelease → 0     │
+│ errores                                                                      │
+│ 2. Backup excluido: adb backup -f test.ab com.i3dcor.scanbook → el .ab no    │
+│ debe contener scanbook_database                                              │
+│ 3. HTTPS forzado: intentar pasar URL http://... a processDownload → debe     │
+│ lanzar IllegalArgumentException                                              │
+│ 4. Path traversal: ISBN = "../../evil" → DownloadCoverService debe           │
+│ rechazarlo (canonical path check)                                            │
+│ 5. Logs en release: adb logcat | grep ScanBook en APK release → sin ISBNs ni │
+│  rutas de archivo                                                            │
+│ 6. APK ofuscado: apkanalyzer dex packages app-release.apk → nombres de       │
+│ clases obfuscados                                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
