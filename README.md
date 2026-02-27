@@ -226,12 +226,14 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] HAL-11 (M9·Alto): SQLCipher — en evaluación de impacto sobre migraciones Room
 
 ### 🚧 Backlog (media prioridad)
+-[ ] Comprobar ISBN al editar libro manualmente
 
 ### 🔮 Futuro (nice to have)
 - [ ] Opción de menú oscuro/claro/según sistema
-- [ ] Permite volver a hacer foto de portada cuando ya existe una
 - [ ] Añadir idioma inglés (`res/values-en/strings.xml`) — base ya lista
 - [ ] Speech-to-Text para entrada manual (icono de micrófono en el campo de texto)
+- [ ] Escanear ISBN con OCR si no es legible el código de barras
+- [ ] Permitir introducir libros antiguos sin ISBN
 
 ### Refactorizar a futuro (deuda técnica)  
 - [ ] BookField pasar a componentes reutilizables y mejorar aspecto
