@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Network Security Config — HAL-04
+    Bloquea tráfico en claro para los dominios de red de la app.
+    TODO (antes del release público): añadir certificate pinning con los SHA-256
+    obtenidos via: openssl s_client -connect www.googleapis.com:443 | openssl x509 -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | base64
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">openlibrary.org</domain>
+    </domain-config>
+</network-security-config>
