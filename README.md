@@ -157,6 +157,15 @@ app/src/main/java/com/i3dcor/scanbook/
 
 ## Configuración Requerida
 
+### Requisitos previos
+
+| Herramienta | Versión mínima | Notas |
+|-------------|----------------|-------|
+| JDK | 17+ | `java -version` para verificar |
+| Android Studio | Hedgehog (2023.1.1)+ | O SDK Command-line Tools |
+| Android SDK | API 36 (compileSdk) | Se instala con Android Studio |
+| Dispositivo / Emulador | API 26+ (Android 8.0) | minSdk del proyecto |
+
 ### Permisos Android
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
@@ -165,17 +174,46 @@ app/src/main/java/com/i3dcor/scanbook/
 
 El usuario debe otorgar permisos en tiempo de ejecución.
 
-## Compilación
+## Compilación e instalación
+
+### Debug (desarrollo)
 
 ```bash
-# Compilar proyecto
-./gradlew build
+# Compilar y verificar que no hay errores
+./gradlew assembleDebug
 
-# Instalar en dispositivo
+# Instalar directamente en dispositivo/emulador conectado
 ./gradlew installDebug
 
-# Ejecutar tests
-./gradlew test
+# Instalar APK manualmente (sin Android Studio)
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+### Release
+
+```bash
+# Generar APK de release (requiere keystore configurado)
+./gradlew assembleRelease
+
+# APK generado en:
+# app/build/outputs/apk/release/app-release.apk
+#
+# NOTA: Para distribuir, firma el APK con tu keystore:
+# keytool -genkey -v -keystore scanbook.keystore -alias scanbook -keyalg RSA -keysize 2048 -validity 10000
+# Configura signing en build.gradle.kts o usa Android Studio > Build > Generate Signed Bundle/APK
+```
+
+### Tests
+
+```bash
+# Tests unitarios (JVM, sin emulador)
+./gradlew testDebugUnitTest
+
+# Tests instrumentados (requiere emulador o dispositivo)
+./gradlew connectedDebugAndroidTest
+
+# Informe de resultados en:
+# app/build/reports/tests/testDebugUnitTest/index.html
 ```
 
 ## Contribuir
