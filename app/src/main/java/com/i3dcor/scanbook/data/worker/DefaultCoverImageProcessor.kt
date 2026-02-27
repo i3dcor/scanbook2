@@ -9,8 +9,23 @@ import java.io.InputStream
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 
+/**
+ * Implementación de [CoverImageProcessor] que descarga imágenes vía HTTPS,
+ * las escala a [WIDTH]×[HEIGHT] px y las guarda en JPEG.
+ *
+ * Restricciones de seguridad:
+ * - Solo acepta URLs HTTPS (rechaza HTTP)
+ * - Limita la descarga a [MAX_BYTES] para evitar agotamiento de memoria
+ */
 class DefaultCoverImageProcessor : CoverImageProcessor {
 
+    /**
+     * Descarga la imagen en [url], la escala a [WIDTH]×[HEIGHT] px con calidad JPEG [QUALITY]%
+     * y la guarda en [destFile]. Garantiza desconexión aunque ocurra un error.
+     *
+     * @throws IllegalArgumentException si [url] no empieza por "https://"
+     * @throws IOException si la imagen no puede decodificarse o excede [MAX_BYTES]
+     */
     override fun downloadScaleAndSave(url: String, destFile: File) {
         require(url.startsWith("https://")) { "Solo se permiten URLs HTTPS (recibida: $url)" }
         val connection = URL(url).openConnection() as HttpsURLConnection
@@ -29,6 +44,10 @@ class DefaultCoverImageProcessor : CoverImageProcessor {
         }
     }
 
+    /**
+     * InputStream que lanza [IOException] si se intenta leer más de [maxBytes].
+     * Previene agotamiento de memoria ante respuestas HTTP maliciosas o de tamaño inesperado.
+     */
     private class LimitedInputStream(
         private val delegate: InputStream,
         private val maxBytes: Long
@@ -51,9 +70,9 @@ class DefaultCoverImageProcessor : CoverImageProcessor {
     }
 
     private companion object {
-        const val WIDTH      = 100
-        const val HEIGHT     = 150
-        const val QUALITY    = 60
+        const val WIDTH      = 100   // px — miniatura suficiente para lista de libros
+        const val HEIGHT     = 150   // px
+        const val QUALITY    = 60    // JPEG — balance tamaño/calidad visual aceptable
         const val TIMEOUT_MS = 10_000
         const val MAX_BYTES  = 5L * 1024 * 1024   // 5 MB
     }

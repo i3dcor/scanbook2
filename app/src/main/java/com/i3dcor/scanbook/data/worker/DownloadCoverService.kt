@@ -11,6 +11,17 @@ internal class DownloadCoverService(
     private val imageProcessor: CoverImageProcessor,
     private val pathUpdater: (isbn: String, path: String) -> Unit
 ) {
+    /**
+     * Descarga y guarda la portada de un libro, luego actualiza Room con la ruta local.
+     *
+     * Incluye protección contra path traversal: valida que el archivo destino
+     * quede dentro de [coversDir] antes de escribir.
+     *
+     * @param isbn ISBN del libro (usado como nombre de archivo, previamente saneado)
+     * @param coverUrl URL HTTPS de la imagen de portada
+     * @param coversDir Directorio local donde se guardan las portadas
+     * @return [Result.success] si la descarga fue exitosa, [Result.retry] en cualquier error
+     */
     fun processDownload(isbn: String, coverUrl: String, coversDir: File): Result =
         try {
             coversDir.mkdirs()
