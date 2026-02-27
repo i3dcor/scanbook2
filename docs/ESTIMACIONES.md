@@ -11,8 +11,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 28 |
-| **Tiempo total estimado** | ~74-87 horas |
+| **Total features implementadas** | 29 |
+| **Tiempo total estimado** | ~77-91 horas |
 | **Promedio por feature** | ~2.6-3 horas |
 | **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
 | **Líneas de código aproximadas** | ~4,400-5,000 |
@@ -336,6 +336,34 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 - **Notas:**
   - Flujo para reemplazar portada: borrar → aparece botón "Añadir foto" → capturar nueva
   - El diálogo usa colores del tema oscuro (`containerColor = 0xFF252528`, botón Eliminar en rojo)
+
+### 2.15 Auditoría de seguridad OWASP Mobile Top 10
+
+#### Análisis completo y plan de implementación
+- **Descripción:** Auditoría exhaustiva basada en OWASP Mobile Top 10 (2024). Análisis estático de 16 archivos (manifesto, BD, red, workers, ViewModels, build config). 12 hallazgos clasificados y priorizados: 4 Críticos, 4 Altos, 4 Medios, 2 Bajos. Plan de 3 sprints con esfuerzo detallado por hallazgo.
+- **Tiempo estimado:** 3-4 horas (análisis + documentación)
+- **Complejidad:** Media-Alta
+- **Hallazgos identificados:**
+
+| ID | OWASP | Severidad | Descripción | Estado |
+|----|-------|-----------|-------------|--------|
+| HAL-09 | M7 | Crítico | `isMinifyEnabled=false` en release — APK sin ofuscación | ✅ Completado |
+| HAL-10 | M8 | Crítico | `android:allowBackup=true` + reglas vacías — BD extraíble por ADB | ✅ Completado |
+| HAL-03 | M4 | Crítico | `URL(url).openStream()` sin validar — SSRF y sin límite de tamaño | ⏳ Sprint 2 |
+| HAL-04 | M5 | Crítico | Sin certificate pinning — vulnerable a MITM | ⏳ Sprint 2 |
+| HAL-07 | M6 | Alto | Logs con ISBNs visibles en release vía `adb logcat` | ✅ Completado |
+| HAL-12 | M9 | Alto | `File.delete()` sin verificar retorno — archivos residuales silenciosos | ✅ Completado |
+| HAL-01 | M4 | Alto | ISBN sin sanear en nombre de fichero — path traversal potencial | ⏳ Sprint 2 |
+| HAL-11 | M9 | Alto | BD Room sin cifrado (SQLCipher) | 🔍 En evaluación |
+| HAL-05 | M5 | Medio | `replace("http://","https://")` frágil para URLs | ✅ Completado |
+| HAL-06 | M5 | Bajo | Sin `writeTimeout` en OkHttp | ✅ Completado |
+| HAL-02 | M4 | Medio | Sin validación de checksum ISBN-13 | ⏳ Sprint 3 |
+| HAL-08 | M6 | Medio | Caché FileProvider no limpiada tras compartir | ⏳ Sprint 3 |
+
+- **Sprint 1 completado:** HAL-09, HAL-10, HAL-07, HAL-12, HAL-05, HAL-06 (6/12 hallazgos)
+- **Archivos afectados:** `build.gradle.kts`, `proguard-rules.pro`, `backup_rules.xml`, `data_extraction_rules.xml`, `MainActivity.kt`, `CameraScreen.kt`, `PhotoCaptureScreen.kt`, `EditBookViewModel.kt`, `GoogleBooksRepository.kt`, `RetrofitClient.kt`
+
+---
 
 ### 2.14 Tests unitarios (ViewModels + DownloadCoverWorker)
 
@@ -714,6 +742,8 @@ El proyecto demuestra:
 | 2.0 | 2026-02-26 | Cerqueiro | Inicio Fase 2 — Auditoría OWASP Mobile Top 10: 4 críticos, 4 altos, 4 medios, 2 bajos identificados. Sprint 1: HAL-09 completado (isMinifyEnabled=true, isShrinkResources=true, reglas ProGuard para Room y DTOs). Pendientes HAL-01..08, HAL-10..12 en rama chore/auditoria-owasp-top10. HAL-11 (SQLCipher) en evaluación de impacto sobre migraciones Room. |
 | 2.1 | 2026-02-26 | Cerqueiro | HAL-10 completado: backup_rules.xml (API 23-30) y data_extraction_rules.xml (API 31+) excluyen scanbook_database, -shm, -wal y covers/ de backups ADB, Google One y transferencias entre dispositivos. |
 | 2.2 | 2026-02-26 | Cerqueiro | HAL-07 completado: guard if (BuildConfig.DEBUG) en 5 puntos de logging de MainActivity, CameraScreen y PhotoCaptureScreen; ISBNs y trazas de error ya no son visibles con adb logcat en release. |
+| 2.3 | 2026-02-26 | Cerqueiro | HAL-12, HAL-05 y HAL-06 completados: File.delete() con verificación de retorno y log en DEBUG (EditBookViewModel); replaceFirst condicional para HTTP→HTTPS (GoogleBooksRepository); writeTimeout en OkHttpClient (RetrofitClient). Sprint 1 finalizado: 6/12 hallazgos corregidos. |
+| 2.4 | 2026-02-27 | Cerqueiro | Sección 2.15: informe de auditoría OWASP Mobile Top 10 completo — 4 críticos, 4 altos, 4 medios, 2 bajos, tabla priorizada con 12 hallazgos, plan de 3 sprints. Sprint 2 (HAL-01, HAL-03, HAL-04) y Sprint 3 (HAL-02, HAL-08) pendientes. HAL-11 (SQLCipher) en evaluación de impacto sobre migraciones Room. Total: 29 features, ~77-91h. |
 
 ---
 

@@ -209,9 +209,21 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-09: minificación y shrink resources activados en release build
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-10: backup_rules.xml y data_extraction_rules.xml excluyen BD y portadas de backups ADB/nube
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-07: logs sensibles protegidos con BuildConfig.DEBUG en MainActivity, CameraScreen y PhotoCaptureScreen
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-12: retorno de File.delete() verificado en EditBookViewModel
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-05: reescritura HTTP→HTTPS corregida con replaceFirst condicional
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-06: writeTimeout añadido al OkHttpClient
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — Informe completo: 12 hallazgos (4 críticos, 4 altos, 4 medios, 2 bajos), plan de 3 sprints documentado en ESTIMACIONES.md §2.15
 
 ### 🔜 Próximo (alta prioridad)
-- [ ] Auditoría OWASP Top 10 — correcciones pendientes: HAL-01 (path traversal ISBN), HAL-02 (checksum ISBN-13), HAL-03 (validación URL portada), HAL-04 (network security config), HAL-05 (HTTP→HTTPS), HAL-06 (writeTimeout), HAL-08 (limpiar caché share), HAL-11 (SQLCipher, en evaluación), HAL-12 (File.delete silencioso)
+#### Auditoría OWASP — Sprint 2 (críticos de mayor esfuerzo)
+- [ ] HAL-03 (M4·Crítico): validación HTTPS + límite de tamaño en `DefaultCoverImageProcessor`
+- [ ] HAL-04 (M5·Crítico): Network Security Config + certificate pinning para `googleapis.com`
+- [ ] HAL-01 (M4·Alto): saneamiento de ISBN en nombre de fichero + verificación `canonicalPath`
+
+#### Auditoría OWASP — Sprint 3 (medios planificables)
+- [ ] HAL-02 (M4·Medio): validación de checksum ISBN-13 en `ScanResultViewModel`
+- [ ] HAL-08 (M6·Medio): limpiar caché FileProvider tras operaciones de compartir
+- [ ] HAL-11 (M9·Alto): SQLCipher — en evaluación de impacto sobre migraciones Room
 
 ### 🚧 Backlog (media prioridad)
 
@@ -251,5 +263,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (28 features implementadas) | Fase 2 - Seguridad OWASP en curso 🔒
+**Status**: Fase 1 - MVP Completado ✅ (29 features, 54 tests) | Fase 2 - Seguridad OWASP 🔒 Sprint 1 completado (6/12 hallazgos), Sprint 2 pendiente
 **Última actualización:** Febrero 2026
