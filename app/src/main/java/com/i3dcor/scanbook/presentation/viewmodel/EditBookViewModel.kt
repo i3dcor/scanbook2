@@ -27,6 +27,13 @@ import java.io.File
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
+/**
+ * ViewModel para la pantalla de edición/creación de un libro.
+ *
+ * Lanza una búsqueda automática de metadatos con debounce de 1 s al cambiar el ISBN.
+ * Al guardar, si el libro no tiene portada local pero sí [coverUrl], encola su descarga
+ * en background vía [coverScheduler].
+ */
 class EditBookViewModel(
     initialBook: ScannedIsbn?,
     private val repository: IsbnRepository = InMemoryIsbnRepository.instance,
@@ -46,6 +53,7 @@ class EditBookViewModel(
     private var lookupJob: Job? = null
     private var capturedPhotoPath: String? = null
 
+    /** Actualiza el ISBN y lanza una búsqueda automática de metadatos con debounce. */
     fun onIsbnChange(value: String) {
         _uiState.update { it.copy(isbn = value, searchError = null) }
         scheduleLookup(value)
@@ -63,11 +71,19 @@ class EditBookViewModel(
         _uiState.update { it.copy(genre = value) }
     }
 
+    /**
+     * Registra la ruta de una portada capturada por cámara en esta sesión.
+     * [path] apunta a un archivo JPEG temporal en filesDir/covers/.
+     */
     fun onLocalCoverCaptured(path: String) {
         capturedPhotoPath = path
         _uiState.update { it.copy(coverLocalPath = path) }
     }
 
+    /**
+     * Descarta la foto capturada en esta sesión y elimina el archivo temporal del disco.
+     * No afecta portadas previamente guardadas en Room.
+     */
     fun discardCapturedPhoto() {
         capturedPhotoPath?.let {
             val deleted = File(it).delete()
@@ -77,6 +93,10 @@ class EditBookViewModel(
         _uiState.update { it.copy(coverLocalPath = null) }
     }
 
+    /**
+     * Elimina la portada local del libro: borra el archivo de disco, limpia [coverUrl]
+     * y [coverLocalPath], dejando el libro sin imagen de portada.
+     */
     fun deleteLocalCover() {
         _uiState.value.coverLocalPath?.let {
             val deleted = File(it).delete()
@@ -86,6 +106,12 @@ class EditBookViewModel(
         _uiState.update { it.copy(coverUrl = null, coverLocalPath = null) }
     }
 
+    /**
+     * Persiste el libro en Room y, si no tiene portada local pero sí [coverUrl],
+     * encola la descarga de portada en background vía [coverScheduler].
+     *
+     * @param onComplete Callback invocado en el hilo principal al finalizar.
+     */
     fun onSave(onComplete: () -> Unit) {
         val state = _uiState.value
         val scannedIsbn = ScannedIsbn(

@@ -62,6 +62,16 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 import java.io.File
 
+/**
+ * Pantalla de captura de foto para la portada de un libro.
+ *
+ * Solicita permiso de cámara si no está concedido. Guarda la foto en
+ * `filesDir/covers/{isbn}.jpg` (o `temp_capture.jpg` si [isbn] está vacío).
+ *
+ * @param isbn ISBN del libro; se usa como nombre del archivo de salida.
+ * @param onPhotoCaptured Callback con la ruta absoluta del archivo JPEG guardado.
+ * @param onBackClick Callback al pulsar el botón atrás del sistema o el de la UI.
+ */
 @Composable
 fun PhotoCaptureScreen(
     isbn: String,
