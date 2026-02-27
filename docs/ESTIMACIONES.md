@@ -357,11 +357,12 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | HAL-11 | M9 | Alto | BD Room sin cifrado (SQLCipher) | 🔍 En evaluación |
 | HAL-05 | M5 | Medio | `replace("http://","https://")` frágil para URLs | ✅ Completado |
 | HAL-06 | M5 | Bajo | Sin `writeTimeout` en OkHttp | ✅ Completado |
-| HAL-02 | M4 | Medio | Sin validación de checksum ISBN-13 | ⏳ Sprint 3 |
-| HAL-08 | M6 | Medio | Caché FileProvider no limpiada tras compartir | ⏳ Sprint 3 |
+| HAL-02 | M4 | Medio | Sin validación de checksum ISBN-13 | ✅ Completado |
+| HAL-08 | M6 | Medio | Caché FileProvider no limpiada tras compartir | ✅ Completado |
 
 - **Sprint 1 completado:** HAL-09, HAL-10, HAL-07, HAL-12, HAL-05, HAL-06 (6/12 hallazgos)
 - **Sprint 2 completado:** HAL-03, HAL-04, HAL-01 (9/12 hallazgos)
+- **Sprint 3 completado:** HAL-02, HAL-08 (10/12 hallazgos — HAL-11 SQLCipher en evaluación)
 - **Archivos afectados:** `build.gradle.kts`, `proguard-rules.pro`, `backup_rules.xml`, `data_extraction_rules.xml`, `MainActivity.kt`, `CameraScreen.kt`, `PhotoCaptureScreen.kt`, `EditBookViewModel.kt`, `GoogleBooksRepository.kt`, `RetrofitClient.kt`
 
 ---
@@ -747,6 +748,7 @@ El proyecto demuestra:
 | 2.4 | 2026-02-27 | Cerqueiro | Sección 2.15: informe de auditoría OWASP Mobile Top 10 completo — 4 críticos, 4 altos, 4 medios, 2 bajos, tabla priorizada con 12 hallazgos, plan de 3 sprints. Sprint 2 (HAL-01, HAL-03, HAL-04) y Sprint 3 (HAL-02, HAL-08) pendientes. HAL-11 (SQLCipher) en evaluación de impacto sobre migraciones Room. Total: 29 features, ~77-91h. |
 | 2.5 | 2026-02-27 | Cerqueiro | HAL-03 completado: DefaultCoverImageProcessor reescrito con require(HTTPS), HttpsURLConnection (timeouts 10s), LimitedInputStream 5 MB y try/finally disconnect(). build.gradle.kts: testOptions.isReturnDefaultValues=true (resuelve 3 tests de EditBookViewModelTest por Log.w de HAL-12). 7/12 hallazgos corregidos. 92 tests, 0 failures. |
 | 2.6 | 2026-02-27 | Cerqueiro | Sprint 2 completado. HAL-04: network_security_config.xml con cleartextTrafficPermitted=false para googleapis.com y openlibrary.org, referenciado en AndroidManifest. HAL-01: ISBN saneado con regex [^A-Za-z0-9_-] y verificación canonicalPath en DownloadCoverService. 9/12 hallazgos corregidos. |
+| 2.7 | 2026-02-27 | Cerqueiro | Sprint 3 completado. HAL-02: isValidIsbn13() con algoritmo Luhn módulo 10 en ScanResultViewModel, fallo rápido con "ISBN no válido". HAL-08: shareExport() limpia cacheDir/exports/ antes de cada export. Auditoría OWASP finalizada: 10/12 hallazgos corregidos, HAL-11 (SQLCipher) pendiente de evaluación de impacto sobre migraciones Room. 92 tests, 0 failures. |
 
 ---
 

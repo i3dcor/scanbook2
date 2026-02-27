@@ -221,8 +221,8 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] HAL-01 (M4·Alto): saneamiento de ISBN en nombre de fichero + verificación `canonicalPath`
 
 #### Auditoría OWASP — Sprint 3 (medios planificables)
-- [ ] HAL-02 (M4·Medio): validación de checksum ISBN-13 en `ScanResultViewModel`
-- [ ] HAL-08 (M6·Medio): limpiar caché FileProvider tras operaciones de compartir
+- [x] HAL-02 (M4·Medio): validación de checksum ISBN-13 en `ScanResultViewModel`
+- [x] HAL-08 (M6·Medio): limpiar caché FileProvider tras operaciones de compartir
 - [ ] HAL-11 (M9·Alto): SQLCipher — en evaluación de impacto sobre migraciones Room
 
 ### 🚧 Backlog (media prioridad)
@@ -263,5 +263,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprint 2 completo (9/12 hallazgos corregidos)
+**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprints 1-3 completos (10/12 hallazgos corregidos, HAL-11 SQLCipher en evaluación)
 **Última actualización:** Febrero 2026
