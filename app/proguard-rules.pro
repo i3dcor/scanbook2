@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Conservar entidades Room y DTOs de red (necesario para Gson/Room reflection)
+-keep class com.i3dcor.scanbook.data.local.entity.** { *; }
+-keep class com.i3dcor.scanbook.data.network.dto.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*

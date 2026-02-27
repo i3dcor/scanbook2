@@ -206,9 +206,24 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Unificación de estilo de botones (`ActionButton` reutilizable)
 - [x] Eliminar portada del libro con confirmación
 - [x] Tests unitarios — 54 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-09: minificación y shrink resources activados en release build
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-10: backup_rules.xml y data_extraction_rules.xml excluyen BD y portadas de backups ADB/nube
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-07: logs sensibles protegidos con BuildConfig.DEBUG en MainActivity, CameraScreen y PhotoCaptureScreen
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-12: retorno de File.delete() verificado en EditBookViewModel
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-05: reescritura HTTP→HTTPS corregida con replaceFirst condicional
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-06: writeTimeout añadido al OkHttpClient
+- [x] Auditoría de seguridad OWASP Mobile Top 10 — Informe completo: 12 hallazgos (4 críticos, 4 altos, 4 medios, 2 bajos), plan de 3 sprints documentado en ESTIMACIONES.md §2.15
 
 ### 🔜 Próximo (alta prioridad)
-- [ ] Revisión de seguridad (manejo de permisos, validación de inputs)
+#### Auditoría OWASP — Sprint 2 (críticos de mayor esfuerzo)
+- [x] HAL-03 (M4·Crítico): validación HTTPS + límite de tamaño en `DefaultCoverImageProcessor`
+- [x] HAL-04 (M5·Crítico): Network Security Config + certificate pinning para `googleapis.com`
+- [x] HAL-01 (M4·Alto): saneamiento de ISBN en nombre de fichero + verificación `canonicalPath`
+
+#### Auditoría OWASP — Sprint 3 (medios planificables)
+- [x] HAL-02 (M4·Medio): validación de checksum ISBN-13 en `ScanResultViewModel`
+- [x] HAL-08 (M6·Medio): limpiar caché FileProvider tras operaciones de compartir
+- [ ] HAL-11 (M9·Alto): SQLCipher — en evaluación de impacto sobre migraciones Room
 
 ### 🚧 Backlog (media prioridad)
 
@@ -248,5 +263,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (28 features implementadas)
+**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprints 1-3 completos (10/12 hallazgos corregidos, HAL-11 SQLCipher en evaluación)
 **Última actualización:** Febrero 2026

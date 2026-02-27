@@ -6,6 +6,7 @@ import android.media.AudioManager
 import android.media.ToneGenerator
 import android.util.Log
 import androidx.activity.compose.BackHandler
+import com.i3dcor.scanbook.BuildConfig
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -177,7 +178,7 @@ private fun CameraPreviewView(
                                 toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 150)
                                 toneGen.release()
                             } catch (e: Exception) {
-                                Log.e("CameraPreview", "Error playing beep", e)
+                                if (BuildConfig.DEBUG) Log.e("CameraPreview", "Error playing beep", e)
                             }
                             // Notificar ISBN detectado
                             onBarcodeDetected(isbn)
@@ -196,7 +197,7 @@ private fun CameraPreviewView(
                     // Aplicar estado inicial del flash
                     camera?.cameraControl?.enableTorch(isFlashEnabled)
                 } catch (e: Exception) {
-                    Log.e("CameraPreview", "Camera binding failed", e)
+                    if (BuildConfig.DEBUG) Log.e("CameraPreview", "Camera binding failed", e)
                 }
             }, ContextCompat.getMainExecutor(context))
         }

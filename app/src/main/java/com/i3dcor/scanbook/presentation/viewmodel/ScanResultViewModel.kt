@@ -51,6 +51,10 @@ class ScanResultViewModel(
      * Si no existe, busca en internet.
      */
     private fun checkLocalThenLookup() {
+        if (!isValidIsbn13(isbn)) {
+            _uiState.update { it.copy(isLoading = false, error = "ISBN no válido") }
+            return
+        }
         viewModelScope.launch {
             val existingBook = withContext(ioDispatcher) {
                 isbnRepository.getByIsbn(isbn)
@@ -109,6 +113,19 @@ class ScanResultViewModel(
         }
     }
     
+    /**
+     * Valida el dígito de control de un ISBN-13 (algoritmo Luhn módulo 10).
+     * Defensa en profundidad: ML Kit EAN-13 ya garantiza ISBNs válidos en el
+     * flujo normal, pero esta validación protege ante entradas manuales o QR maliciosos.
+     */
+    private fun isValidIsbn13(isbn: String): Boolean {
+        if (isbn.length != 13 || !isbn.all { it.isDigit() }) return false
+        val sum = isbn.dropLast(1).mapIndexed { i, c ->
+            c.digitToInt() * if (i % 2 == 0) 1 else 3
+        }.sum()
+        return (10 - sum % 10) % 10 == isbn.last().digitToInt()
+    }
+
     /**
      * Mapea excepciones técnicas a mensajes de error legibles para el usuario.
      */

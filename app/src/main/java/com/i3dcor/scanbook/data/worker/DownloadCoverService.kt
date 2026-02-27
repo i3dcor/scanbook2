@@ -14,7 +14,11 @@ internal class DownloadCoverService(
     fun processDownload(isbn: String, coverUrl: String, coversDir: File): Result =
         try {
             coversDir.mkdirs()
-            val file = File(coversDir, "$isbn.jpg")
+            val safeName = isbn.replace(Regex("[^A-Za-z0-9_-]"), "_") + ".jpg"
+            val file = File(coversDir, safeName)
+            require(file.canonicalPath.startsWith(coversDir.canonicalPath + File.separator)) {
+                "Path traversal detectado para ISBN: $isbn"
+            }
             imageProcessor.downloadScaleAndSave(coverUrl, file)
             pathUpdater(isbn, file.absolutePath)
             Result.success()

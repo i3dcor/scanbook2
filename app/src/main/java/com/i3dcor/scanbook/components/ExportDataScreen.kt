@@ -511,7 +511,10 @@ private fun shareExport(context: Context, books: List<ScannedIsbn>, format: Stri
     val extension = when (format) { "CSV" -> "csv"; "ZIP" -> "zip"; else -> "json" }
     val mimeType = when (format) { "CSV" -> "text/csv"; "ZIP" -> "application/zip"; else -> "application/json" }
 
-    val exportsDir = File(context.cacheDir, "exports").apply { mkdirs() }
+    val exportsDir = File(context.cacheDir, "exports").apply {
+        mkdirs()
+        listFiles()?.forEach { it.delete() }   // HAL-08: limpiar exports anteriores
+    }
     val file = File(exportsDir, "scanbook_export.$extension")
 
     when (format) {
