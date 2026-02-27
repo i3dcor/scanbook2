@@ -216,7 +216,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 
 ### 🔜 Próximo (alta prioridad)
 #### Auditoría OWASP — Sprint 2 (críticos de mayor esfuerzo)
-- [ ] HAL-03 (M4·Crítico): validación HTTPS + límite de tamaño en `DefaultCoverImageProcessor`
+- [x] HAL-03 (M4·Crítico): validación HTTPS + límite de tamaño en `DefaultCoverImageProcessor`
 - [ ] HAL-04 (M5·Crítico): Network Security Config + certificate pinning para `googleapis.com`
 - [ ] HAL-01 (M4·Alto): saneamiento de ISBN en nombre de fichero + verificación `canonicalPath`
 
@@ -263,5 +263,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (29 features, 54 tests) | Fase 2 - Seguridad OWASP 🔒 Sprint 1 completado (6/12 hallazgos), Sprint 2 pendiente
+**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprint 1 completo + HAL-03 (7/12 hallazgos corregidos)
 **Última actualización:** Febrero 2026

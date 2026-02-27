@@ -349,7 +349,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 |----|-------|-----------|-------------|--------|
 | HAL-09 | M7 | Crítico | `isMinifyEnabled=false` en release — APK sin ofuscación | ✅ Completado |
 | HAL-10 | M8 | Crítico | `android:allowBackup=true` + reglas vacías — BD extraíble por ADB | ✅ Completado |
-| HAL-03 | M4 | Crítico | `URL(url).openStream()` sin validar — SSRF y sin límite de tamaño | ⏳ Sprint 2 |
+| HAL-03 | M4 | Crítico | `URL(url).openStream()` sin validar — SSRF y sin límite de tamaño | ✅ Completado |
 | HAL-04 | M5 | Crítico | Sin certificate pinning — vulnerable a MITM | ⏳ Sprint 2 |
 | HAL-07 | M6 | Alto | Logs con ISBNs visibles en release vía `adb logcat` | ✅ Completado |
 | HAL-12 | M9 | Alto | `File.delete()` sin verificar retorno — archivos residuales silenciosos | ✅ Completado |
@@ -361,6 +361,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | HAL-08 | M6 | Medio | Caché FileProvider no limpiada tras compartir | ⏳ Sprint 3 |
 
 - **Sprint 1 completado:** HAL-09, HAL-10, HAL-07, HAL-12, HAL-05, HAL-06 (6/12 hallazgos)
+- **Sprint 2 en curso:** HAL-03 completado (7/12 hallazgos)
 - **Archivos afectados:** `build.gradle.kts`, `proguard-rules.pro`, `backup_rules.xml`, `data_extraction_rules.xml`, `MainActivity.kt`, `CameraScreen.kt`, `PhotoCaptureScreen.kt`, `EditBookViewModel.kt`, `GoogleBooksRepository.kt`, `RetrofitClient.kt`
 
 ---
@@ -744,6 +745,7 @@ El proyecto demuestra:
 | 2.2 | 2026-02-26 | Cerqueiro | HAL-07 completado: guard if (BuildConfig.DEBUG) en 5 puntos de logging de MainActivity, CameraScreen y PhotoCaptureScreen; ISBNs y trazas de error ya no son visibles con adb logcat en release. |
 | 2.3 | 2026-02-26 | Cerqueiro | HAL-12, HAL-05 y HAL-06 completados: File.delete() con verificación de retorno y log en DEBUG (EditBookViewModel); replaceFirst condicional para HTTP→HTTPS (GoogleBooksRepository); writeTimeout en OkHttpClient (RetrofitClient). Sprint 1 finalizado: 6/12 hallazgos corregidos. |
 | 2.4 | 2026-02-27 | Cerqueiro | Sección 2.15: informe de auditoría OWASP Mobile Top 10 completo — 4 críticos, 4 altos, 4 medios, 2 bajos, tabla priorizada con 12 hallazgos, plan de 3 sprints. Sprint 2 (HAL-01, HAL-03, HAL-04) y Sprint 3 (HAL-02, HAL-08) pendientes. HAL-11 (SQLCipher) en evaluación de impacto sobre migraciones Room. Total: 29 features, ~77-91h. |
+| 2.5 | 2026-02-27 | Cerqueiro | HAL-03 completado: DefaultCoverImageProcessor reescrito con require(HTTPS), HttpsURLConnection (timeouts 10s), LimitedInputStream 5 MB y try/finally disconnect(). build.gradle.kts: testOptions.isReturnDefaultValues=true (resuelve 3 tests de EditBookViewModelTest por Log.w de HAL-12). 7/12 hallazgos corregidos. 92 tests, 0 failures. |
 
 ---
 
