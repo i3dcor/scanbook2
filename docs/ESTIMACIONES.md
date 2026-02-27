@@ -484,7 +484,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 | **Tests unitarios (cobertura >80%)** | 12-16h | Alta | ViewModels, Repositories, Mappers |
 | **Tests de UI (Compose)** | 8-10h | Media-Alta | Flujos principales con Compose Testing |
 | **CI/CD completo** | 6-8h | Media | GitHub Actions: test, lint, build, deploy |
-| **Documentación API (KDoc)** | 3-4h | Baja | KDoc completo, README actualizado |
+| ~~**Documentación API (KDoc)**~~ | ~~3-4h~~ | ~~Baja~~ | **COMPLETADO** — KDoc en 5 archivos críticos (`DefaultCoverImageProcessor`, `DownloadCoverService`, `EditBookUiState`, `EditBookViewModel`, `PhotoCaptureScreen`) |
 | **Optimización de rendimiento** | 6-10h | Media | Lazy loading, imágenes, startup time |
 | **Análisis estático (Detekt/Lint)** | 4-6h | Media | Configuración y corrección de warnings |
 
@@ -642,7 +642,7 @@ Futuro:       [Prestamos] [OCR] [Recomendaciones]
 
 1. **Tests parciales:** ViewModels y Worker cubiertos (54 tests); pendiente tests de UI (Compose) y RoomIsbnRepository
 2. **Sin instrumentación:** No hay analytics, crash reporting configurado
-3. **Documentación inline:** Mínima, solo en componentes públicos
+3. **Documentación inline:** KDoc añadido en 5 archivos críticos; cobertura ~78% del codebase
 4. **Sin feature flags:** Cualquier cambio requiere nuevo release
 
 ---
@@ -749,6 +749,7 @@ El proyecto demuestra:
 | 2.5 | 2026-02-27 | Cerqueiro | HAL-03 completado: DefaultCoverImageProcessor reescrito con require(HTTPS), HttpsURLConnection (timeouts 10s), LimitedInputStream 5 MB y try/finally disconnect(). build.gradle.kts: testOptions.isReturnDefaultValues=true (resuelve 3 tests de EditBookViewModelTest por Log.w de HAL-12). 7/12 hallazgos corregidos. 92 tests, 0 failures. |
 | 2.6 | 2026-02-27 | Cerqueiro | Sprint 2 completado. HAL-04: network_security_config.xml con cleartextTrafficPermitted=false para googleapis.com y openlibrary.org, referenciado en AndroidManifest. HAL-01: ISBN saneado con regex [^A-Za-z0-9_-] y verificación canonicalPath en DownloadCoverService. 9/12 hallazgos corregidos. |
 | 2.7 | 2026-02-27 | Cerqueiro | Sprint 3 completado. HAL-02: isValidIsbn13() con algoritmo Luhn módulo 10 en ScanResultViewModel, fallo rápido con "ISBN no válido". HAL-08: shareExport() limpia cacheDir/exports/ antes de cada export. Auditoría OWASP finalizada: 10/12 hallazgos corregidos, HAL-11 (SQLCipher) pendiente de evaluación de impacto sobre migraciones Room. 92 tests, 0 failures. |
+| 2.8 | 2026-02-27 | Cerqueiro | KDoc añadido a 5 archivos críticos: `DefaultCoverImageProcessor` (clase, método, `LimitedInputStream`, constantes inline), `DownloadCoverService` (`processDownload` con nota de path traversal), `EditBookUiState` (price como String, condition default, isSearching/searchError), `EditBookViewModel` (clase + 5 métodos públicos no triviales), `PhotoCaptureScreen` (composable público con parámetros isbn y onPhotoCaptured). Deuda técnica KDoc completada. |
 
 ---
 

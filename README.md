@@ -251,6 +251,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-05: reescritura HTTP→HTTPS corregida con replaceFirst condicional
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-06: writeTimeout añadido al OkHttpClient
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — Informe completo: 12 hallazgos (4 críticos, 4 altos, 4 medios, 2 bajos), plan de 3 sprints documentado en ESTIMACIONES.md §2.15
+- [x] KDoc añadido a clases y métodos no triviales (decisiones de seguridad, contratos de API, efectos en ficheros)
 
 ### 🔜 Próximo (alta prioridad)
 #### Auditoría OWASP — Sprint 2 (críticos de mayor esfuerzo)
@@ -303,5 +304,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprints 1-3 completos (10/12 hallazgos corregidos, HAL-11 SQLCipher en evaluación)
+**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprints 1-3 completos (10/12 hallazgos corregidos, HAL-11 SQLCipher en evaluación) | KDoc 📝 5 archivos críticos documentados
 **Última actualización:** Febrero 2026
