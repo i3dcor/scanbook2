@@ -11,8 +11,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 29 |
-| **Tiempo total estimado** | ~77-91 horas |
+| **Total features implementadas** | 30 |
+| **Tiempo total estimado** | ~97-111 horas |
 | **Promedio por feature** | ~2.6-3 horas |
 | **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
 | **Líneas de código aproximadas** | ~4,400-5,000 |
@@ -369,7 +369,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 ### 2.14 Tests unitarios (ViewModels + DownloadCoverWorker)
 
-#### Tests — 54 tests, 0 failures
+#### Tests — 92 tests, 0 failures
 - **Descripción:** Cobertura unitaria completa de los 3 ViewModels y el Worker de descarga de portadas. Incluye refactoring de testabilidad: inyección de `ioDispatcher` en ViewModels y extracción de `DownloadCoverService`/`CoverImageProcessor` del Worker.
 - **Tiempo estimado:** 4-6 horas
 - **Complejidad:** Media
@@ -388,6 +388,29 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - Tests JVM puros (sin Robolectric ni emulador) gracias al patrón de inyección de dispatcher
   - `DownloadCoverService` elimina dependencia directa de WorkManager/Android en los tests del Worker
   - `ExampleInstrumentedTest.kt` eliminado (plantilla sin uso)
+
+### 2.16 Presentación TFM
+
+#### Preparación y generación de la presentación final
+- **Descripción:** Diseño y elaboración de la presentación del Trabajo de Fin de Máster. Incluye: definición de estructura narrativa, capturas de pantalla de la app en dispositivo real, diagramas de arquitectura, demo flow, métricas de productividad y calidad, y exportación en formato de slides.
+- **Tiempo estimado:** 20 horas
+- **Complejidad:** Media
+- **Subtareas orientativas:**
+
+| Subtarea | Estimación |
+|----------|------------|
+| Estructura narrativa y guion | 2h |
+| Diagramas de arquitectura (MVVM, flujo de datos, capas) | 3h |
+| Capturas de pantalla en dispositivo real (todas las pantallas) | 2h |
+| Slides de contexto: problema, solución, tecnologías | 3h |
+| Slides técnicas: arquitectura, seguridad OWASP, tests | 4h |
+| Demo flow: vídeo o secuencia de pantallas animada | 3h |
+| Revisión, ensayo y ajustes finales | 3h |
+
+- **Archivos relacionados:** `docs/presentacion.md`, `docs/Requisitos-presentacion.md`
+- **Notas:**
+  - La documentación técnica (ARCHITECTURE.md, ESTIMACIONES.md, README.md) está completa y es fuente directa de contenido
+  - La auditoría OWASP y los tests unitarios son argumentos de calidad diferenciadores para la presentación
 
 ---
 
@@ -750,6 +773,7 @@ El proyecto demuestra:
 | 2.6 | 2026-02-27 | Cerqueiro | Sprint 2 completado. HAL-04: network_security_config.xml con cleartextTrafficPermitted=false para googleapis.com y openlibrary.org, referenciado en AndroidManifest. HAL-01: ISBN saneado con regex [^A-Za-z0-9_-] y verificación canonicalPath en DownloadCoverService. 9/12 hallazgos corregidos. |
 | 2.7 | 2026-02-27 | Cerqueiro | Sprint 3 completado. HAL-02: isValidIsbn13() con algoritmo Luhn módulo 10 en ScanResultViewModel, fallo rápido con "ISBN no válido". HAL-08: shareExport() limpia cacheDir/exports/ antes de cada export. Auditoría OWASP finalizada: 10/12 hallazgos corregidos, HAL-11 (SQLCipher) pendiente de evaluación de impacto sobre migraciones Room. 92 tests, 0 failures. |
 | 2.8 | 2026-02-27 | Cerqueiro | KDoc añadido a 5 archivos críticos: `DefaultCoverImageProcessor` (clase, método, `LimitedInputStream`, constantes inline), `DownloadCoverService` (`processDownload` con nota de path traversal), `EditBookUiState` (price como String, condition default, isSearching/searchError), `EditBookViewModel` (clase + 5 métodos públicos no triviales), `PhotoCaptureScreen` (composable público con parámetros isbn y onPhotoCaptured). Deuda técnica KDoc completada. |
+| 2.9 | 2026-03-06 | Cerqueiro | Sección 2.16: tarea de Presentación TFM añadida (20h, 7 subtareas). Corrección: tests unitarios actualizados de 54 a 92 en §2.14 y README. Total: 30 features, ~97-111h. |
 
 ---
 
