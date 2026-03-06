@@ -243,7 +243,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Textos UI en strings.xml — base para i18n (añadir idioma: crear `res/values-{locale}/strings.xml`)
 - [x] Unificación de estilo de botones (`ActionButton` reutilizable)
 - [x] Eliminar portada del libro con confirmación
-- [x] Tests unitarios — 54 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
+- [x] Tests unitarios — 92 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-09: minificación y shrink resources activados en release build
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-10: backup_rules.xml y data_extraction_rules.xml excluyen BD y portadas de backups ADB/nube
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-07: logs sensibles protegidos con BuildConfig.DEBUG en MainActivity, CameraScreen y PhotoCaptureScreen
