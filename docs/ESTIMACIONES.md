@@ -555,7 +555,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Factor | Impacto | Mitigación |
 |--------|---------|------------|
-| **Cobertura de tests baja** | Medio | ViewModels + DownloadCoverWorker ya cubiertos (54 tests); pendiente UI y repositorios Room |
+| **Cobertura de tests baja** | Medio | ViewModels + DownloadCoverWorker ya cubiertos (92 tests); pendiente UI y repositorios Room |
 | **Sin design system formal** | Medio | Documentar componentes existentes |
 | **Dependencia de APIs externas** | Bajo | Portadas descargadas localmente (feature 22); ya no se depende de internet para mostrar imágenes |
 | **Sin CI/CD** | Medio | Setup GitHub Actions (6-8h) |
@@ -663,7 +663,7 @@ Futuro:       [Prestamos] [OCR] [Recomendaciones]
 
 ### 7.3 Áreas de mejora
 
-1. **Tests parciales:** ViewModels y Worker cubiertos (54 tests); pendiente tests de UI (Compose) y RoomIsbnRepository
+1. **Tests parciales:** ViewModels y Worker cubiertos (92 tests); pendiente tests de UI (Compose) y RoomIsbnRepository
 2. **Sin instrumentación:** No hay analytics, crash reporting configurado
 3. **Documentación inline:** KDoc añadido en 5 archivos críticos; cobertura ~78% del codebase
 4. **Sin feature flags:** Cualquier cambio requiere nuevo release
@@ -743,7 +743,7 @@ El proyecto demuestra:
 
 ### 9.4 Próximos pasos recomendados
 
-1. ~~**Esta semana:** Escribir tests unitarios para ViewModels~~ → **COMPLETADO** (54 tests: EditBookViewModel, HomeViewModel, ScanResultViewModel, DownloadCoverWorker)
+1. ~~**Esta semana:** Escribir tests unitarios para ViewModels~~ → **COMPLETADO** (92 tests: EditBookViewModel, HomeViewModel, ScanResultViewModel, DownloadCoverWorker)
 2. ~~**Próximas 2 semanas:** Implementar búsqueda/filtros en Home~~ → **COMPLETADO** (features 20-21)
 3. **Mes 1:** Setup CI/CD + Auth básico
 4. **Mes 2:** Sync cloud
