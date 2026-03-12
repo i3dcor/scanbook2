@@ -258,6 +258,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] HAL-03 (M4·Crítico): validación HTTPS + límite de tamaño en `DefaultCoverImageProcessor`
 - [x] HAL-04 (M5·Crítico): Network Security Config + certificate pinning para `googleapis.com`
 - [x] HAL-01 (M4·Alto): saneamiento de ISBN en nombre de fichero + verificación `canonicalPath`
+- [ ] Documentación y presentación del proyecto
 
 #### Auditoría OWASP — Sprint 3 (medios planificables)
 - [x] HAL-02 (M4·Medio): validación de checksum ISBN-13 en `ScanResultViewModel`
@@ -265,7 +266,8 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [ ] HAL-11 (M9·Alto): SQLCipher — en evaluación de impacto sobre migraciones Room
 
 ### 🚧 Backlog (media prioridad)
--[ ] Comprobar ISBN al editar libro manualmente
+- [ ] Comprobar ISBN al editar libro manualmente
+- [ ] Importar colección (CSV, JSON, ZIP autocontenido)
 
 ### 🔮 Futuro (nice to have)
 - [ ] Opción de menú oscuro/claro/según sistema
