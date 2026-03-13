@@ -48,6 +48,8 @@
     <string name="menu_options">Menú de opciones</string>
     <string name="clear_search">Borrar búsqueda</string>
     <string name="menu_export">Exportar</string>
+    <string name="menu_theme_dark_blue">Tema Color Oscuro</string>
+    <string name="menu_theme_warm_earthy">Tema Color Cálido</string>
 
     <!-- Exportación -->
     <string name="export_title">Exportar datos</string>

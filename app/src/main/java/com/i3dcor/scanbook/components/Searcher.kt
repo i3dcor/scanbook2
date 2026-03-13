@@ -19,12 +19,14 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.i3dcor.scanbook.ui.theme.ThemeOption
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +64,8 @@ fun HomeSearchBar(
     onSearch: (String) -> Unit,
     onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholderText: String? = null
+    placeholderText: String? = null,
+    onThemeChange: (ThemeOption) -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
     val placeholder = placeholderText ?: stringResource(R.string.search_placeholder)
@@ -114,6 +117,17 @@ fun HomeSearchBar(
                             textColor = Color.White,
                             leadingIconColor = Color.White
                         )
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.menu_theme_dark_blue)) },
+                        onClick = { showMenu = false; onThemeChange(ThemeOption.DarkBlue) },
+                        colors = MenuDefaults.itemColors(textColor = Color.White)
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.menu_theme_warm_earthy)) },
+                        onClick = { showMenu = false; onThemeChange(ThemeOption.WarmEarthy) },
+                        colors = MenuDefaults.itemColors(textColor = Color.White)
                     )
                 }
             }

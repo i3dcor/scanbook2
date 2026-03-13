@@ -55,16 +55,19 @@ import com.i3dcor.scanbook.presentation.viewmodel.EditBookViewModel
 import com.i3dcor.scanbook.presentation.viewmodel.HomeViewModel
 import com.i3dcor.scanbook.presentation.viewmodel.ScanResultViewModel
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
+import com.i3dcor.scanbook.ui.theme.ThemeOption
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ScanBookTheme {
+            var selectedTheme by remember { mutableStateOf(ThemeOption.DarkBlue) }
+            ScanBookTheme(theme = selectedTheme) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ScanBookApp(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onThemeChange = { selectedTheme = it }
                     )
                 }
             }
@@ -82,7 +85,7 @@ private sealed class AppScreen {
 }
 
 @Composable
-fun ScanBookApp(modifier: Modifier = Modifier) {
+fun ScanBookApp(modifier: Modifier = Modifier, onThemeChange: (ThemeOption) -> Unit = {}) {
     // Estado para controlar la navegación entre pantallas
     var currentScreen by remember { mutableStateOf<AppScreen>(AppScreen.Home) }
 
@@ -118,7 +121,8 @@ fun ScanBookApp(modifier: Modifier = Modifier) {
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
-                onScanClick = { currentScreen = AppScreen.Camera }
+                onScanClick = { currentScreen = AppScreen.Camera },
+                onThemeChange = onThemeChange
             )
         }
         is AppScreen.Export -> {
@@ -193,7 +197,8 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     onBookClick: (ScannedIsbn) -> Unit,
     onDeleteBook: (String) -> Unit,
-    onScanClick: () -> Unit
+    onScanClick: () -> Unit,
+    onThemeChange: (ThemeOption) -> Unit = {}
 ) {
     var bookToDelete by remember { mutableStateOf<ScannedIsbn?>(null) }
 
@@ -210,6 +215,7 @@ fun HomeScreen(
                 onQueryChange = onSearchQueryChange,
                 onSearch = { /* Búsqueda en tiempo real, no requiere acción extra */ },
                 onExportClick = onExportClick,
+                onThemeChange = onThemeChange,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
