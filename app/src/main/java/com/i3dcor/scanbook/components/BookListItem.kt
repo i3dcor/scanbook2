@@ -64,7 +64,7 @@ fun BookListItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onItemClick),
-        color = Color(0xFF2C2C2E) // Color de fondo oscuro de la captura
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -146,7 +146,7 @@ private fun BookListItemPreview() {
                 imageVector = Icons.Default.Book,
                 contentDescription = "Portada del libro",
                 modifier = Modifier.size(32.dp),
-                tint = Color(0xFF4A3C32)
+                tint = MaterialTheme.colorScheme.surfaceTint
             )
         }
     }

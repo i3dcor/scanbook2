@@ -215,7 +215,7 @@ private fun ScannerOverlay(
     modifier: Modifier = Modifier
 ) {
     val overlayColor = Color.Black.copy(alpha = 0.5f)
-    val frameColor = Color(0xFF4285F4)
+    val frameColor = MaterialTheme.colorScheme.secondary
     val strokeWidth = 4.dp
 
     Canvas(

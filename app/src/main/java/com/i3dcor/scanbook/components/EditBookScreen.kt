@@ -78,7 +78,7 @@ fun EditBookScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF1C1C1E))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -109,7 +109,7 @@ fun EditBookScreen(
                     if (uiState.isSearching) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            color = Color(0xFF448AFF),
+                            color = MaterialTheme.colorScheme.secondary,
                             strokeWidth = 2.dp
                         )
                     }
@@ -120,7 +120,7 @@ fun EditBookScreen(
                 Text(
                     text = uiState.searchError,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFFEF5350)
+                        color = MaterialTheme.colorScheme.error
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -198,7 +198,7 @@ fun BookPhotoSection(
 
     if (coverLocalPath != null || coverUrl != null) {
         Surface(
-            color = Color(0xFF252528),
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .height(150.dp)
@@ -206,7 +206,7 @@ fun BookPhotoSection(
                 .clickable { showCoverDialog = true }
                 .border(
                     width = 1.dp,
-                    color = Color(0xFF3A3A3C),
+                    color = MaterialTheme.colorScheme.outline,
                     shape = RoundedCornerShape(12.dp)
                 )
         ) {
@@ -240,8 +240,8 @@ fun BookPhotoSection(
                             .offset(x = 8.dp, y = (-8).dp)
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFF3A3A3C)) // Fondo oscuro del badge
-                            .border(1.dp, Color(0xFF1C1C1E), CircleShape) // Borde para separación visual
+                            .background(MaterialTheme.colorScheme.outline)
+                            .border(1.dp, MaterialTheme.colorScheme.background, CircleShape)
                             .clickable { showDeleteConfirm = true },
                         contentAlignment = Alignment.Center
                     ) {
@@ -271,7 +271,7 @@ fun BookPhotoSection(
                         showDeleteConfirm = false
                         showCoverDialog = false
                     }) {
-                        Text(stringResource(R.string.button_delete), color = Color(0xFFEF5350))
+                        Text(stringResource(R.string.button_delete), color = MaterialTheme.colorScheme.error)
                     }
                 },
                 dismissButton = {
@@ -279,7 +279,7 @@ fun BookPhotoSection(
                         Text(stringResource(R.string.button_cancel), color = Color.White)
                     }
                 },
-                containerColor = Color(0xFF252528),
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 0.dp
             )
         }
@@ -299,14 +299,14 @@ fun PhotoPlaceholderButton(
     onClick: () -> Unit = {}
 ) {
     Surface(
-        color = Color(0xFF252528),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(12.dp),
         modifier = modifier
             .height(80.dp)
             .clickable(onClick = onClick)
             .border(
                 width = 1.dp,
-                color = Color(0xFF3A3A3C), // Dark gray border
+                color = MaterialTheme.colorScheme.outline,
                 shape = RoundedCornerShape(12.dp)
             )
     ) {
@@ -324,7 +324,7 @@ fun PhotoPlaceholderButton(
                 Icon(
                     imageVector = Icons.Default.CameraAlt,
                     contentDescription = null,
-                    tint = Color(0xFF448AFF), // Blue icon
+                    tint = MaterialTheme.colorScheme.secondary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -366,11 +366,11 @@ fun BookTextField(
         )
         
         Surface(
-            color = Color(0xFF252528),
+            color = MaterialTheme.colorScheme.surface,
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, Color(0xFF3A3A3C), RoundedCornerShape(8.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,

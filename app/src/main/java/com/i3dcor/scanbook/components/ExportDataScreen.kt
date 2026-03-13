@@ -102,7 +102,7 @@ fun ExportDataScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF1C1C1E))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -198,9 +198,9 @@ fun ExportHeader(
 @Composable
 fun EstimatedSizeBadge(sizeText: String) {
     Surface(
-        color = Color(0xFF252528),
+        color = MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(50),
-        modifier = Modifier.border(1.dp, Color(0xFF3A3A3C), RoundedCornerShape(50))
+        modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(50))
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
@@ -243,8 +243,8 @@ fun ExportFormatOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) Color(0xFF2962FF) else Color(0xFF3A3A3C)
-    val backgroundColor = if (isSelected) Color(0xFF1E2838) else Color(0xFF252528)
+    val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    val backgroundColor = if (isSelected) Color(0xFF1E2838) else MaterialTheme.colorScheme.surface
 
     Surface(
         color = backgroundColor,
@@ -262,7 +262,7 @@ fun ExportFormatOption(
                 selected = isSelected,
                 onClick = null, // Handled by parent container
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = Color(0xFF2962FF),
+                    selectedColor = MaterialTheme.colorScheme.primary,
                     unselectedColor = Color.Gray
                 )
             )
@@ -299,8 +299,8 @@ fun ExportDestinationToggle(
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)
-            .background(Color(0xFF252528), RoundedCornerShape(12.dp))
-            .border(1.dp, Color(0xFF3A3A3C), RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
             .padding(4.dp),
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
@@ -340,14 +340,14 @@ fun DestinationOption(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = Color(0xFF2962FF),
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color(0xFF2962FF),
+                    color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Medium
                 )
             )
