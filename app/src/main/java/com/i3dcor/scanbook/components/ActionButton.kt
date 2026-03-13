@@ -26,8 +26,8 @@ fun ActionButton(
     icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    containerColor: Color = Color(0xFF2962FF), // Azul primario por defecto
-    contentColor: Color = Color.White,         // Texto e icono blancos por defecto
+    containerColor: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     enabled: Boolean = true
 ) {
     Button(
@@ -37,7 +37,7 @@ fun ActionButton(
             containerColor = containerColor,
             //containerColor = Color(0xFF3A3A3C), // TODO Valorar estética de color  relleno (gris oscuro)
             contentColor = contentColor,
-            disabledContainerColor = Color(0xFF3A3A3C),
+            disabledContainerColor = MaterialTheme.colorScheme.outline,
             disabledContentColor = Color.Gray
         ),
         contentPadding = PaddingValues(horizontal = 12.dp),

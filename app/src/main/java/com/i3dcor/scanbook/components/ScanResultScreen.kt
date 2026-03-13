@@ -64,7 +64,7 @@ fun ScanResultScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF1C1C1E))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
@@ -83,7 +83,7 @@ fun ScanResultScreen(
                     .weight(1f),
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF252528)
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             ) {
                 Column(
@@ -152,7 +152,7 @@ fun BookCoverDisplay(
                 brush = Brush.verticalGradient(
                     colors = listOf(
                         Color(0xFF4E4E50),
-                        Color(0xFF2C2C2E)
+                        MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             ),
@@ -236,7 +236,7 @@ fun BookTitleAndAuthor(
                     .width(200.dp)
                     .height(28.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color(0xFF3A3A3C))
+                    .background(MaterialTheme.colorScheme.outline)
             )
         }
         
@@ -263,7 +263,7 @@ fun BookTitleAndAuthor(
                     .width(150.dp)
                     .height(20.dp)
                     .clip(RoundedCornerShape(4.dp))
-                    .background(Color(0xFF3A3A3C))
+                    .background(MaterialTheme.colorScheme.outline)
             )
         }
     }
@@ -302,7 +302,7 @@ fun MetadataBadge(
     text: String
 ) {
     Surface(
-        color = Color(0xFF3A3A3C),
+        color = MaterialTheme.colorScheme.outline,
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
@@ -340,7 +340,7 @@ fun ScanResultActions(
             Text(
                 text = "¡Este libro ya estaba registrado!",
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color(0xFFFFA726),
+                    color = MaterialTheme.colorScheme.tertiary,
                     fontWeight = FontWeight.Bold
                 ),
                 textAlign = TextAlign.Center,

@@ -73,7 +73,7 @@ fun HomeSearchBar(
             .fillMaxWidth()
             .height(56.dp),
         shape = CircleShape,
-        color = Color(0xFF2C2C2E),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         shadowElevation = 3.dp
     ) {
         Row(
@@ -95,7 +95,7 @@ fun HomeSearchBar(
                     expanded = showMenu,
                     onDismissRequest = { showMenu = false },
                     offset = DpOffset(0.dp, 10.dp),
-                    modifier = Modifier.background(Color(0xFF252528))
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 ) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.menu_export), color = Color.White) },

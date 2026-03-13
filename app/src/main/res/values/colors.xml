@@ -7,4 +7,18 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- Dark Blue Theme -->
+    <color name="dark_blue_background">#FF1C1C1E</color>
+    <color name="dark_blue_surface">#FF252528</color>
+    <color name="dark_blue_surface_variant">#FF2C2C2E</color>
+    <color name="dark_blue_outline">#FF3A3A3C</color>
+    <color name="dark_blue_primary">#FF2962FF</color>
+    <color name="dark_blue_secondary">#FF448AFF</color>
+    <color name="dark_blue_tertiary">#FFFFA726</color>
+    <color name="dark_blue_error">#FFEF5350</color>
+    <color name="dark_blue_on_background">#FFFFFFFF</color>
+    <color name="dark_blue_on_surface">#FFFFFFFF</color>
+    <color name="dark_blue_on_surface_variant">#FF9E9E9E</color>
+    <color name="dark_blue_surface_tint">#FF4A3C32</color>
 </resources>
