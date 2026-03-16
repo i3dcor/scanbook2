@@ -1,5 +1,7 @@
 package com.i3dcor.scanbook.components
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,7 +66,8 @@ fun BookListItem(
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
             .clickable(onClick = onItemClick),
-        color = MaterialTheme.colorScheme.surfaceVariant
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
@@ -75,7 +78,7 @@ fun BookListItem(
             Surface(
                 modifier = Modifier.size(56.dp),
                 shape = RoundedCornerShape(8.dp),
-                color = Color(0xFFE5E5EA) // Fondo claro para la imagen
+                color = MaterialTheme.colorScheme.surface
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     imageContent()
@@ -88,7 +91,7 @@ fun BookListItem(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -96,7 +99,7 @@ fun BookListItem(
                 Text(
                     text = author,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -110,16 +113,17 @@ fun BookListItem(
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Más acciones",
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
                 DropdownMenu(
                     expanded = menuExpanded,
-                    onDismissRequest = { menuExpanded = false }
+                    onDismissRequest = { menuExpanded = false },
+                    modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Eliminar") },
+                        text = { Text("Eliminar", color = MaterialTheme.colorScheme.onSurface) },
                         onClick = {
                             menuExpanded = false
                             onDeleteClick()
