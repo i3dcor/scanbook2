@@ -4,6 +4,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
+enum class ThemeOption { DarkBlue, WarmEarthy }
+
 val DarkBlueColorScheme = darkColorScheme(
     primary          = DarkBluePrimary,
     secondary        = DarkBlueSecondary,
@@ -20,10 +22,33 @@ val DarkBlueColorScheme = darkColorScheme(
     surfaceTint      = DarkBlueSurfaceTint,
 )
 
+val WarmEarthyColorScheme = darkColorScheme(
+    primary          = WarmEarthyPrimary,
+    secondary        = WarmEarthySecondary,
+    tertiary         = WarmEarthyTertiary,
+    error            = WarmEarthyError,
+    background       = WarmEarthyBackground,
+    surface          = WarmEarthySurface,
+    surfaceVariant   = WarmEarthySurfaceVariant,
+    outline          = WarmEarthyOutline,
+    onPrimary        = WarmEarthyOnPrimary,
+    onSecondary      = WarmEarthyOnSecondary,
+    onBackground     = WarmEarthyOnBackground,
+    onSurface        = WarmEarthyOnSurface,
+    onSurfaceVariant = WarmEarthyOnSurfaceVariant,
+)
+
 @Composable
-fun ScanBookTheme(content: @Composable () -> Unit) {
+fun ScanBookTheme(
+    theme: ThemeOption = ThemeOption.DarkBlue,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when (theme) {
+        ThemeOption.DarkBlue   -> DarkBlueColorScheme
+        ThemeOption.WarmEarthy -> WarmEarthyColorScheme
+    }
     MaterialTheme(
-        colorScheme = DarkBlueColorScheme,
+        colorScheme = colorScheme,
         typography = Typography,
         content = content
     )

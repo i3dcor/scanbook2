@@ -19,12 +19,14 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import com.i3dcor.scanbook.ui.theme.ThemeOption
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -62,7 +64,8 @@ fun HomeSearchBar(
     onSearch: (String) -> Unit,
     onExportClick: () -> Unit,
     modifier: Modifier = Modifier,
-    placeholderText: String? = null
+    placeholderText: String? = null,
+    onThemeChange: (ThemeOption) -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
     val placeholder = placeholderText ?: stringResource(R.string.search_placeholder)
@@ -88,7 +91,7 @@ fun HomeSearchBar(
                     Icon(
                         imageVector = Icons.Default.Menu,
                         contentDescription = "Menú de opciones",
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 DropdownMenu(
@@ -98,7 +101,7 @@ fun HomeSearchBar(
                     modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 ) {
                     DropdownMenuItem(
-                        text = { Text(stringResource(R.string.menu_export), color = Color.White) },
+                        text = { Text(stringResource(R.string.menu_export), color = MaterialTheme.colorScheme.onSurface) },
                         onClick = {
                             showMenu = false
                             onExportClick()
@@ -107,13 +110,18 @@ fun HomeSearchBar(
                             Icon(
                                 imageVector = Icons.Default.Upload,
                                 contentDescription = null,
-                                tint = Color.White
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
-                        },
-                        colors = MenuDefaults.itemColors(
-                            textColor = Color.White,
-                            leadingIconColor = Color.White
-                        )
+                        }
+                    )
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.4f))
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.menu_theme_dark_blue), color = MaterialTheme.colorScheme.onSurface) },
+                        onClick = { showMenu = false; onThemeChange(ThemeOption.DarkBlue) }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.menu_theme_warm_earthy), color = MaterialTheme.colorScheme.onSurface) },
+                        onClick = { showMenu = false; onThemeChange(ThemeOption.WarmEarthy) }
                     )
                 }
             }
@@ -127,7 +135,7 @@ fun HomeSearchBar(
                 modifier = Modifier.weight(1f),
                 singleLine = true,
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = {
@@ -141,7 +149,7 @@ fun HomeSearchBar(
                             Text(
                                 text = placeholder,
                                 style = MaterialTheme.typography.bodyLarge,
-                                color = Color.Gray
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         innerTextField()
@@ -164,11 +172,11 @@ fun HomeSearchBar(
                         modifier = Modifier
                             .size(20.dp)
                             .background(
-                                color = Color.Gray.copy(alpha = 0.6f),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                 shape = CircleShape
                             )
                             .padding(3.dp),
-                        tint = Color.White
+                        tint = MaterialTheme.colorScheme.surface
                     )
                 }
             } else {

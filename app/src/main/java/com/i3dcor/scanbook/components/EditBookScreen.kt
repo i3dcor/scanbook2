@@ -45,9 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.runtime.getValue
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Dialog
 import com.i3dcor.scanbook.presentation.state.EditBookUiState
@@ -179,7 +180,7 @@ fun EditBookHeader() {
         text = stringResource(R.string.edit_book_title),
         style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onBackground
         ),
         textAlign = TextAlign.Center,
         modifier = Modifier.fillMaxWidth()
@@ -248,7 +249,7 @@ fun BookPhotoSection(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(R.string.remove_photo),
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(18.dp)
                         )
                     }
@@ -262,7 +263,7 @@ fun BookPhotoSection(
                 title = {
                     Text(
                         text = stringResource(R.string.delete_cover_title),
-                        style = MaterialTheme.typography.titleMedium.copy(color = Color.White)
+                        style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface)
                     )
                 },
                 confirmButton = {
@@ -276,7 +277,7 @@ fun BookPhotoSection(
                 },
                 dismissButton = {
                     androidx.compose.material3.TextButton(onClick = { showDeleteConfirm = false }) {
-                        Text(stringResource(R.string.button_cancel), color = Color.White)
+                        Text(stringResource(R.string.button_cancel), color = MaterialTheme.colorScheme.onSurface)
                     }
                 },
                 containerColor = MaterialTheme.colorScheme.surface,
@@ -318,7 +319,7 @@ fun PhotoPlaceholderButton(
             Box(
                 modifier = Modifier
                     .size(32.dp)
-                    .background(Color(0xFF1E2838), CircleShape), // Dark blue circle
+                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -332,12 +333,12 @@ fun PhotoPlaceholderButton(
             Column {
                 Text(
                     text = stringResource(R.string.add_photo),
-                    style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
+                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
                 )
                 Text(
                     text = text,
                     style = MaterialTheme.typography.labelMedium.copy(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -355,11 +356,15 @@ fun BookTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+    val borderWidth = if (isFocused) 2.dp else 1.dp
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium.copy(
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Medium
             ),
             modifier = Modifier.padding(bottom = 8.dp)
@@ -370,7 +375,7 @@ fun BookTextField(
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
-                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+                .border(borderWidth, borderColor, RoundedCornerShape(8.dp))
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -385,11 +390,13 @@ fun BookTextField(
                     value = value,
                     onValueChange = onValueChange,
                     textStyle = LocalTextStyle.current.copy(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 16.sp
                     ),
-                    cursorBrush = SolidColor(Color.White),
-                    modifier = Modifier.weight(1f),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
+                    modifier = Modifier
+                        .weight(1f)
+                        .onFocusChanged { isFocused = it.isFocused },
                     singleLine = true
                 )
                 
