@@ -4,6 +4,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+app/scanbook.jks
 
 /build
 /captures
