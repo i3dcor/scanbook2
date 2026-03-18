@@ -11,8 +11,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 30 |
-| **Tiempo total estimado** | ~97-111 horas |
+| **Total features implementadas** | 31 |
+| **Tiempo total estimado** | ~99-113 horas |
 | **Promedio por feature** | ~2.6-3 horas |
 | **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
 | **Líneas de código aproximadas** | ~4,400-5,000 |
@@ -389,6 +389,23 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
   - `DownloadCoverService` elimina dependencia directa de WorkManager/Android en los tests del Worker
   - `ExampleInstrumentedTest.kt` eliminado (plantilla sin uso)
 
+### 2.17 Selector de tema en menú hamburguesa
+
+#### Feature 31: Selector de tema DarkBlue / WarmEarthy
+- **Descripción:** Dos entradas de tema en el menú hamburguesa de `HomeSearchBar` ("Tema Color Oscuro" / "Tema Color Cálido"). `ThemeOption` enum y `WarmEarthyColorScheme` en `Theme.kt`; estado `selectedTheme` elevado en `MainActivity.setContent`; flujo `onThemeChange` propagado hasta `HomeSearchBar` → `DropdownMenuItem`.
+- **Tiempo estimado:** 1.5-2 horas
+- **Complejidad:** Baja
+- **Archivos afectados:**
+  - `ui/theme/Theme.kt` (`ThemeOption`, `WarmEarthyColorScheme`, `ScanBookTheme(theme)`)
+  - `MainActivity.kt` (`selectedTheme`, `ScanBookTheme(theme=)`, `ScanBookApp(onThemeChange)`, `HomeScreen(onThemeChange)`)
+  - `components/Searcher.kt` (`onThemeChange`, `HorizontalDivider`, 2 `DropdownMenuItem`)
+  - `res/values/strings.xml` (`menu_theme_dark_blue`, `menu_theme_warm_earthy`)
+- **Notas:**
+  - Estado del tema vive en `setContent` (fuera de `ScanBookTheme`) para que el cambio recomponga toda la app
+  - Separador visual con `HorizontalDivider` entre "Exportar" y las opciones de tema
+
+---
+
 ### 2.16 Presentación TFM
 
 #### Preparación y generación de la presentación final
@@ -478,7 +495,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Tarea | Estimación | Prioridad | Notas |
 |-------|------------|-----------|-------|
-| **Tema claro/oscuro dinámico** | 2-3h | Media | System theme, manual toggle |
+| ~~**Tema claro/oscuro dinámico**~~ | ~~2-3h~~ | ~~Media~~ | **COMPLETADO** — feature 31 (DarkBlue / WarmEarthy, selector en menú hamburguesa) |
 | **Animaciones de transición** | 3-4h | Media | Shared element transitions entre pantallas |
 | **Pull-to-refresh en lista** | 2-3h | Media | SwipeRefreshLayout o equivalente Compose |
 | **Ordenamiento de libros** | 2-3h | Media | Por fecha, título, autor, precio |
@@ -774,6 +791,8 @@ El proyecto demuestra:
 | 2.7 | 2026-02-27 | Cerqueiro | Sprint 3 completado. HAL-02: isValidIsbn13() con algoritmo Luhn módulo 10 en ScanResultViewModel, fallo rápido con "ISBN no válido". HAL-08: shareExport() limpia cacheDir/exports/ antes de cada export. Auditoría OWASP finalizada: 10/12 hallazgos corregidos, HAL-11 (SQLCipher) pendiente de evaluación de impacto sobre migraciones Room. 92 tests, 0 failures. |
 | 2.8 | 2026-02-27 | Cerqueiro | KDoc añadido a 5 archivos críticos: `DefaultCoverImageProcessor` (clase, método, `LimitedInputStream`, constantes inline), `DownloadCoverService` (`processDownload` con nota de path traversal), `EditBookUiState` (price como String, condition default, isSearching/searchError), `EditBookViewModel` (clase + 5 métodos públicos no triviales), `PhotoCaptureScreen` (composable público con parámetros isbn y onPhotoCaptured). Deuda técnica KDoc completada. |
 | 2.9 | 2026-03-06 | Cerqueiro | Sección 2.16: tarea de Presentación TFM añadida (20h, 7 subtareas). Corrección: tests unitarios actualizados de 54 a 92 en §2.14 y README. Total: 30 features, ~97-111h. |
+| 3.0 | 2026-03-18 | Cerqueiro | Feature 31: selector de tema en menú hamburguesa (DarkBlue / WarmEarthy). `ThemeOption` + `WarmEarthyColorScheme` en `Theme.kt`; estado elevado en `MainActivity`; `onThemeChange` propagado hasta `HomeSearchBar`. "Tema claro/oscuro dinámico" marcado como completado en §4.2. Baja 14→15; total: 31 features, ~99-113h. |
+| 3.1 | 2026-03-18 | Cerqueiro | Chore: configuración de release firmada. Keystore `scanbook.jks` generado (RSA 2048, 10 000 días). `signingConfigs` en `build.gradle.kts` lee credenciales desde `local.properties` (excluido de VCS). `archivesName="scanbook"` → APK de salida `scanbook-release.apk`. `app/scanbook.jks` añadido a `.gitignore`. |
 
 ---
 
