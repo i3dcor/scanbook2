@@ -48,6 +48,13 @@
 # ── Modelos de dominio ───────────────────────────────────────────────────────
 -keep class com.i3dcor.scanbook.domain.model.** { *; }
 
+# ── ML Kit (barcode scanner) ─────────────────────────────────────────────────
+# ComponentDiscovery instancia estos registrars por reflexión; sin <init>() la
+# detección de códigos de barras falla con NullPointerException.
+-keep class com.google.mlkit.common.internal.CommonComponentRegistrar { <init>(); }
+-keep class com.google.mlkit.vision.barcode.internal.BarcodeRegistrar { <init>(); }
+-keep class com.google.mlkit.vision.common.internal.VisionCommonRegistrar { <init>(); }
+
 # ── OkHttp ───────────────────────────────────────────────────────────────────
 -dontwarn okhttp3.**
 -dontwarn okio.**
