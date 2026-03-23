@@ -63,3 +63,8 @@
 -keepclassmembernames class kotlinx.** {
     volatile <fields>;
 }
+
+# ── Retrofit + suspend functions (R8 full mode) ──────────────────────────────
+# R8 elimina la firma genérica de Continuation<T>. Retrofit necesita el tipo T
+# para construir la llamada HTTP; sin él lanza ClassCastException en runtime.
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
