@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            var selectedTheme by remember { mutableStateOf(ThemeOption.DarkBlue) }
+            var selectedTheme by remember { mutableStateOf(ThemeOption.WarmEarthy) }
             ScanBookTheme(theme = selectedTheme) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     ScanBookApp(
