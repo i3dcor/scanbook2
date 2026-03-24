@@ -68,7 +68,7 @@ fun ExportDataScreen(
     onCloseClick: () -> Unit = {},
     onExportClick: () -> Unit = {}
 ) {
-    var selectedFormat by remember { mutableStateOf("JSON") }
+    var selectedFormat by remember { mutableStateOf("ZIP") }
     val context = LocalContext.current
 
     // Calcular tamaño estimado en función del formato seleccionado

@@ -60,7 +60,7 @@ fun ImportDataScreen(
     onImportClick: () -> Unit = {},
     onBooksImported: (List<ScannedIsbn>) -> Unit = {}
 ) {
-    var selectedFormat by remember { mutableStateOf("JSON") }
+    var selectedFormat by remember { mutableStateOf("ZIP") }
     val context = LocalContext.current
 
     // SAF launcher: se recrea al cambiar de formato (igual que ExportDataScreen)
