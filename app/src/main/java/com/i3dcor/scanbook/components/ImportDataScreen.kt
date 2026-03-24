@@ -100,7 +100,7 @@ fun ImportDataScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            SectionTitle(text = stringResource(R.string.import_format_section))
+            ImportSectionTitle(text = stringResource(R.string.import_format_section))
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -131,7 +131,7 @@ fun ImportDataScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            SectionTitle(text = stringResource(R.string.import_source_section))
+            ImportSectionTitle(text = stringResource(R.string.import_source_section))
 
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -143,7 +143,20 @@ fun ImportDataScreen(
 }
 
 @Composable
-private fun ImportHeader(
+fun ImportSectionTitle(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium.copy(
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.sp
+        ),
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+fun ImportHeader(
     onCloseClick: () -> Unit
 ) {
     Box(
@@ -157,7 +170,7 @@ private fun ImportHeader(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = stringResource(R.string.import_close),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -165,7 +178,7 @@ private fun ImportHeader(
             text = stringResource(R.string.import_title),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
         )
     }
@@ -179,7 +192,7 @@ private fun ImportFormatOption(
     onClick: () -> Unit
 ) {
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-    val backgroundColor = if (isSelected) Color(0xFF1E2838) else MaterialTheme.colorScheme.surface
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
 
     Surface(
         color = backgroundColor,
@@ -208,7 +221,7 @@ private fun ImportFormatOption(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -216,7 +229,7 @@ private fun ImportFormatOption(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 16.sp
                     )
                 )
@@ -230,13 +243,8 @@ private fun ImportSourceToggle(
     onOpenClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
     ) {
         SourceOption(
             text = stringResource(R.string.import_open),
@@ -254,33 +262,12 @@ private fun SourceOption(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
+    ActionButton(
+        text = text,
+        icon = icon,
+        onClick = onClick,
         modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFF1E2838), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
-    }
+    )
 }
 
 // ── Lectura y parseo de archivos ─────────────────────────────────────────────
