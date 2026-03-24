@@ -182,7 +182,7 @@ fun ExportHeader(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = stringResource(R.string.export_close),
-                tint = Color.White
+                tint = MaterialTheme.colorScheme.onBackground
             )
         }
         
@@ -190,7 +190,7 @@ fun ExportHeader(
             text = stringResource(R.string.export_title),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = MaterialTheme.colorScheme.onBackground
             )
         )
     }
@@ -210,14 +210,14 @@ fun EstimatedSizeBadge(sizeText: String) {
             Icon(
                 imageVector = Icons.Default.Storage,
                 contentDescription = null,
-                tint = Color.Gray,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.export_size, sizeText),
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    color = Color.LightGray
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -229,7 +229,7 @@ fun SectionTitle(text: String) {
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium.copy(
-            color = Color.Gray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp
         ),
@@ -245,7 +245,7 @@ fun ExportFormatOption(
     onClick: () -> Unit
 ) {
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-    val backgroundColor = if (isSelected) Color(0xFF1E2838) else MaterialTheme.colorScheme.surface
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surface
 
     Surface(
         color = backgroundColor,
@@ -274,7 +274,7 @@ fun ExportFormatOption(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge.copy(
-                        color = Color.White,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -282,7 +282,7 @@ fun ExportFormatOption(
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 16.sp
                     )
                 )
@@ -297,13 +297,8 @@ fun ExportDestinationToggle(
     onShareClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(12.dp))
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         DestinationOption(
             text = stringResource(R.string.export_save),
@@ -327,33 +322,12 @@ fun DestinationOption(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
+    ActionButton(
+        text = text,
+        icon = icon,
+        onClick = onClick,
         modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFF1E2838), RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
-                )
-            )
-        }
-    }
+    )
 }
 
 // ── Escritura a fichero ──────────────────────────────────────────────────────
