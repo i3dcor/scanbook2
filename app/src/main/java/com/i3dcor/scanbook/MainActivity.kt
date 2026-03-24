@@ -140,6 +140,7 @@ fun ScanBookApp(modifier: Modifier = Modifier, onThemeChange: (ThemeOption) -> U
             ImportDataScreen(
                 onCloseClick = { currentScreen = AppScreen.Home },
                 onImportClick = { currentScreen = AppScreen.Home },
+                onBooksImported = { books -> books.forEach { homeViewModel.addBook(it) } },
                 modifier = modifier
             )
         }
