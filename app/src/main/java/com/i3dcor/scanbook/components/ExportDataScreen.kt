@@ -55,6 +55,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.i3dcor.scanbook.data.export.BookSerializer
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
 import java.io.File
@@ -68,12 +69,12 @@ fun ExportDataScreen(
     onCloseClick: () -> Unit = {},
     onExportClick: () -> Unit = {}
 ) {
-    var selectedFormat by remember { mutableStateOf("JSON") }
+    var selectedFormat by remember { mutableStateOf("ZIP") }
     val context = LocalContext.current
 
     // Calcular tamaño estimado en función del formato seleccionado
     val estimatedSize = remember(books, selectedFormat) {
-        estimateExportSize(books, selectedFormat)
+        BookSerializer.estimateExportSize(books, selectedFormat)
     }
 
     // SAF launcher: se recrea al cambiar de formato para actualizar el MIME type
@@ -89,9 +90,9 @@ fun ExportDataScreen(
         ) { uri: Uri? ->
             if (uri != null) {
                 when (selectedFormat) {
-                    "CSV" -> writeContentToUri(context, uri, booksToCsv(books))
+                    "CSV" -> writeContentToUri(context, uri, BookSerializer.booksToCsv(books))
                     "ZIP" -> writeBooksZipToUri(context, uri, books)
-                    else -> writeContentToUri(context, uri, booksToJson(books))
+                    else -> writeContentToUri(context, uri, BookSerializer.booksToJson(books))
                 }
                 Toast.makeText(context, R.string.export_completed, Toast.LENGTH_SHORT).show()
                 onExportClick()
@@ -355,116 +356,6 @@ fun DestinationOption(
     }
 }
 
-/**
- * Estima el tamaño de exportación según la lista de libros y el formato seleccionado.
- *
- * CSV: Se estima el tamaño de cada campo como texto plano separado por comas.
- *      Línea de cabecera (~50 bytes) + ~120 bytes por libro (campos de texto).
- *
- * JSON: Incluye claves, llaves, comillas y la URL de portada (coverUrl).
- *       Se estiman ~350 bytes por libro debido a la estructura y metadatos.
- */
-private fun estimateExportSize(books: List<ScannedIsbn>, format: String): String {
-    if (books.isEmpty()) return "0 B"
-
-    val totalBytes = when (format) {
-        "CSV" -> {
-            val headerBytes = 50L
-            val perBookBytes = 120L
-            headerBytes + (books.size * perBookBytes)
-        }
-        "ZIP" -> {
-            val jsonBytes = 20L + (books.size * 350L)
-            val booksWithLocalCover = books.count { it.coverLocalPath != null }.toLong()
-            (jsonBytes * 0.4 + booksWithLocalCover * 8192).toLong()
-        }
-        else -> { // JSON
-            val overheadBytes = 20L
-            val perBookBytes = 350L
-            overheadBytes + (books.size * perBookBytes)
-        }
-    }
-
-    return formatBytes(totalBytes)
-}
-
-/**
- * Formatea una cantidad de bytes en una cadena legible (B, KB, MB).
- */
-private fun formatBytes(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "~$bytes B"
-        bytes < 1024 * 1024 -> "~%.1f KB".format(bytes / 1024.0)
-        else -> "~%.1f MB".format(bytes / (1024.0 * 1024.0))
-    }
-}
-
-// ── Serialización ────────────────────────────────────────────────────────────
-
-/**
- * Convierte la lista de libros a formato CSV.
- * Escapa campos que contengan comas, comillas o saltos de línea.
- */
-private fun booksToCsv(books: List<ScannedIsbn>): String {
-    val header = "isbn,title,author,genre,price,condition"
-    val rows = books.joinToString("\n") { book ->
-        listOf(
-            book.isbn,
-            book.title.orEmpty(),
-            book.author.orEmpty(),
-            book.genre.orEmpty(),
-            book.price?.toString().orEmpty(),
-            book.condition.orEmpty()
-        ).joinToString(",") { field -> escapeCsvField(field) }
-    }
-    return "$header\n$rows"
-}
-
-/**
- * Escapa un campo CSV: si contiene coma, comilla doble o salto de línea,
- * lo envuelve entre comillas dobles y duplica las comillas internas.
- */
-private fun escapeCsvField(field: String): String {
-    return if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
-        "\"${field.replace("\"", "\"\"")}\""
-    } else {
-        field
-    }
-}
-
-/**
- * Convierte la lista de libros a formato JSON.
- * Serialización manual para evitar dependencias externas (Gson/Moshi).
- */
-private fun booksToJson(books: List<ScannedIsbn>): String {
-    val items = books.joinToString(",\n") { book ->
-        val fields = mutableListOf<String>()
-        fields.add("    \"isbn\": ${jsonString(book.isbn)}")
-        fields.add("    \"title\": ${jsonString(book.title)}")
-        fields.add("    \"author\": ${jsonString(book.author)}")
-        fields.add("    \"genre\": ${jsonString(book.genre)}")
-        fields.add("    \"price\": ${book.price ?: "null"}")
-        fields.add("    \"condition\": ${jsonString(book.condition)}")
-        fields.add("    \"coverUrl\": ${jsonString(book.coverUrl)}")
-        "  {\n${fields.joinToString(",\n")}\n  }"
-    }
-    return "[\n$items\n]"
-}
-
-/**
- * Escapa un string para JSON: maneja null, comillas y caracteres de control.
- */
-private fun jsonString(value: String?): String {
-    if (value == null) return "null"
-    val escaped = value
-        .replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
-    return "\"$escaped\""
-}
-
 // ── Escritura a fichero ──────────────────────────────────────────────────────
 
 /**
@@ -480,7 +371,7 @@ private fun writeContentToUri(context: Context, uri: Uri, content: String) {
  * Núcleo de escritura ZIP: books.json + covers/{isbn}.jpg para portadas locales.
  */
 private fun writeBooksZipContent(zip: ZipOutputStream, books: List<ScannedIsbn>) {
-    val json = booksToJson(books).toByteArray(Charsets.UTF_8)
+    val json = BookSerializer.booksToJson(books).toByteArray(Charsets.UTF_8)
     zip.putNextEntry(ZipEntry("books.json"))
     zip.write(json)
     zip.closeEntry()
@@ -518,11 +409,11 @@ private fun shareExport(context: Context, books: List<ScannedIsbn>, format: Stri
     val file = File(exportsDir, "scanbook_export.$extension")
 
     when (format) {
-        "CSV" -> file.writeText(booksToCsv(books), Charsets.UTF_8)
+        "CSV" -> file.writeText(BookSerializer.booksToCsv(books), Charsets.UTF_8)
         "ZIP" -> file.outputStream().use { out ->
             ZipOutputStream(out).use { zip -> writeBooksZipContent(zip, books) }
         }
-        else -> file.writeText(booksToJson(books), Charsets.UTF_8)
+        else -> file.writeText(BookSerializer.booksToJson(books), Charsets.UTF_8)
     }
 
     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)

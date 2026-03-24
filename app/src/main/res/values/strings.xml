@@ -66,4 +66,20 @@
     <string name="export_save">Guardar</string>
     <string name="export_share">Compartir</string>
     <string name="export_completed">Exportación completada</string>
+
+    <!-- Importación -->
+    <string name="menu_import">Importar</string>
+    <string name="import_title">Importar datos</string>
+    <string name="import_close">Cerrar</string>
+    <string name="import_format_section">FORMATO DE ARCHIVO</string>
+    <string name="import_csv_title">CSV (Sin fotos)</string>
+    <string name="import_csv_desc">Texto ligero, desde Excel y hojas de cálculo.</string>
+    <string name="import_json_title">JSON (Con fotos)</string>
+    <string name="import_json_desc">Restauración completa estructurada con imágenes y metadatos.</string>
+    <string name="import_zip_title">ZIP (Autocontenido)</string>
+    <string name="import_zip_desc">Archivo comprimido con books.json y portadas locales.</string>
+    <string name="import_source_section">ORIGEN</string>
+    <string name="import_open">Abrir archivo</string>
+    <string name="import_completed">Importación completada</string>
+    <string name="import_error">Error al leer el archivo</string>
 </resources>

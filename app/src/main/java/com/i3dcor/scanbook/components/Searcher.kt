@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -63,6 +64,7 @@ fun HomeSearchBar(
     onQueryChange: (String) -> Unit,
     onSearch: (String) -> Unit,
     onExportClick: () -> Unit,
+    onImportClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     placeholderText: String? = null,
     onThemeChange: (ThemeOption) -> Unit = {}
@@ -100,6 +102,20 @@ fun HomeSearchBar(
                     offset = DpOffset(0.dp, 10.dp),
                     modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                 ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.menu_import), color = MaterialTheme.colorScheme.onSurface) },
+                        onClick = {
+                            showMenu = false
+                            onImportClick()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Download,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    )
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.menu_export), color = MaterialTheme.colorScheme.onSurface) },
                         onClick = {
@@ -197,7 +213,8 @@ private fun HomeSearchBarPreview() {
             query = query,
             onQueryChange = { query = it },
             onSearch = { },
-            onExportClick = { }
+            onExportClick = { },
+            onImportClick = { }
         )
     }
 }
@@ -211,7 +228,8 @@ private fun HomeSearchBarWithTextPreview() {
             query = query,
             onQueryChange = { query = it },
             onSearch = { },
-            onExportClick = { }
+            onExportClick = { },
+            onImportClick = { }
         )
     }
 }
