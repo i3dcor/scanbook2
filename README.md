@@ -14,6 +14,8 @@ ScanBook permite a los usuarios:
 - 📥 Descargar portadas en background y verlas sin internet (modo avión)
 - 📦 Exportar colección a CSV, JSON o ZIP autocontenido
 - 📤 Compartir la exportación directamente con otras apps
+- 📥 Importar colección desde CSV, JSON o ZIP (restaura portadas incluidas)
+- 🎨 Selector de tema visual (DarkBlue / WarmEarthy)
 
 ## Características Implementadas
 
@@ -50,16 +52,16 @@ ScanBook permite a los usuarios:
 - Visibles sin conexión a internet (modo avión)
 - Re-descarga automática de portadas pendientes al arrancar la app
 
-### ✅ Exportación de colección
-- **CSV**: texto plano, compatible con Excel y hojas de cálculo
-- **JSON**: respaldo estructurado con metadatos completos
-- **ZIP**: archivo autocontenido con `books.json` + portadas descargadas
-- **Destino Guardar**: SAF (Storage Access Framework) para elegir carpeta
-- **Destino Compartir**: share sheet del sistema vía FileProvider
-- Estimación de tamaño antes de exportar
+### ✅ Exportación e importación de colección
+- **Formatos soportados (ambas direcciones):** CSV, JSON, ZIP autocontenido
+- **Exportar → Guardar**: SAF (Storage Access Framework) para elegir carpeta
+- **Exportar → Compartir**: share sheet del sistema vía FileProvider
+- **Importar**: abre cualquier archivo con el selector de sistema; en ZIP restaura también las portadas a `filesDir/covers/`
+- Estimación de tamaño antes de exportar; formato por defecto: ZIP
 
 ### ✅ UI Moderna (Jetpack Compose)
 - Diseño minimalista con tema oscuro
+- **Dos temas visuales**: DarkBlue (por defecto) y WarmEarthy — selector en menú hamburguesa
 - Estados visuales claros (Loading, Success, Error, Empty)
 - Navegación fluida entre pantallas
 - Componentes reutilizables
@@ -110,6 +112,8 @@ app/src/main/java/com/i3dcor/scanbook/
 │   │   ├── dao/
 │   │   ├── entity/
 │   │   └── mapper/
+│   ├── export/             # Serialización/deserialización pura (testeable JVM)
+│   │   └── BookSerializer.kt
 │   ├── scheduler/          # WorkManager schedulers
 │   │   └── WorkManagerCoverScheduler.kt
 │   ├── worker/             # CoroutineWorkers
@@ -137,6 +141,7 @@ app/src/main/java/com/i3dcor/scanbook/
    - Botón "Add Photo": abre cámara como overlay para capturar portada propia
 5. **Guardar**: Persiste en Room, encola descarga de portada en background y vuelve a Home
 6. **Exportar**: Desde Home → menú → Exportar → elige formato (CSV / JSON / ZIP) y destino (Guardar o Compartir)
+7. **Importar**: Desde Home → menú → Importar → elige formato → abre el archivo con el selector del sistema
 
 ## Screenshots
 
@@ -243,7 +248,7 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 - [x] Textos UI en strings.xml — base para i18n (añadir idioma: crear `res/values-{locale}/strings.xml`)
 - [x] Unificación de estilo de botones (`ActionButton` reutilizable)
 - [x] Eliminar portada del libro con confirmación
-- [x] Tests unitarios — 92 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker)
+- [x] Tests unitarios — 117 tests, 0 failures (ViewModels ×3 + DownloadCoverWorker + BookSerializer)
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-09: minificación y shrink resources activados en release build
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-10: backup_rules.xml y data_extraction_rules.xml excluyen BD y portadas de backups ADB/nube
 - [x] Auditoría de seguridad OWASP Mobile Top 10 — HAL-07: logs sensibles protegidos con BuildConfig.DEBUG en MainActivity, CameraScreen y PhotoCaptureScreen
@@ -267,10 +272,9 @@ Ver [CONTRIBUTING.md](CONTRIBUTING.md) para:
 
 ### 🚧 Backlog (media prioridad)
 - [ ] Comprobar ISBN al editar libro manualmente
-- [ ] Importar colección (CSV, JSON, ZIP autocontenido)
 
 ### 🔮 Futuro (nice to have)
-- [ ] Opción de menú oscuro/claro/según sistema
+- [ ] Tema según preferencia del sistema (`isSystemInDarkTheme()`)
 - [ ] Añadir idioma inglés (`res/values-en/strings.xml`) — base ya lista
 - [ ] Speech-to-Text para entrada manual (icono de micrófono en el campo de texto)
 - [ ] Escanear ISBN con OCR si no es legible el código de barras
@@ -306,5 +310,5 @@ Suso Cerqueiro - Modern Android Development Expert
 
 ---
 
-**Status**: Fase 1 - MVP Completado ✅ (29 features, 92 tests) | Fase 2 - Seguridad OWASP 🔒 Sprints 1-3 completos (10/12 hallazgos corregidos, HAL-11 SQLCipher en evaluación) | KDoc 📝 5 archivos críticos documentados
-**Última actualización:** Febrero 2026
+**Status**: Fase 1 - MVP Completado ✅ (36 features, 117 tests) | Fase 2 - Seguridad OWASP 🔒 Sprints 1-3 completos (10/12 hallazgos corregidos, HAL-11 SQLCipher en evaluación) | KDoc 📝 5 archivos críticos documentados
+**Última actualización:** Marzo 2026

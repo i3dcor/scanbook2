@@ -11,11 +11,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Métrica | Valor |
 |---------|-------|
-| **Total features implementadas** | 31 |
-| **Tiempo total estimado** | ~99-113 horas |
-| **Promedio por feature** | ~2.6-3 horas |
+| **Total features implementadas** | 36 |
+| **Tiempo total estimado** | ~107-125 horas |
+| **Promedio por feature** | ~2.7-3.2 horas |
 | **Tasa de retrabajo** | Baja (3.7% - 1 bugfix en 27 tareas) |
-| **Líneas de código aproximadas** | ~4,400-5,000 |
+| **Líneas de código aproximadas** | ~5,500-6,200 |
 
 **Velocidad observada:** Excelente. El proyecto muestra iteraciones rápidas con commits atómicos y PRs bien definidos. Promedio de 2.6-3 horas por feature indica muy buena productividad.
 
@@ -369,8 +369,8 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 ### 2.14 Tests unitarios (ViewModels + DownloadCoverWorker)
 
-#### Tests — 92 tests, 0 failures
-- **Descripción:** Cobertura unitaria completa de los 3 ViewModels y el Worker de descarga de portadas. Incluye refactoring de testabilidad: inyección de `ioDispatcher` en ViewModels y extracción de `DownloadCoverService`/`CoverImageProcessor` del Worker.
+#### Tests — 117 tests, 0 failures
+- **Descripción:** Cobertura unitaria completa de los 3 ViewModels, el Worker de descarga de portadas y la capa de serialización (ver §2.20 Feature 36). Incluye refactoring de testabilidad: inyección de `ioDispatcher` en ViewModels y extracción de `DownloadCoverService`/`CoverImageProcessor` del Worker.
 - **Tiempo estimado:** 4-6 horas
 - **Complejidad:** Media
 - **Archivos afectados:**
@@ -431,31 +431,104 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 ---
 
+### 2.18 Release APK — diagnóstico y estabilidad ProGuard/R8
+
+#### Feature 32: Corrección de crashes en release APK (R8 full mode)
+- **Descripción:** La release APK crasheaba en arranque, al abrir cámara y al buscar ISBN online; el debug APK funcionaba correctamente. Diagnóstico iterativo via `adb logcat` + ficheros de mapping R8 (`seeds.txt`, `usage.txt`, `mapping.txt`). Cuatro causas raíz identificadas y corregidas en `proguard-rules.pro`.
+- **Tiempo estimado:** 3-4 horas
+- **Complejidad:** Media-Alta
+- **Archivos afectados:** `proguard-rules.pro`
+- **Notas:**
+  - **Crash 1** — `NoSuchMethodException: <init> []` en arranque: `androidx.startup.InitializationProvider` y `RoomDatabase$Builder` instancian clases por reflexión; R8 eliminó sus constructores sin arg. Fix: keeps para `androidx.startup.Initializer` y `RoomDatabase`
+  - **Crash 2** — `NullPointerException` al abrir cámara: ML Kit `ComponentDiscovery` no podía instanciar `CommonComponentRegistrar`, `BarcodeRegistrar` ni `VisionCommonRegistrar`. Fix: keeps explícitos con `{ <init>(); }` para los tres
+  - **Crash 3** — Búsqueda de ISBN silenciosa: R8 full mode eliminaba la firma genérica `Continuation<T>` en las funciones `suspend` de Retrofit, causando `ClassCastException`. Fix: `-keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation`
+  - Verificación de firma con `apksigner verify` (keytool solo detecta v1/JAR signing, no v2)
+
+---
+
+### 2.19 Icono adaptativo de la aplicación
+
+#### Feature 33: Icono de launcher con formato adaptativo (Android 8+)
+- **Descripción:** Integración del icono de la app (`docs/scanbook-icon.png`, 2048×2062 RGBA) como icono adaptativo. Generación de mipmaps PNG para todas las densidades (mdpi→xxxhdpi) en tres variantes: launcher normal, round y foreground (safe zone 75%). Fondo blanco sólido definido en `colors.xml`. Eliminados los drawable vectoriales previos.
+- **Tiempo estimado:** 1-1.5 horas
+- **Complejidad:** Baja
+- **Archivos afectados:**
+  - `mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/ic_launcher.png` y `ic_launcher_round.png`
+  - `mipmap-{mdpi,hdpi,xhdpi,xxhdpi,xxxhdpi}/ic_launcher_foreground.png`
+  - `mipmap-anydpi/ic_launcher.xml` y `ic_launcher_round.xml`
+  - `res/values/colors.xml` (añade `ic_launcher_background`)
+  - Eliminados: `drawable/ic_launcher_background.xml`, `drawable/ic_launcher_foreground.xml`
+- **Notas:**
+  - El icono original ya es circular → `ic_launcher_round` reutiliza los mismos PNGs
+  - Safe zone al 75% garantiza que el icono no se recorte en launchers con máscaras circulares/cuadradas
+
+---
+
+### 2.20 Importación de datos (CSV / JSON / ZIP)
+
+#### Feature 34: Conectar ImportDataScreen a la navegación
+- **Descripción:** El botón "Importar" del menú hamburguesa (reordenado sobre "Exportar") navega a `ImportDataScreen`. Añadidos `AppScreen.Import`, handler en `when(currentScreen)` en `MainActivity` y callbacks propagados por `HomeScreen` → `HomeSearchBar`.
+- **Tiempo estimado:** 0.5 horas
+- **Complejidad:** Baja
+- **Archivos afectados:** `MainActivity.kt`, `Searcher.kt`
+
+#### Feature 35: Implementar importación de libros desde CSV, JSON y ZIP
+- **Descripción:** SAF file picker (`ActivityResultContracts.OpenDocument`) en `ImportDataScreen`, recreado con `key(selectedFormat)` al cambiar de formato (simétrico con exportación). Parseo de los tres formatos: CSV con cabecera y escape RFC 4180, JSON con `org.json`, ZIP con extracción de `books.json` + portadas `covers/{isbn}.jpg` a `filesDir/covers/` (asigna `coverLocalPath`, evita re-descarga). Toast de éxito/error. Formato por defecto cambiado a ZIP en ambas pantallas.
+- **Tiempo estimado:** 2-3 horas
+- **Complejidad:** Media
+- **Archivos afectados:**
+  - `ImportDataScreen.kt` (SAF launcher, lectura de URI, delegación a BookSerializer)
+  - `MainActivity.kt` (`onBooksImported = { books -> books.forEach { homeViewModel.addBook(it) } }`)
+  - `res/values/strings.xml` (`import_completed`, `import_error`)
+  - `ExportDataScreen.kt`, `ImportDataScreen.kt` (formato por defecto → ZIP)
+- **Notas:**
+  - Libros importados con ISBN vacío se descartan silenciosamente
+  - Portadas ZIP restauradas no generan trabajo en WorkManager al volver a Home
+
+#### Feature 36: BookSerializer — lógica pura + 25 tests de serialización
+- **Descripción:** Extracción de toda la lógica de serialización/deserialización a `data/export/BookSerializer.kt` (Kotlin puro, sin dependencias Android, testeable en JVM). Los composables `ExportDataScreen` e `ImportDataScreen` delegan en él eliminando ~200 líneas de código duplicado. 25 tests cubren los cuatro métodos públicos + roundtrips + estimación de tamaño.
+- **Tiempo estimado:** 1.5-2 horas
+- **Complejidad:** Media
+- **Archivos afectados:**
+  - `data/export/BookSerializer.kt` (nuevo — `booksToJson`, `booksToCsv`, `parseJsonBooks`, `parseCsvBooks`, `parseCsvLine`, `estimateExportSize`)
+  - `data/export/BookSerializerTest.kt` (nuevo — 25 tests, 0 failures)
+  - `ExportDataScreen.kt`, `ImportDataScreen.kt` (sustituyen funciones privadas por `BookSerializer.*`)
+  - `build.gradle.kts` (`testImplementation("org.json:json:20231013")`)
+- **Notas:**
+  - Tests JVM puros: no requieren emulador ni Robolectric
+  - `org.json:json` standalone es exactamente la misma API que Android bundla en runtime
+  - **Total tests del proyecto: 117** (92 anteriores + 25 nuevos BookSerializerTest)
+
+---
+
 ## 3. Resumen por Categorías
 
 ### 3.1 Distribución de esfuerzo
 
 | Categoría | Horas | % del total |
 |-----------|-------|-------------|
-| **Infraestructura/Arquitectura** | 7-9h | ~11% |
-| **Capa de Datos** | 8-10h | ~13% |
-| **Pantallas principales (UI)** | 15-18h | ~24% |
-| **Gestión y funcionalidades** | 6-9h | ~11% |
-| **Mejoras UI/Polish** | 9-11h | ~15% |
+| **Infraestructura/Arquitectura** | 7-9h | ~9% |
+| **Capa de Datos** | 8-10h | ~11% |
+| **Pantallas principales (UI)** | 15-18h | ~20% |
+| **Gestión y funcionalidades** | 6-9h | ~9% |
+| **Mejoras UI/Polish** | 10-12.5h | ~14% |
 | **Background/WorkManager** | 4-6h | ~7% |
-| **Exportación avanzada** | 5-7h | ~8% |
-| **Captura de portada (CameraX)** | 4-5.5h | ~7% |
-| **Bugfixes/Refinamiento** | 2-3h | ~4% |
-| **TOTAL** | **~65-75h** | **100%** |
+| **Exportación e importación** | 9-14h | ~13% |
+| **Captura de portada (CameraX)** | 4-5.5h | ~6% |
+| **Release APK / ProGuard** | 3-4h | ~4% |
+| **Tests unitarios** | 6-8h | ~8% |
+| **Bugfixes/Refinamiento** | 2-3h | ~3% |
+| **Auditoría/Seguridad** | 3-4h | ~4% |
+| **TOTAL** | **~77-103h** | **100%** |
 
 ### 3.2 Análisis de complejidad
 
 | Complejidad | Cantidad | Tiempo promedio |
 |-------------|----------|----------------|
 | Muy baja | 1 | 0.5h |
-| Baja | 14 | 1-2h |
-| Media | 10 | 3-4h |
-| Media-Alta | 3 | 4-6h |
+| Baja | 16 | 1-2h |
+| Media | 13 | 2-4h |
+| Media-Alta | 4 | 4-6h |
 | Alta | 1 | 4-5h |
 
 **Observaciones:**
@@ -521,7 +594,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Tarea | Estimación | Prioridad | Notas |
 |-------|------------|-----------|-------|
-| **Tests unitarios (cobertura >80%)** | 12-16h | Alta | ViewModels, Repositories, Mappers |
+| **Tests unitarios (cobertura >80%)** | 8-12h | Alta | 117 tests (ViewModels ✅, Worker ✅, BookSerializer ✅); pendiente RoomIsbnRepository y tests UI Compose |
 | **Tests de UI (Compose)** | 8-10h | Media-Alta | Flujos principales con Compose Testing |
 | **CI/CD completo** | 6-8h | Media | GitHub Actions: test, lint, build, deploy |
 | ~~**Documentación API (KDoc)**~~ | ~~3-4h~~ | ~~Baja~~ | **COMPLETADO** — KDoc en 5 archivos críticos (`DefaultCoverImageProcessor`, `DownloadCoverService`, `EditBookUiState`, `EditBookViewModel`, `PhotoCaptureScreen`) |
@@ -572,7 +645,7 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 
 | Factor | Impacto | Mitigación |
 |--------|---------|------------|
-| **Cobertura de tests baja** | Medio | ViewModels + DownloadCoverWorker ya cubiertos (92 tests); pendiente UI y repositorios Room |
+| **Cobertura de tests parcial** | Medio | 117 tests (ViewModels + Worker + BookSerializer); pendiente tests UI Compose y RoomIsbnRepository |
 | **Sin design system formal** | Medio | Documentar componentes existentes |
 | **Dependencia de APIs externas** | Bajo | Portadas descargadas localmente (feature 22); ya no se depende de internet para mostrar imágenes |
 | **Sin CI/CD** | Medio | Setup GitHub Actions (6-8h) |
@@ -648,9 +721,11 @@ Documento de estimación de tiempo para desarrollador senior con experiencia en 
 ### 6.4 Roadmap visual
 
 ```
-Hecho:        ✓Búsqueda/Filtros  ✓Export CSV/JSON/ZIP  ✓Compartir  ✓Portadas  ✓Foto cámara  ✓i18n base
-Mes 1:        [Tests + CI/CD] [Galería/crop portada]
-Mes 2:        [Idioma EN]
+Hecho:        ✓Búsqueda/Filtros  ✓Export CSV/JSON/ZIP  ✓Import CSV/JSON/ZIP
+              ✓Compartir  ✓Portadas  ✓Foto cámara  ✓i18n base  ✓Icono
+              ✓Release APK firmada  ✓117 tests unitarios
+Mes 1:        [CI/CD] [Galería/crop portada]
+Mes 2:        [Idioma EN] [Auth básica]
 Mes 3:        [Estadísticas] [Wishlist]
 Futuro:       [Prestamos] [OCR] [Recomendaciones]
 ```
@@ -680,7 +755,7 @@ Futuro:       [Prestamos] [OCR] [Recomendaciones]
 
 ### 7.3 Áreas de mejora
 
-1. **Tests parciales:** ViewModels y Worker cubiertos (92 tests); pendiente tests de UI (Compose) y RoomIsbnRepository
+1. **Tests parciales:** ViewModels, Worker y BookSerializer cubiertos (117 tests); pendiente tests de UI (Compose) y RoomIsbnRepository
 2. **Sin instrumentación:** No hay analytics, crash reporting configurado
 3. **Documentación inline:** KDoc añadido en 5 archivos críticos; cobertura ~78% del codebase
 4. **Sin feature flags:** Cualquier cambio requiere nuevo release
@@ -793,6 +868,7 @@ El proyecto demuestra:
 | 2.9 | 2026-03-06 | Cerqueiro | Sección 2.16: tarea de Presentación TFM añadida (20h, 7 subtareas). Corrección: tests unitarios actualizados de 54 a 92 en §2.14 y README. Total: 30 features, ~97-111h. |
 | 3.0 | 2026-03-18 | Cerqueiro | Feature 31: selector de tema en menú hamburguesa (DarkBlue / WarmEarthy). `ThemeOption` + `WarmEarthyColorScheme` en `Theme.kt`; estado elevado en `MainActivity`; `onThemeChange` propagado hasta `HomeSearchBar`. "Tema claro/oscuro dinámico" marcado como completado en §4.2. Baja 14→15; total: 31 features, ~99-113h. |
 | 3.1 | 2026-03-18 | Cerqueiro | Chore: configuración de release firmada. Keystore `scanbook.jks` generado (RSA 2048, 10 000 días). `signingConfigs` en `build.gradle.kts` lee credenciales desde `local.properties` (excluido de VCS). `archivesName="scanbook"` → APK de salida `scanbook-release.apk`. `app/scanbook.jks` añadido a `.gitignore`. |
+| 3.2 | 2026-03-24 | Cerqueiro | Secciones 2.18-2.20: Feature 32 (ProGuard/R8 — 4 crashes en release APK corregidos: Room, WorkManager/startup, ML Kit ComponentRegistrar, Retrofit+Kotlin Continuation); Feature 33 (icono adaptativo PNG en 5 densidades, safe zone 75%); Feature 34 (ImportDataScreen → navegación); Feature 35 (importación CSV/JSON/ZIP con SAF, portadas restauradas a filesDir); Feature 36 (BookSerializer Kotlin puro + 25 tests, total 117). Distribución de esfuerzo y tabla de complejidad actualizadas. Total: 36 features, ~107-125h. |
 
 ---
 
