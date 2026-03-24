@@ -45,6 +45,7 @@ import com.i3dcor.scanbook.components.BookListItem
 import com.i3dcor.scanbook.components.CameraScreen
 import com.i3dcor.scanbook.components.EditBookScreen
 import com.i3dcor.scanbook.components.ExportDataScreen
+import com.i3dcor.scanbook.components.ImportDataScreen
 import com.i3dcor.scanbook.components.HomeSearchBar
 import com.i3dcor.scanbook.components.ScanResultScreen
 import com.i3dcor.scanbook.data.local.ScanBookDatabase
@@ -80,6 +81,7 @@ private sealed class AppScreen {
     data object Home : AppScreen()
     data object Camera : AppScreen()
     data class Export(val books: List<ScannedIsbn>) : AppScreen()
+    data object Import : AppScreen()
     data class ScanResult(val isbn: String) : AppScreen()
     data class EditBook(val book: ScannedIsbn?, val from: AppScreen) : AppScreen()
 }
@@ -118,6 +120,7 @@ fun ScanBookApp(modifier: Modifier = Modifier, onThemeChange: (ThemeOption) -> U
                 searchQuery = searchQuery,
                 onSearchQueryChange = homeViewModel::onSearchQueryChange,
                 onExportClick = { currentScreen = AppScreen.Export(books) },
+                onImportClick = { currentScreen = AppScreen.Import },
                 modifier = modifier,
                 onBookClick = { book -> currentScreen = AppScreen.EditBook(book = book, from = AppScreen.Home) },
                 onDeleteBook = { isbn -> homeViewModel.deleteBook(isbn) },
@@ -130,6 +133,13 @@ fun ScanBookApp(modifier: Modifier = Modifier, onThemeChange: (ThemeOption) -> U
                 books = screen.books,
                 onCloseClick = { currentScreen = AppScreen.Home },
                 onExportClick = { currentScreen = AppScreen.Home },
+                modifier = modifier
+            )
+        }
+        is AppScreen.Import -> {
+            ImportDataScreen(
+                onCloseClick = { currentScreen = AppScreen.Home },
+                onImportClick = { currentScreen = AppScreen.Home },
                 modifier = modifier
             )
         }
@@ -194,6 +204,7 @@ fun HomeScreen(
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
     onExportClick: () -> Unit,
+    onImportClick: () -> Unit = {},
     modifier: Modifier = Modifier,
     onBookClick: (ScannedIsbn) -> Unit,
     onDeleteBook: (String) -> Unit,
@@ -215,6 +226,7 @@ fun HomeScreen(
                 onQueryChange = onSearchQueryChange,
                 onSearch = { /* Búsqueda en tiempo real, no requiere acción extra */ },
                 onExportClick = onExportClick,
+                onImportClick = onImportClick,
                 onThemeChange = onThemeChange,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
