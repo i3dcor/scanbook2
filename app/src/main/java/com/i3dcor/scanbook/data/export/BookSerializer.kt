@@ -66,12 +66,12 @@ internal object BookSerializer {
                 if (isbn.isBlank()) return@mapNotNull null
                 ScannedIsbn(
                     isbn = isbn,
-                    title = obj.optString("title").takeIf { it.isNotBlank() },
-                    author = obj.optString("author").takeIf { it.isNotBlank() },
-                    genre = obj.optString("genre").takeIf { it.isNotBlank() },
+                    title = obj.optJsonString("title"),
+                    author = obj.optJsonString("author"),
+                    genre = obj.optJsonString("genre"),
                     price = if (obj.isNull("price")) null else obj.optDouble("price").takeIf { !it.isNaN() },
-                    condition = obj.optString("condition").takeIf { it.isNotBlank() },
-                    coverUrl = obj.optString("coverUrl").takeIf { it.isNotBlank() }
+                    condition = obj.optJsonString("condition"),
+                    coverUrl = obj.optJsonString("coverUrl")
                 )
             }
         } catch (e: Exception) {
@@ -162,6 +162,10 @@ internal object BookSerializer {
     }
 
     // ── Helpers privados ──────────────────────────────────────────────────
+
+    /** Devuelve null si el campo es JSON null o string vacío/en blanco; evita devolver la cadena "null". */
+    private fun JSONObject.optJsonString(key: String): String? =
+        if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() }
 
     private fun escapeCsvField(field: String): String {
         return if (field.contains(",") || field.contains("\"") || field.contains("\n")) {
