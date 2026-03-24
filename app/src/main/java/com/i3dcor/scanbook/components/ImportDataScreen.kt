@@ -47,9 +47,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.i3dcor.scanbook.R
+import com.i3dcor.scanbook.data.export.BookSerializer
 import com.i3dcor.scanbook.domain.model.ScannedIsbn
 import com.i3dcor.scanbook.ui.theme.ScanBookTheme
-import org.json.JSONArray
 import java.io.File
 import java.util.zip.ZipInputStream
 
@@ -286,107 +286,28 @@ private fun SourceOption(
 // ── Lectura y parseo de archivos ─────────────────────────────────────────────
 
 /**
- * Lee y parsea un CSV desde el Uri dado.
- * Formato esperado: isbn,title,author,genre,price,condition (con cabecera).
+ * Lee un CSV desde el Uri dado y delega el parseo a BookSerializer.
  */
 private fun readCsvFromUri(context: Context, uri: Uri): List<ScannedIsbn>? {
     return try {
-        context.contentResolver.openInputStream(uri)?.use { stream ->
-            val lines = stream.bufferedReader(Charsets.UTF_8).readLines()
-            if (lines.size < 2) return@use emptyList()
-            lines.drop(1) // saltar cabecera
-                .filter { it.isNotBlank() }
-                .mapNotNull { line ->
-                    val fields = parseCsvLine(line)
-                    val isbn = fields.getOrNull(0).orEmpty().trim()
-                    if (isbn.isBlank()) return@mapNotNull null
-                    ScannedIsbn(
-                        isbn = isbn,
-                        title = fields.getOrNull(1)?.takeIf { it.isNotBlank() },
-                        author = fields.getOrNull(2)?.takeIf { it.isNotBlank() },
-                        genre = fields.getOrNull(3)?.takeIf { it.isNotBlank() },
-                        price = fields.getOrNull(4)?.toDoubleOrNull(),
-                        condition = fields.getOrNull(5)?.takeIf { it.isNotBlank() }
-                    )
-                }
-        }
+        val content = context.contentResolver.openInputStream(uri)?.use {
+            it.bufferedReader(Charsets.UTF_8).readText()
+        } ?: return null
+        BookSerializer.parseCsvBooks(content)
     } catch (e: Exception) {
         null
     }
 }
 
 /**
- * Parsea una línea CSV respetando campos entrecomillados y comillas escapadas.
- */
-private fun parseCsvLine(line: String): List<String> {
-    val fields = mutableListOf<String>()
-    var i = 0
-    while (i <= line.length) {
-        if (i == line.length) {
-            // Línea termina en coma: campo vacío final
-            if (fields.isNotEmpty()) fields.add("")
-            break
-        }
-        if (line[i] == '"') {
-            val sb = StringBuilder()
-            i++ // saltar comilla inicial
-            while (i < line.length) {
-                if (line[i] == '"') {
-                    if (i + 1 < line.length && line[i + 1] == '"') {
-                        sb.append('"'); i += 2
-                    } else {
-                        i++; break // comilla de cierre
-                    }
-                } else {
-                    sb.append(line[i]); i++
-                }
-            }
-            fields.add(sb.toString())
-            if (i < line.length && line[i] == ',') i++
-        } else {
-            val end = line.indexOf(',', i)
-            if (end == -1) {
-                fields.add(line.substring(i)); break
-            } else {
-                fields.add(line.substring(i, end)); i = end + 1
-            }
-        }
-    }
-    return fields
-}
-
-/**
- * Lee y parsea un JSON desde el Uri dado.
- * Formato esperado: array de objetos con campos isbn, title, author, genre, price, condition, coverUrl.
+ * Lee un JSON desde el Uri dado y delega el parseo a BookSerializer.
  */
 private fun readJsonFromUri(context: Context, uri: Uri): List<ScannedIsbn>? {
     return try {
         val content = context.contentResolver.openInputStream(uri)?.use {
             it.bufferedReader(Charsets.UTF_8).readText()
         } ?: return null
-        parseJsonBooks(content)
-    } catch (e: Exception) {
-        null
-    }
-}
-
-private fun parseJsonBooks(content: String): List<ScannedIsbn>? {
-    return try {
-        val array = JSONArray(content)
-        (0 until array.length()).mapNotNull { i ->
-            val obj = array.getJSONObject(i)
-            val isbn = obj.optString("isbn").trim()
-            if (isbn.isBlank()) return@mapNotNull null
-            ScannedIsbn(
-                isbn = isbn,
-                title = obj.optString("title").takeIf { it.isNotBlank() },
-                author = obj.optString("author").takeIf { it.isNotBlank() },
-                genre = obj.optString("genre").takeIf { it.isNotBlank() },
-                price = if (obj.isNull("price")) null else obj.optDouble("price").takeIf { !it.isNaN() },
-                condition = obj.optString("condition").takeIf { it.isNotBlank() },
-                coverUrl = obj.optString("coverUrl").takeIf { it.isNotBlank() }
-            )
-        }
+        BookSerializer.parseJsonBooks(content)
     } catch (e: Exception) {
         null
     }
@@ -419,7 +340,8 @@ private fun readZipFromUri(context: Context, uri: Uri): List<ScannedIsbn>? {
                     entry = zip.nextEntry
                 }
 
-                val books = parseJsonBooks(jsonContent ?: return@use null) ?: return@use null
+                val books = BookSerializer.parseJsonBooks(jsonContent ?: return@use null)
+                    ?: return@use null
 
                 val coversDir = File(context.filesDir, "covers").apply { mkdirs() }
                 books.map { book ->
