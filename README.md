@@ -196,17 +196,62 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 
 ### Release
 
-```bash
-# Generar APK de release (requiere keystore configurado)
-./gradlew assembleRelease
+El APK de release está minificado (R8), con recursos reducidos y firmado digitalmente. Sigue estos pasos:
 
-# APK generado en:
-# app/build/outputs/apk/release/app-release.apk
-#
-# NOTA: Para distribuir, firma el APK con tu keystore:
-# keytool -genkey -v -keystore scanbook.keystore -alias scanbook -keyalg RSA -keysize 2048 -validity 10000
-# Configura signing en build.gradle.kts o usa Android Studio > Build > Generate Signed Bundle/APK
+#### Paso 1 — Generar el keystore (solo la primera vez)
+
+```bash
+keytool -genkey -v \
+  -keystore app/scanbook.jks \
+  -alias scanbook \
+  -keyalg RSA -keysize 2048 \
+  -validity 10000
 ```
+
+Guarda el fichero `app/scanbook.jks` en un lugar seguro. **No lo subas al repositorio** (ya está en `.gitignore`).
+
+#### Paso 2 — Configurar credenciales en `local.properties`
+
+Añade las siguientes líneas al fichero `local.properties` de la raíz del proyecto (no se sube al repositorio):
+
+```properties
+RELEASE_STORE_FILE=scanbook.jks
+RELEASE_STORE_PASSWORD=tu_contraseña_del_keystore
+RELEASE_KEY_ALIAS=scanbook
+RELEASE_KEY_PASSWORD=tu_contraseña_de_la_clave
+```
+
+#### Paso 3 — Compilar el APK de release
+
+```bash
+./gradlew assembleRelease
+```
+
+El APK firmado se genera en:
+
+```
+app/build/outputs/apk/release/scanbook-release.apk
+```
+
+#### Paso 4 — Instalar en dispositivo
+
+```bash
+# Desinstalar versión debug previa si existe (firmas distintas)
+adb uninstall com.i3dcor.scanbook
+
+# Instalar el APK de release
+adb install app/build/outputs/apk/release/scanbook-release.apk
+```
+
+#### Verificar que el APK está firmado correctamente
+
+```bash
+# Requiere build-tools instaladas (ajusta la versión según la tuya)
+~/Android/Sdk/build-tools/36.1.0/apksigner verify --verbose \
+  app/build/outputs/apk/release/scanbook-release.apk
+```
+
+> **Nota:** No uses `keytool -jarfile` para verificar — solo detecta firma v1/JAR. La release usa firma v2 (APK Signature Scheme v2), que solo reconoce `apksigner`.
 
 ### Tests
 
