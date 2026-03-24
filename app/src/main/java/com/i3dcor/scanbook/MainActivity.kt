@@ -6,10 +6,19 @@ import androidx.activity.ComponentActivity
 import com.i3dcor.scanbook.BuildConfig
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material3.Icon
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +41,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -239,15 +250,62 @@ fun HomeScreen(
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = if (searchQuery.isNotBlank()) {
-                            stringResource(R.string.search_no_results, searchQuery)
-                        } else {
-                            stringResource(R.string.empty_library)
-                        },
-                        color = Color.Gray,
-                        textAlign = TextAlign.Center
-                    )
+                    if (searchQuery.isNotBlank()) {
+                        Text(
+                            text = stringResource(R.string.search_no_results, searchQuery),
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_scanbook_empty),
+                                contentDescription = "Icono de la app",
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .alpha(0.8f)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Scanbook",
+                                style = MaterialTheme.typography.headlineMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = stringResource(R.string.empty_library),
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 18.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Pulsa el botón de abajo para empezar a escanear",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(32.dp))
+                            Icon(
+                                imageVector = Icons.Default.ArrowDownward,
+                                contentDescription = "Apuntando al botón de escanear",
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                modifier = Modifier
+                                    .padding(start = 120.dp)
+                                    .size(48.dp)
+                                    .rotate(-45f)
+                            )
+                        }
+                    }
                 }
             } else {
                 LazyColumn(
